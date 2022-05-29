@@ -169,13 +169,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  cw_monero:
-    dependency: "direct main"
-    description:
-      path: "../cw_monero"
-      relative: true
-    source: path
-    version: "0.0.1"
   dart_style:
     dependency: transitive
     description:

@@ -1,0 +1,36 @@
+[package]
+name = "ldk_lib"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lightning = { version = "0.0.106", features = ["max_level_trace"] }
+lightning-block-sync = { version = "0.0.106", features = [ "rpc-client" ] }
+lightning-invoice = { version = "0.14" }
+lightning-net-tokio = { version = "0.0.106" }
+lightning-persister = { version = "0.0.106" }
+lightning-background-processor = { version = "0.0.106" }
+
+base64 = "0.13.0"
+bitcoin = "0.27"
+bitcoin-bech32 = "0.12"
+bech32 = "0.8"
+hex = "0.3"
+
+futures = "0.3"
+chrono = "0.4"
+rand = "0.4"
+serde_json = { version = "1.0" }
+tokio = { version = "1", features = [ "io-util", "macros", "rt", "rt-multi-thread", "sync", "net", "time" ] }
+
+# [profile.release]
+# panic = "abort"
+
+# [profile.dev]
+# panic = "abort"
+
+[lib]
+doctest = false
+name = "ldk_lib"

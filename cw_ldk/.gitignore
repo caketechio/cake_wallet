@@ -1,0 +1,16 @@
+.DS_Store
+.dart_tool/
+
+.packages
+.pub/
+
+build/
+target/
+*.lock
+*.old
+
+android/src/main/jniLibs/arm64-v8a/libldk_ffi.so
+android/src/main/jniLibs/armeabi-v7a/libldk_ffi.so
+ios/libldk_ffi.a
+
+native/ldk-lib/.ldk

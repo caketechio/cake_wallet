@@ -1,0 +1,21 @@
+[package]
+name = "ldk_ffi"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+doctest = false
+name = "ldk_ffi"
+crate-type = ["lib", "cdylib", "staticlib"] # c dyamic libary and a static libary
+
+[dependencies]
+ldk_lib = { path = "../ldk-lib" }
+tokio = { version = "1", features = [ "io-util", "macros", "rt", "rt-multi-thread", "sync", "net", "time" ] }
+lazy_static = "1.4"
+ffi_helpers = "0.2"
+allo-isolate = "0.1"
+
+[build-dependencies]
+cbindgen = "0.20.0"
+dart-bindgen = "0.1"

@@ -1,0 +1,17 @@
+[workspace]
+# setup members of your worksapce
+members = ["./native/*"]
+
+# set release profile for all your memebers
+[profile.release]
+lto = true  # link time optimization
+codegen-units = 1 # build one member at a time
+debug = true # put debug information in our release, can take out latter 
+
+# [target.aarch64-linux-android]
+# ar = ".ndk/arm64/bin/aarch64-linux-android-ar"
+# linker = ".ndk/arm64/bin/aarch64-linux-android-clang"
+
+# [target.armv7-linux-androideabi]
+# ar = ".ndk/arm/bin/arm-linux-androideabi-ar"
+# linker = ".ndk/arm/bin/arm-linux-androideabi-clang"
