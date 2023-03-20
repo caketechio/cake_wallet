@@ -128,6 +128,10 @@ final trustedDaemonNative = moneroApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
 
+final estimateTransactionFeeNative = moneroApi
+    .lookup<NativeFunction<estimate_transaction_fee>>('estimate_transaction_fee')
+    .asFunction<EstimateTransactionFee>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -245,11 +249,11 @@ String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
-  SyncListener(this.onNewBlock, this.onNewTransaction) 
+  SyncListener(this.onNewBlock, this.onNewTransaction)
     : _cachedBlockchainHeight = 0,
     _lastKnownBlockHeight = 0,
     _initialSyncHeight = 0;
-  
+
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -372,3 +376,18 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
 Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
 
 Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+
+int estimateTransactionFeeSync(int outputs, int priorityRaw) {
+  return estimateTransactionFeeNative(outputs, priorityRaw);
+}
+
+int _estimateTransactionFee(Map args) {
+  final priorityRaw = args['priorityRaw'] as int;
+  final outputsCount = args['outputsCount'] as int;
+
+  return estimateTransactionFeeSync(outputsCount, priorityRaw);
+}
+
+Future<int> estimateTransactionFee({required int priorityRaw, int? outputsCount}) {
+  return compute(_estimateTransactionFee, {'priorityRaw': priorityRaw, 'outputsCount': outputsCount ?? 1});
+}

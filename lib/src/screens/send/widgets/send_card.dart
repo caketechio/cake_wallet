@@ -295,8 +295,9 @@ class SendCardState extends State<SendCard>
                                                 width: prefixIconWidth,
                                                 height: prefixIconHeight,
                                                 child: InkWell(
-                                                    onTap: () async =>
-                                                        output.setSendAll(),
+                                                    onTap: () {
+                                                      output.setSendAll();
+                                                    },
                                                     child: Container(
                                                       decoration: BoxDecoration(
                                                           color: Theme.of(context)
@@ -453,12 +454,7 @@ class SendCardState extends State<SendCard>
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                              output
-                                                  .estimatedFee
-                                                  .toString() +
-                                                  ' ' +
-                                                  sendViewModel
-                                                      .selectedCryptoCurrency.toString(),
+                                              sendViewModel.estimatedFee.toString() + ' ' + sendViewModel.currency.title,
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight:
@@ -471,7 +467,7 @@ class SendCardState extends State<SendCard>
                                               EdgeInsets.only(top: 5),
                                               child: sendViewModel.isFiatDisabled
                                                   ? const SizedBox(height: 14)
-                                                  : Text(output
+                                                  : Text(sendViewModel
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel
@@ -585,10 +581,16 @@ class SendCardState extends State<SendCard>
       }
     });
 
+    reaction((_) => sendViewModel.estimatedFee, (double estimatedFee) {
+      final firstOutput = sendViewModel.outputs[0];
+      if (firstOutput != null && firstOutput.sendAll) {
+        firstOutput.updateFiatAmount();
+      }
+    });
+
     reaction((_) => output.sendAll, (bool all) {
       if (all) {
         cryptoAmountController.text = S.current.all;
-        fiatAmountController.text = '';
       }
     });
 

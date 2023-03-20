@@ -541,7 +541,7 @@ abstract class ExchangeViewModelBase with Store {
     if (wallet.type == WalletType.bitcoin) {
       final availableBalance = wallet.balance[wallet.currency]!.available;
       final priority = _settingsStore.priority[wallet.type]!;
-      final fee = wallet.calculateEstimatedFee(priority, null);
+      final fee = wallet.feeEstimate.get(priority: priority, amount: availableBalance);
 
       if (availableBalance < fee || availableBalance == 0) {
         return;

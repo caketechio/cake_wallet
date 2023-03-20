@@ -312,10 +312,10 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                 '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
             fee: S.of(context).send_fee,
             feeValue:
-            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFee} '
+            '${ioniaPurchaseViewModel.sendViewModel.estimatedFee} '
                 '${ioniaPurchaseViewModel.invoice!.chain}',
             feeFiatAmount:
-            '${ioniaPurchaseViewModel.sendViewModel.outputs.first.estimatedFeeFiatAmount} '
+            '${ioniaPurchaseViewModel.sendViewModel.estimatedFeeFiatAmount} '
                 '${ioniaPurchaseViewModel.sendViewModel.fiat.title}',
             outputs: ioniaPurchaseViewModel.sendViewModel.outputs,
             rightButtonText: S.of(context).ok,

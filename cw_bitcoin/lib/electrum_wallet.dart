@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:cw_core/fee_estimate.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -34,6 +35,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:hex/hex.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_bitcoin/electrum_fee_estimate.dart';
 import 'package:collection/collection.dart';
 
 part 'electrum_wallet.g.dart';
@@ -71,6 +73,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     this.walletInfo = walletInfo;
     transactionHistory =
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
+    feeEstimate = ElectrumFeeEstimate(this);
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -92,6 +95,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   @observable
   SyncStatus syncStatus;
+
+  @override
+  late ElectrumFeeEstimate feeEstimate;
 
   List<String> get scriptHashes => walletAddresses.addresses
       .map((addr) => scriptHash(addr.address, networkType: networkType))
@@ -321,7 +327,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     } else {
       feeAmount = feeRate(transactionCredentials.priority!) * estimatedSize;
     }
-    
+
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {

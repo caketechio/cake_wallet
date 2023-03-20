@@ -302,6 +302,7 @@ class SendPage extends BasePage {
                     child: PrimaryButton(
                       onPressed: () {
                         sendViewModel.addOutput();
+                        sendViewModel.estimateFee();
                         Future.delayed(const Duration(milliseconds: 250), () {
                           controller.jumpToPage(sendViewModel.outputs.length - 1);
                         });

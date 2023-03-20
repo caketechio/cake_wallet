@@ -937,6 +937,25 @@ extern "C"
         return m_wallet->trustedDaemon();
     }
 
+    uint64_t estimate_transaction_fee(int outputs, uint8_t priority_raw)
+    {
+        // estimateTransactionFee only cares about the number of outputs
+        std::vector<std::pair<std::string, uint64_t>> destinations;
+        for (int i = 0; i < outputs; i++) {
+            destinations.push_back({"", 0});
+        }
+        auto priority = static_cast<Monero::PendingTransaction::Priority>(priority_raw);
+
+        try {
+           return m_wallet->estimateTransactionFee(destinations, priority);
+        }
+        catch (...) {
+            // estimateTransactionFee can throw an exception if there is a problem with the
+            // network request. We must catch it here because exceptions don't propagate to Dart.
+            return 0;
+        }
+    }
+
 #ifdef __cplusplus
 }
 #endif

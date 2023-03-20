@@ -8,7 +8,6 @@ import 'package:cw_haven/api/types.dart';
 import 'package:cw_haven/api/haven_api.dart';
 import 'package:cw_haven/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -123,6 +122,10 @@ final setTrustedDaemonNative = havenApi
 final trustedDaemonNative = havenApi
     .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
     .asFunction<TrustedDaemon>();
+
+final estimateTransactionFeeNative = havenApi
+    .lookup<NativeFunction<estimate_transaction_fee>>('estimate_transaction_fee')
+    .asFunction<EstimateTransactionFee>();
 
 int getSyncingHeight() => getSyncingHeightNative();
 
@@ -363,3 +366,18 @@ void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
 Future setTrustedDaemon(bool trusted) async => setTrustedDaemonNative(_boolToInt(trusted));
 
 Future<bool> trustedDaemon() async => trustedDaemonNative() != 0;
+
+int estimateTransactionFeeSync(int outputs, int priorityRaw) {
+  return estimateTransactionFeeNative(outputs, priorityRaw);
+}
+
+int _estimateTransactionFee(Map args) {
+  final priorityRaw = args['priorityRaw'] as int;
+  final outputsCount = args['outputsCount'] as int;
+
+  return estimateTransactionFeeSync(outputsCount, priorityRaw);
+}
+
+Future<int> estimateTransactionFee({required int priorityRaw, required int outputsCount}) {
+  return compute(_estimateTransactionFee, {'priorityRaw': priorityRaw, 'outputsCount': outputsCount});
+}
