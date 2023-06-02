@@ -5,53 +5,33 @@ import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_monero/api/transaction_history.dart';
+import 'package:intl/intl.dart';
+import 'package:cw_monero/api/wallet.dart' as monero_wallet;
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
+      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee, this.unlockTime,
       this.confirmations);
-
-  MoneroTransactionInfo.fromMap(Map<String, Object?> map)
-      : id = (map['hash'] ?? '') as String,
-        height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
-        isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
-        accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
-        confirmations = map['confirmations'] as int,
-        key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0 {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
+        direction = TransactionDirection.parseFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        unlockTime = row.getUnlockTime(),
         confirmations = row.confirmations,
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = <String, dynamic>{
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = <String, dynamic>{
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
   final int height;
@@ -62,6 +42,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   final int amount;
   final int fee;
   final int addressIndex;
+  final int unlockTime;
   final int confirmations;
   String? recipientAddress;
   String? key;
@@ -80,4 +61,28 @@ class MoneroTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() =>
       '${formatAmount(moneroAmountToString(amount: fee))} XMR';
+
+  @override
+  String? unlockTimeFormatted() {
+    final currentHeight = monero_wallet.getCurrentHeight();
+    if (direction == TransactionDirection.outgoing || unlockTime < (currentHeight + 10)) {
+      return null;
+    }
+
+    if (unlockTime < 500000000) {
+      return (unlockTime - currentHeight) * 2 > 500000
+          ? '>1 year'
+          : '~${(unlockTime - currentHeight) * 2} minutes';
+    }
+    try {
+      var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
+      final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      final String formattedUnlockTime =
+      formatter.format(DateTime.fromMillisecondsSinceEpoch(unlockTime));
+      return locked > 0 ? '$formattedUnlockTime' : null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 }

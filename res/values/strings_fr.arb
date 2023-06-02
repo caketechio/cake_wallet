@@ -683,6 +683,8 @@
   "bitcoin_payments_require_1_confirmation": "Les paiements Bitcoin nécessitent 1 confirmation, ce qui peut prendre 20 minutes ou plus. Merci pour votre patience ! Vous serez averti par e-mail lorsque le paiement sera confirmé.",
   "send_to_this_address" : "Envoyer ${currency} ${tag}à cette adresse",
   "arrive_in_this_address" : "${currency} ${tag}arrivera à cette adresse",
+  "unlock_time": "Temps de déverrouillage",
+  "locked": "(fermé à clé)",
   "do_not_send": "Ne pas envoyer",
   "error_dialog_content": "Oups, nous avons rencontré une erreur.\n\nMerci d'envoyer le rapport d'erreur à notre équipe d'assistance afin de nous permettre d'améliorer l'application.",
   "scan_qr_code": "Scannez le code QR",

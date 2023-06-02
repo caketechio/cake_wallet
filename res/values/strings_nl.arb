@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}komt aan op dit adres",
   "do_not_send": "Niet sturen",
   "error_dialog_content": "Oeps, er is een fout opgetreden.\n\nStuur het crashrapport naar ons ondersteuningsteam om de applicatie te verbeteren.",
+  "unlock_time": "Ontgrendel de tijd",
+  "locked": "(op slot)",
   "scan_qr_code": "Scan QR-code",
   "cold_or_recover_wallet": "Voeg een cold wallet toe of herstel een paper wallet",
   "please_wait": "Even geduld aub",

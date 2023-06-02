@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}wird an dieser Adresse ankommen",
   "do_not_send": "Nicht senden",
   "error_dialog_content": "Hoppla, wir haben einen Fehler.\n\nBitte senden Sie den Absturzbericht an unser Support-Team, um die Anwendung zu verbessern.",
+  "unlock_time": "Zeit entsperren",
+  "locked": "(gesperrt)",
   "scan_qr_code": "QR-Code scannen",
   "cold_or_recover_wallet": "Fügen Sie eine Cold Wallet hinzu oder stellen Sie eine Paper Wallet wieder her",
   "please_wait": "Warten Sie mal",

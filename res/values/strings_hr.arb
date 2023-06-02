@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}će stići na ovu adresu",
   "do_not_send": "Ne šalji",
   "error_dialog_content": "Ups, imamo grešku.\n\nPošaljite izvješće o padu našem timu za podršku kako bismo poboljšali aplikaciju.",
+  "unlock_time": "Vrijeme otključavanja",
+  "locked": "(zaključan)",
   "scan_qr_code": "Skenirajte QR kod",
   "cold_or_recover_wallet": "Dodajte hladni novčanik ili povratite papirnati novčanik",
   "please_wait": "Molimo pričekajte",

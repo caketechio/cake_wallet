@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}bu adrese ulaşacak",
   "do_not_send": "Gönderme",
   "error_dialog_content": "Hay aksi, bir hatamız var.\n\nUygulamayı daha iyi hale getirmek için lütfen kilitlenme raporunu destek ekibimize gönderin.",
+  "unlock_time": "Kilit açma zamanı",
+  "locked": "(kilitli)",
   "scan_qr_code": "QR kodunu tarayın",
   "cold_or_recover_wallet": "Soğuk bir cüzdan ekleyin veya bir kağıt cüzdanı kurtarın",
   "please_wait": "Lütfen bekleyin",

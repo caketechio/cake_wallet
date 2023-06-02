@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}이(가) 이 주소로 도착합니다",
   "do_not_send": "보내지 마세요",
   "error_dialog_content": "죄송합니다. 오류가 발생했습니다.\n\n응용 프로그램을 개선하려면 지원 팀에 충돌 보고서를 보내주십시오.",
+  "unlock_time": "잠금 해제 시간",
+  "locked": "(잠긴)",
   "scan_qr_code": "QR 코드 스캔",
   "cold_or_recover_wallet": "콜드 지갑 추가 또는 종이 지갑 복구",
   "please_wait": "기다리세요",

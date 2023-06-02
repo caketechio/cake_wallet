@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}dotrze na ten adres",
   "do_not_send": "Nie wysyłaj",
   "error_dialog_content": "Ups, wystąpił błąd.\n\nPrześlij raport o awarii do naszego zespołu wsparcia, aby ulepszyć aplikację.",
+  "unlock_time": "Czas odblokowania",
+  "locked": "(zablokowany)",
   "scan_qr_code": "Skanowania QR code",
   "cold_or_recover_wallet": "Dodaj zimny portfel lub odzyskaj portfel papierowy",
   "please_wait": "Proszę czekać",

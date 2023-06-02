@@ -684,6 +684,8 @@
   "arrive_in_this_address" : "${currency} ${tag}将到达此地址",
   "do_not_send": "不要发送",
   "error_dialog_content": "糟糕，我们遇到了一些错误。\n\n请将崩溃报告发送给我们的支持团队，以改进应用程序。",
+  "unlock_time": "解锁时间",
+  "locked": "(锁定)",
   "scan_qr_code": "扫描二维码",
   "cold_or_recover_wallet": "添加冷钱包或恢复纸钱包",
   "please_wait": "请稍等",

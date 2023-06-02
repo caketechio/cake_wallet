@@ -10,10 +10,12 @@ abstract class TransactionInfo extends Object with Keyable {
   late DateTime date;
   late int height;
   late int confirmations;
+  int? unlockTime;
   String amountFormatted();
   String fiatAmount();
   String? feeFormatted();
   void changeFiatAmount(String amount);
+  String? unlockTimeFormatted();
 
   @override
   dynamic get keyIndex => id;

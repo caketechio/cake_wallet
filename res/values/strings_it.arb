@@ -684,6 +684,8 @@
   "send_to_this_address" : "Invia ${currency} ${tag}a questo indirizzo",
   "arrive_in_this_address" : "${currency} ${tag}arriverà a questo indirizzo",
   "do_not_send": "Non inviare",
+  "unlock_time": "Tempo di sblocco",
+  "locked": "(bloccato)",
   "error_dialog_content": "Spiacenti, abbiamo riscontrato un errore.\n\nSi prega di inviare il rapporto sull'arresto anomalo al nostro team di supporto per migliorare l'applicazione.",
   "scan_qr_code": "Scansiona il codice QR",
   "cold_or_recover_wallet": "Aggiungi un cold wallet o recupera un paper wallet",

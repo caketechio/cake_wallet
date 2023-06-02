@@ -3,7 +3,7 @@ import 'package:cw_core/transaction_direction.dart';
 
 class TransactionRow extends StatelessWidget {
   TransactionRow(
-      {required this.direction,
+      {required this.icon,
       required this.formattedDate,
       required this.formattedAmount,
       required this.formattedFiatAmount,
@@ -12,7 +12,7 @@ class TransactionRow extends StatelessWidget {
       required this.onTap});
 
   final VoidCallback onTap;
-  final TransactionDirection direction;
+  final String icon;
   final String formattedDate;
   final String formattedAmount;
   final String formattedFiatAmount;
@@ -37,10 +37,7 @@ class TransactionRow extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: Theme.of(context).textTheme!.labelSmall!.decorationColor!
                 ),
-                child: Image.asset(
-                    direction == TransactionDirection.incoming
-                        ? 'assets/images/down_arrow.png'
-                        : 'assets/images/up_arrow.png'),
+                child: Image.asset(icon),
               ),
               SizedBox(width: 12),
               Expanded(

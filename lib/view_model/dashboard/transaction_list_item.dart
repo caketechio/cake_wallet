@@ -63,6 +63,9 @@ class TransactionListItem extends ActionListItem with Keyable {
     return transaction.isPending ? S.current.pending : '';
     }
 
+    String get formattedLockedStatus => transaction.unlockTimeFormatted() == null ? ''
+        : ' ' + S.current.locked;
+
   String get formattedFiatAmount {
     var amount = '';
 

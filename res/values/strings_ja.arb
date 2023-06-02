@@ -684,6 +684,8 @@
   "send_to_this_address" : "${currency} ${tag}をこのアドレスに送金",
   "arrive_in_this_address" : "${currency} ${tag}はこの住所に到着します",
   "do_not_send": "送信しない",
+  "unlock_time": "ロック解除時間",
+  "locked": "(ロックされた)",
   "error_dialog_content": "エラーが発生しました。\n\nアプリケーションを改善するために、クラッシュ レポートをサポート チームに送信してください。",
   "scan_qr_code": "QRコードをスキャン",
   "cold_or_recover_wallet": "コールド ウォレットを追加するか、ペーパー ウォレットを復元する",

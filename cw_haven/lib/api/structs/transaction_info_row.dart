@@ -14,6 +14,9 @@ class TransactionInfoRow extends Struct {
   @Uint64()
   external int confirmations;
 
+  @Uint64()
+  external int unlockTime;
+
   @Uint32()
   external int subaddrAccount;
 
@@ -41,4 +44,5 @@ class TransactionInfoRow extends Struct {
   String getHash() => hash.toDartString();
   String getPaymentId() => paymentId.toDartString();
   String getAssetType() => assetType.toDartString();
+  int getUnlockTime() => unlockTime >> 32;
 }

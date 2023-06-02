@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}will arrive in this address",
   "do_not_send": "Don't send",
   "error_dialog_content": "Oops, we got some error.\n\nPlease send the crash report to our support team to make the application better.",
+  "unlock_time": "Unlock time",
+  "locked": "(locked)",
   "scan_qr_code": "Scan QR code",
   "cold_or_recover_wallet": "Add a cold wallet or recover a paper wallet",
   "please_wait": "Please wait",

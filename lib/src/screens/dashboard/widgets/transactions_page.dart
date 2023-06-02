@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -41,7 +42,6 @@ class TransactionsPage extends StatelessWidget {
                     itemCount: items.length,
                     itemBuilder: (context, index) {
                       final item = items[index];
-
                       if (item is DateSectionItem) {
                         return DateSectionRaw(date: item.date);
                       }
@@ -53,7 +53,7 @@ class TransactionsPage extends StatelessWidget {
                             builder: (_) => TransactionRow(
                                 onTap: () => Navigator.of(context)
                                     .pushNamed(Routes.transactionDetails, arguments: transaction),
-                                direction: transaction.direction,
+                                icon: transaction.direction.iconPath ?? '',
                                 formattedDate: DateFormat('HH:mm').format(transaction.date),
                                 formattedAmount: item.formattedCryptoAmount,
                                 formattedFiatAmount:
@@ -61,7 +61,8 @@ class TransactionsPage extends StatelessWidget {
                                         ? ''
                                         : item.formattedFiatAmount,
                                 isPending: transaction.isPending,
-                                title: item.formattedTitle + item.formattedStatus));
+                                title: item.formattedTitle + item.formattedStatus
+                                    + item.formattedLockedStatus));
                       }
 
                       if (item is AnonpayTransactionListItem) {

@@ -140,7 +140,7 @@ import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
-import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cake_wallet/view_model/transactions/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';

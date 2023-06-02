@@ -186,7 +186,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         height: data['height'] as int,
         amount: data['amount'] as int,
         fee: data['fee'] as int,
-        direction: parseTransactionDirectionFromInt(data['direction'] as int),
+        direction: TransactionDirection.parseFromInt(data['direction'] as int),
         date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
         isPending: data['isPending'] as bool,
         confirmations: data['confirmations'] as int);
@@ -228,11 +228,16 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['id'] = id;
     m['height'] = height;
     m['amount'] = amount;
-    m['direction'] = direction.index;
+    m['direction'] = direction.raw;
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
     m['fee'] = fee;
     return m;
   }
+  @override
+  String? unlockTimeFormatted() => null;
+
+  @override
+  bool get isLocked => false;
 }

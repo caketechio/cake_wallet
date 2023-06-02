@@ -5,40 +5,26 @@ import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_haven/api/transaction_history.dart';
+import 'package:intl/intl.dart';
+import 'package:cw_haven/api/wallet.dart' as haven_wallet;
 
 class HavenTransactionInfo extends TransactionInfo {
-  HavenTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee,
-      this.confirmations);
+  HavenTransactionInfo(this.id, this.height, this.direction, this.date, this.isPending, this.amount,
+      this.accountIndex, this.addressIndex, this.fee, this.unlockTime, this.confirmations);
 
-  HavenTransactionInfo.fromMap(Map<String, Object> map)
-      : id = (map['hash'] ?? '') as String,
-        height = (map['height'] ?? 0) as int,
-        direction =
-            parseTransactionDirectionFromNumber(map['direction'] as String) ??
-                TransactionDirection.incoming,
-        date = DateTime.fromMillisecondsSinceEpoch(
-            int.parse(map['timestamp'] as String? ?? '0') * 1000),
-        isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
-        accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
-        confirmations = map['confirmations'] as int,
-        key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int? ?? 0;
-
-    HavenTransactionInfo.fromRow(TransactionInfoRow row)
+  HavenTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
         height = row.blockHeight,
-        direction = parseTransactionDirectionFromInt(row.direction) ??
-            TransactionDirection.incoming,
+        direction = TransactionDirection.parseFromInt(row.direction),
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
+        unlockTime = row.getUnlockTime(),
         confirmations = row.confirmations,
-        key = null, //getTxKey(row.getHash()),
+        key = null,
+        //getTxKey(row.getHash()),
         fee = row.fee,
         assetType = row.getAssetType();
 
@@ -54,12 +40,12 @@ class HavenTransactionInfo extends TransactionInfo {
   final int confirmations;
   late String recipientAddress;
   late String assetType;
+  final int unlockTime;
   String? _fiatAmount;
   String? key;
 
   @override
-  String amountFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: amount))} $assetType';
+  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} $assetType';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -68,6 +54,29 @@ class HavenTransactionInfo extends TransactionInfo {
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   @override
-  String feeFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
+  String feeFormatted() => '${formatAmount(moneroAmountToString(amount: fee))} $assetType';
+
+  @override
+  String? unlockTimeFormatted() {
+    final currentHeight = haven_wallet.getCurrentHeight();
+    if (direction == TransactionDirection.outgoing || unlockTime < (currentHeight + 10)) {
+      return null;
+    }
+
+    if (unlockTime < 500000000) {
+      return (unlockTime - currentHeight) * 2 > 500000
+          ? '>1 year'
+          : '~${(unlockTime - currentHeight) * 2} minutes';
+    }
+    try {
+      var locked = DateTime.fromMillisecondsSinceEpoch(unlockTime).compareTo(DateTime.now());
+      final DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      final String formattedUnlockTime =
+      formatter.format(DateTime.fromMillisecondsSinceEpoch(unlockTime));
+      return locked > 0 ? '$formattedUnlockTime' : null;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
 }

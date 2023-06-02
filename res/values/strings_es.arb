@@ -685,6 +685,8 @@
   "arrive_in_this_address" : "${currency} ${tag}llegará a esta dirección",
   "do_not_send": "no enviar",
   "error_dialog_content": "Vaya, tenemos un error.\n\nEnvíe el informe de bloqueo a nuestro equipo de soporte para mejorar la aplicación.",
+  "unlock_time": "Tiempo de desbloqueo",
+  "locked": "(bloqueado)",
   "scan_qr_code": "Escanear código QR",
   "cold_or_recover_wallet": "Agregue una billetera fría o recupere una billetera de papel",
   "please_wait": "Espere por favor",

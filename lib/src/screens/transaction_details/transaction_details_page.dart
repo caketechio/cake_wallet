@@ -2,7 +2,7 @@ import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cake_wallet/view_model/transactions/transaction_details_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';

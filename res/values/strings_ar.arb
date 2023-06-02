@@ -683,6 +683,8 @@
    "arrive_in_this_address" : "سيصل ${currency} ${tag}إلى هذا العنوان",
    "do_not_send": "لا ترسل",
    "error_dialog_content": "عفوًا ، لقد حصلنا على بعض الخطأ.\n\nيرجى إرسال تقرير التعطل إلى فريق الدعم لدينا لتحسين التطبيق.",
+   "unlock_time": "فتح الوقت",
+   "locked": "(مقفل)",
    "scan_qr_code": "امسح رمز QR ضوئيًا",
    "cold_or_recover_wallet": "أضف محفظة باردة أو استعد محفظة ورقية",
    "please_wait": "انتظر من فضلك",

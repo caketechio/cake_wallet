@@ -134,6 +134,7 @@ extern "C"
         uint64_t blockHeight;
         uint64_t confirmations;
         uint32_t subaddrAccount;
+        uint64_t unlockTime;
         int8_t direction;
         int8_t isPending;
         uint32_t subaddrIndex;
@@ -152,6 +153,7 @@ extern "C"
             std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
             subaddrIndex = *it;
             confirmations = transaction->confirmations();
+            unlockTime = transaction->unlockTime();
             datetime = static_cast<int64_t>(transaction->timestamp());            
             direction = transaction->direction();
             isPending = static_cast<int8_t>(transaction->isPending());
