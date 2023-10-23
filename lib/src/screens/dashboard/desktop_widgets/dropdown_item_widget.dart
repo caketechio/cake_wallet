@@ -1,10 +1,10 @@
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:flutter/material.dart';
 
-class DropDownItemWidget extends StatelessWidget {
+class DropDownItemWidget<ImageItem extends Widget> extends StatelessWidget {
   const DropDownItemWidget({super.key, required this.title, required this.image});
   final double tileHeight = 60;
-  final Image image;
+  final ImageItem image;
   final String title;
 
   @override

@@ -3,7 +3,7 @@ import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/filter_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
-class SelectButton extends StatelessWidget {
+class SelectButton<ImageType extends Object?> extends StatelessWidget {
   SelectButton({
     required this.text,
     required this.onTap,
@@ -13,7 +13,7 @@ class SelectButton extends StatelessWidget {
     this.height = 60,
   });
 
-  final Image? image;
+  final ImageType? image;
   final String text;
   final bool isSelected;
   final VoidCallback onTap;
@@ -55,7 +55,7 @@ class SelectButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                image ?? Offstage(),
+                image as Widget? ?? Offstage(),
                 Padding(
                   padding: image != null
                     ? EdgeInsets.only(left: 15)

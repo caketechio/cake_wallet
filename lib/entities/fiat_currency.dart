@@ -127,5 +127,5 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   String? get tag => null;
 
   @override
-  String get iconPath => "assets/images/flags/$countryCode.png"; 
+  String get iconPath => "assets/images/flags/$countryCode.svg";
 }

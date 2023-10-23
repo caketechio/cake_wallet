@@ -10,28 +10,29 @@ import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
 import 'package:cake_wallet/themes/extensions/cake_scrollbar_theme.dart';
 import 'package:cake_wallet/themes/extensions/picker_theme.dart';
+import 'package:flutter_svg/svg.dart';
 
-class Picker<Item> extends StatefulWidget {
+class Picker<Item, ImageType extends Widget> extends StatefulWidget {
   Picker({
     required this.selectedAtIndex,
     required this.items,
     required this.onItemSelected,
     this.title,
     this.displayItem,
-    this.images = const <Image>[],
+    List<ImageType>? images,
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
     this.isSeparated = true,
     this.hintText,
     this.matchingCriteria,
-  }) : assert(hintText == null ||
-            matchingCriteria !=
-                null); // make sure that if the search field is enabled then there is a searching criteria provided
+  }) : images = images ?? [],
+        assert(hintText == null ||
+            matchingCriteria != null);  // make sure that if the search field is enabled then there is a searching criteria provided
 
   final int selectedAtIndex;
   final List<Item> items;
-  final List<Image> images;
+  final List<ImageType> images;
   final String? title;
   final String? description;
   final Function(Item) onItemSelected;
@@ -43,17 +44,17 @@ class Picker<Item> extends StatefulWidget {
   final bool Function(Item, String)? matchingCriteria;
 
   @override
-  _PickerState<Item> createState() => _PickerState<Item>(items, images, onItemSelected);
+  _PickerState<Item, ImageType> createState() => _PickerState<Item, ImageType>(items, images, onItemSelected);
 }
 
-class _PickerState<Item> extends State<Picker<Item>> {
+class _PickerState<Item, ImageType extends Widget> extends State<Picker<Item, ImageType>> {
   _PickerState(this.items, this.images, this.onItemSelected);
 
   final Function(Item) onItemSelected;
   List<Item> items;
-  List<Image> images;
+  List<ImageType> images;
   List<Item> filteredItems = [];
-  List<Image> filteredImages = [];
+  List<ImageType> filteredImages = [];
 
   final TextEditingController searchController = TextEditingController();
 
@@ -393,11 +394,20 @@ class _PickerState<Item> extends State<Picker<Item>> {
   Widget? _getItemIcon(Item item) {
     if (item is Currency) {
       if (item.iconPath != null) {
-        return Image.asset(
-          item.iconPath!,
-          height: 20.0,
-          width: 20.0,
-        );
+        if (item.iconPath!.contains('.svg')) {
+          return SvgPicture.asset(
+            item.iconPath!,
+            width: 20,
+            height: 20,
+            fit: BoxFit.contain,
+          );
+        } else {
+          return Image.asset(
+            item.iconPath!,
+            height: 20.0,
+            width: 20.0,
+          );
+        }
       } else {
         return Container(
           height: 20.0,

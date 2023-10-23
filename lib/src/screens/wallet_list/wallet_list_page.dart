@@ -5,6 +5,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({required this.walletListViewModel, required this.authService});
@@ -41,9 +43,6 @@ class WalletListBody extends StatefulWidget {
 }
 
 class WalletListBodyState extends State<WalletListBody> {
-  final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
   final havenIcon = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final ethereumIcon = Image.asset('assets/images/eth_icon.png', height: 24, width: 24);
@@ -107,7 +106,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     wallet.isEnabled
-                                        ? _imageFor(type: wallet.type)
+                                        ? buildIconFromPath(currencyForWalletType(wallet.type).iconPath)
                                         : nonWalletTypeIcon,
                                     SizedBox(width: 10),
                                     Flexible(
@@ -239,27 +238,24 @@ class WalletListBodyState extends State<WalletListBody> {
       ),
     );
   }
-
-  Image _imageFor({required WalletType type}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      case WalletType.bitcoinCash:
-        return bitcoinCashIcon;
-      case WalletType.nano:
-        return nanoIcon;
-      default:
-        return nonWalletTypeIcon;
+  
+  Widget buildIconFromPath(String? iconPath) {
+    if (iconPath != null && iconPath.contains('svg')) {
+      return SvgPicture.asset(
+        iconPath,
+        height: 24,
+        width: 24,
+        fit: BoxFit.contain,
+      );
+    } else {
+      return Image.asset(
+        iconPath ?? '',
+        height: 24,
+        width: 24,
+      );
     }
   }
+
 
   Future<void> _loadWallet(WalletListItem wallet) async {
     await widget.authService.authenticateAction(

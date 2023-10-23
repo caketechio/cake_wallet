@@ -2,18 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_svg/svg.dart';
 
-List<Image> flagImages = [
-  Image.asset('assets/images/flags/usa.png'),
-  Image.asset('assets/images/flags/chn.png'),
-  Image.asset('assets/images/flags/nld.png'),
-  Image.asset('assets/images/flags/deu.png'),
-  Image.asset('assets/images/flags/jpn.png'),
-  Image.asset('assets/images/flags/prt.png'),
-  Image.asset('assets/images/flags/rus.png'),
-  Image.asset('assets/images/flags/esp.png'),
-  Image.asset('assets/images/flags/fra.png'),
-  Image.asset('assets/images/flags/ita.png'),
+List<SvgPicture> flagImages = [
+  SvgPicture.asset('assets/images/flags/usa.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/chn.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/nld.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/deu.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/jpn.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/prt.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/rus.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/esp.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/fra.svg', width: 42, height: 26, fit: BoxFit.contain),
+  SvgPicture.asset('assets/images/flags/ita.svg', width: 42, height: 26, fit: BoxFit.contain),
 ];
 
 const List<String> languageCodes = [

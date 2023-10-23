@@ -92,6 +92,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake-update-v3
+  flutter_svg: ^2.0.7
 
 dev_dependencies:
   flutter_test:
@@ -124,6 +125,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/flags/
+    - assets/images/crypto_assets/
     - assets/node_list.yml
     - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml

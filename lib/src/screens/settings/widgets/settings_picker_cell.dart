@@ -1,25 +1,34 @@
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class SettingsPickerCell<ItemType> extends StandardListRow {
-  SettingsPickerCell(
-      {required String title,
-      required this.selectedItem,
-      required this.items,
-      this.displayItem,
-      this.images,
-      this.searchHintText,
-      this.isGridView = false,
-      this.matchingCriteria,
-      this.onItemSelected})
-      : super(
+  SettingsPickerCell({
+    required String title,
+    required this.selectedItem,
+    required this.items,
+    this.displayItem,
+    this.images,
+    this.searchHintText,
+    this.isGridView = false,
+    this.matchingCriteria,
+    this.onItemSelected,
+  }) : super(
           title: title,
           isSelected: false,
           onTap: (BuildContext context) async {
             final selectedAtIndex = items.indexOf(selectedItem);
+            List<Widget> processedImages = [];
+            if (images != null) {
+              for (var image in images) {
+                if (image is Image || image is SvgPicture) {
+                  processedImages.add(image as Widget);
+                }
+              }
+            }
 
             await showPopUp<void>(
               context: context,
@@ -29,7 +38,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                 selectedAtIndex: selectedAtIndex,
                 mainAxisAlignment: MainAxisAlignment.start,
                 onItemSelected: (ItemType item) => onItemSelected?.call(item),
-                images: images ?? const <Image>[],
+                images: processedImages.isEmpty ? const <Image>[] : processedImages,
                 isSeparated: false,
                 hintText: searchHintText,
                 isGridView: isGridView,
@@ -43,7 +52,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final List<ItemType> items;
   final void Function(ItemType item)? onItemSelected;
   final String Function(ItemType item)? displayItem;
-  final List<Image>? images;
+  final List<Object?>? images; // Changed type to List<Object?>
   final String? searchHintText;
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;

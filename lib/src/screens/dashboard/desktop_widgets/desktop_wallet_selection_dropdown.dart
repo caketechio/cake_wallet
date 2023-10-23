@@ -7,6 +7,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/dropdown_item_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
+import 'package:cake_wallet/utils/icon_from_path.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DesktopWalletSelectionDropDown extends StatefulWidget {
   final WalletListViewModel walletListViewModel;
@@ -66,7 +68,9 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
                     constraints: BoxConstraints(maxWidth: 500),
                     child: DropDownItemWidget(
                         title: wallet.name,
-                        image: wallet.isEnabled ? _imageFor(type: wallet.type) : nonWalletTypeIcon),
+                        image: wallet.isEnabled
+                            ? buildIconFromPath(walletTypeToCryptoCurrency(wallet.type).iconPath)
+                            : nonWalletTypeIcon),
                   ),
                   onSelected: () => _onSelectedWallet(wallet),
                 ))
@@ -129,29 +133,6 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
 
     if (confirmed) {
       await _loadWallet(selectedWallet);
-    }
-  }
-
-  Image _imageFor({required WalletType type}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      case WalletType.bitcoinCash:
-        return bitcoinCashIcon;
-      case WalletType.nano:
-        return nanoIcon;
-      case WalletType.banano:
-        return bananoIcon;
-      default:
-        return nonWalletTypeIcon;
     }
   }
 

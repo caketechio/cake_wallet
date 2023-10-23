@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/settings/display_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_svg/svg.dart';
 
 class DisplaySettingsPage extends BasePage {
   DisplaySettingsPage(this._displaySettingsViewModel);
@@ -50,7 +51,8 @@ class DisplaySettingsPage extends BasePage {
                   onItemSelected: (FiatCurrency currency) =>
                       _displaySettingsViewModel.setFiatCurrency(currency),
                   images: FiatCurrency.all
-                      .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                      .map((e) => SvgPicture.asset("assets/images/flags/${e.countryCode}.svg",
+                          width: 42, height: 26, fit: BoxFit.contain))
                       .toList(),
                   isGridView: true,
                   matchingCriteria: (FiatCurrency currency, String searchText) {
@@ -68,8 +70,9 @@ class DisplaySettingsPage extends BasePage {
                 selectedItem: _displaySettingsViewModel.languageCode,
                 onItemSelected: _displaySettingsViewModel.onLanguageSelected,
                 images: LanguageService.list.keys
-                    .map((e) => Image.asset(
-                        "assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+                    .map((e) => SvgPicture.asset(
+                        "assets/images/flags/${LanguageService.localeCountryCode[e]}.svg",
+                    width: 42, height: 26, fit: BoxFit.contain))
                     .toList(),
                 matchingCriteria: (String code, String searchText) {
                   return LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false;

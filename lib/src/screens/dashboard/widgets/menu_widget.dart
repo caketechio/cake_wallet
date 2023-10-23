@@ -30,10 +30,9 @@ class MenuWidgetState extends State<MenuWidget> {
       this.litecoinIcon = Image.asset('assets/images/litecoin_menu.png'),
       this.havenIcon = Image.asset('assets/images/haven_menu.png'),
       this.ethereumIcon = Image.asset('assets/images/eth_icon.png'),
-      this.nanoIcon = Image.asset('assets/images/nano_icon.png'),
+      this.nanoIcon = Image.asset('assets/images/nano_menu.png'),
       this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
-      this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png');
-
+      this.bitcoinCashIcon = Image.asset('assets/images/bch_menu.png');
 
   final largeScreen = 731;
 
