@@ -1,6 +1,8 @@
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_exchange_provider.dart';
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/buy/payfura/payfura_buy_provider.dart';
@@ -29,6 +31,7 @@ import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sideba
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_wallet_selection_dropdown.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_options_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/transactions_page.dart';
 import 'package:cake_wallet/src/screens/nano/nano_change_rep_page.dart';
 import 'package:cake_wallet/src/screens/nano_accounts/nano_account_edit_or_create_page.dart';
@@ -800,6 +803,11 @@ Future<void> setup({
         wallet: getIt.get<AppStore>().wallet!,
       ));
 
+  getIt.registerFactory<MoonPayExchangeProvider>(() => MoonPayExchangeProvider(
+        settingsStore: getIt.get<AppStore>().settingsStore,
+        wallet: getIt.get<AppStore>().wallet!,
+      ));
+
   getIt.registerFactoryParam<WebViewPage, String, Uri>((title, uri) => WebViewPage(title, uri));
 
   getIt.registerFactory<PayfuraBuyProvider>(() => PayfuraBuyProvider(
@@ -941,6 +949,8 @@ Future<void> setup({
   getIt.registerFactory(() => BuyAmountViewModel());
 
   getIt.registerFactory(() => BuyOptionsPage());
+
+  getIt.registerFactory(() => ExchangeOptionsPage());
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;

@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/buy_provider_types.dart';
 import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
+import 'package:cake_wallet/entities/exchange_provider_types.dart';
 import 'package:cake_wallet/entities/pin_code_required_duration.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
@@ -55,6 +56,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialDisableBuy,
       required bool initialDisableSell,
       required BuyProviderType initialDefaultBuyProvider,
+      required ExchangeProviderType initialDefaultExchangeProvider,
       required FiatApiMode initialFiatMode,
       required bool initialAllowBiometricalAuthentication,
       required String initialTotpSecretKey,
@@ -124,6 +126,7 @@ abstract class SettingsStoreBase with Store {
         disableBuy = initialDisableBuy,
         disableSell = initialDisableSell,
         defaultBuyProvider = initialDefaultBuyProvider,
+        defaultExchangeProvider = initialDefaultExchangeProvider,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         exchangeStatus = initialExchangeStatus,
         currentTheme = initialTheme,
@@ -247,6 +250,11 @@ abstract class SettingsStoreBase with Store {
         (_) => defaultBuyProvider,
         (BuyProviderType defaultBuyProvider) =>
             sharedPreferences.setInt(PreferencesKey.defaultBuyProvider, defaultBuyProvider.index));
+
+    reaction(
+        (_) => defaultExchangeProvider,
+        (ExchangeProviderType defaultExchangeProvider) => sharedPreferences.setInt(
+            PreferencesKey.defaultExchangeProvider, defaultExchangeProvider.index));
 
     reaction(
         (_) => autoGenerateSubaddressStatus,
@@ -498,6 +506,9 @@ abstract class SettingsStoreBase with Store {
   BuyProviderType defaultBuyProvider;
 
   @observable
+  ExchangeProviderType defaultExchangeProvider;
+
+  @observable
   bool allowBiometricalAuthentication;
 
   @observable
@@ -709,6 +720,8 @@ abstract class SettingsStoreBase with Store {
     final disableSell = sharedPreferences.getBool(PreferencesKey.disableSellKey) ?? false;
     final defaultBuyProvider =
         BuyProviderType.values[sharedPreferences.getInt(PreferencesKey.defaultBuyProvider) ?? 0];
+    final defaultExchangeProvider = ExchangeProviderType
+        .values[sharedPreferences.getInt(PreferencesKey.defaultExchangeProvider) ?? 0];
     final currentFiatApiMode = FiatApiMode.deserialize(
         raw: sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey) ??
             FiatApiMode.enabled.raw);
@@ -888,6 +901,7 @@ abstract class SettingsStoreBase with Store {
         initialDisableBuy: disableBuy,
         initialDisableSell: disableSell,
         initialDefaultBuyProvider: defaultBuyProvider,
+        initialDefaultExchangeProvider: defaultExchangeProvider,
         initialFiatMode: currentFiatApiMode,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialCake2FAPresetOptions: selectedCake2FAPreset,

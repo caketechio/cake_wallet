@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/exchange_provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/balance.dart';
@@ -57,8 +58,14 @@ abstract class OtherSettingsViewModelBase with Store {
 
     return false;
   }
-  
-  BuyProviderType get buyProviderType { return _settingsStore.defaultBuyProvider; }
+
+  BuyProviderType get buyProviderType {
+    return _settingsStore.defaultBuyProvider;
+  }
+
+  ExchangeProviderType get exchangeProviderType {
+    return _settingsStore.defaultExchangeProvider;
+  }
 
   String getDisplayPriority(dynamic priority) {
     final _priority = priority as TransactionPriority;
@@ -73,10 +80,16 @@ abstract class OtherSettingsViewModelBase with Store {
     return priority.toString();
   }
 
-  String getBuyProviderType (dynamic buyProviderType) {
+  String getBuyProviderType(dynamic buyProviderType) {
     final _buyProviderType = buyProviderType as BuyProviderType;
 
     return _buyProviderType.toString();
+  }
+
+  String getExchangeProviderType(dynamic exchangeProviderType) {
+    final _exchangeProviderType = exchangeProviderType as ExchangeProviderType;
+
+    return _exchangeProviderType.toString();
   }
 
   void onDisplayPrioritySelected(TransactionPriority priority) =>
@@ -85,4 +98,6 @@ abstract class OtherSettingsViewModelBase with Store {
   void onBuyProviderTypeSelected(BuyProviderType buyProviderType) =>
       _settingsStore.defaultBuyProvider = buyProviderType;
 
+  void onExchangeProviderTypeSelected(ExchangeProviderType exchangeProviderType) =>
+      _settingsStore.defaultExchangeProvider = exchangeProviderType;
 }

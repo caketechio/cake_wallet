@@ -36,6 +36,7 @@ class Routes {
   static const exchangeFunds = '/exchange_funds';
   static const exchangeTrade = '/exchange_trade';
   static const exchange = '/exchange';
+  static const choose_exchange_provider = '/choose_exchange_provider';
   static const settings = '/settings';
   static const desktop_settings_page = '/desktop_settings_page';
   static const empty_no_route = '/empty_no_route';

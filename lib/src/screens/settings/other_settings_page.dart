@@ -1,5 +1,5 @@
-import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/entities/buy_provider_types.dart';
+import 'package:cake_wallet/entities/exchange_provider_types.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -48,6 +48,13 @@ class OtherSettingsPage extends BasePage {
                 displayItem: _otherSettingsViewModel.getBuyProviderType,
                 selectedItem: _otherSettingsViewModel.buyProviderType,
                 onItemSelected: _otherSettingsViewModel.onBuyProviderTypeSelected,
+              ),
+              SettingsPickerCell(
+                title: S.current.default_exchange_provider,
+                items: ExchangeProviderType.values,
+                displayItem: _otherSettingsViewModel.getExchangeProviderType,
+                selectedItem: _otherSettingsViewModel.exchangeProviderType,
+                onItemSelected: _otherSettingsViewModel.onExchangeProviderTypeSelected,
               ),
               SettingsCellWithArrow(
                 title: S.current.settings_terms_and_conditions,
