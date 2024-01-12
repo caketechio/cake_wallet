@@ -13,8 +13,8 @@ case $ARCH in
 		./build_boost_x86_64.sh;;
 esac
 
+./build_sodium.sh
 ./build_zmq.sh
 ./build_expat.sh
 ./build_unbound.sh
-./build_sodium.sh
 ./build_monero.sh

@@ -5,7 +5,9 @@
 ZMQ_PATH="${EXTERNAL_MACOS_SOURCE_DIR}/libzmq"
 ZMQ_URL="https://github.com/zeromq/libzmq.git"
 
-echo "============================ ZMQ ============================"
+echo "
+============================ ZMQ ============================
+"
 
 echo "Cloning ZMQ from - $ZMQ_URL"
 git clone $ZMQ_URL $ZMQ_PATH

@@ -147,3 +147,4 @@ assets/images/app_logo.png
 macos/Runner/Info.plist
 macos/Runner/DebugProfile.entitlements
 macos/Runner/Release.entitlements
+macos/Runner.xcodeproj/project.pbxproj
