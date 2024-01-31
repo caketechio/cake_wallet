@@ -3,7 +3,6 @@ import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class ElectrumWallletSnapshot {
@@ -15,7 +14,8 @@ class ElectrumWallletSnapshot {
     required this.addresses,
     required this.balance,
     required this.regularAddressIndex,
-    required this.changeAddressIndex});
+    required this.changeAddressIndex,
+  });
 
   final String name;
   final String password;
@@ -27,8 +27,9 @@ class ElectrumWallletSnapshot {
   int regularAddressIndex;
   int changeAddressIndex;
 
-  static Future<ElectrumWallletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name, WalletType type, String password) async {
-    final path = await pathForWallet(name: name, type: type);
+  static Future<ElectrumWallletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name,
+      WalletType type, String password, bool isFlatpak) async {
+    final path = await pathForWallet(name: name, type: type, isFlatpak: isFlatpak);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final addressesTmp = data['addresses'] as List? ?? <Object>[];
@@ -55,6 +56,7 @@ class ElectrumWallletSnapshot {
       addresses: addresses,
       balance: balance,
       regularAddressIndex: regularAddressIndex,
-      changeAddressIndex: changeAddressIndex);
+      changeAddressIndex: changeAddressIndex,
+    );
   }
 }

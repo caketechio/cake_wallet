@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -335,15 +336,13 @@ abstract class DashboardViewModelBase with Store {
   bool hasExchangeAction;
 
   @computed
-  bool get isEnabledBuyAction =>
-      !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
+  bool get isEnabledBuyAction => !settingsStore.disableBuy && availableBuyProviders.isNotEmpty;
 
   @observable
   bool hasBuyAction;
 
   @computed
-  bool get isEnabledSellAction =>
-      !settingsStore.disableSell && availableSellProviders.isNotEmpty;
+  bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
 
   @observable
   bool hasSellAction;
@@ -467,8 +466,13 @@ abstract class DashboardViewModelBase with Store {
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkAffectedWallets() async {
+    if (SettingsStoreBase.walletPasswordDirectInput) {
+      return [];
+    }
+
     // await load file
-    final vulnerableSeedsString = await rootBundle.loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
+    final vulnerableSeedsString = await rootBundle
+        .loadString('assets/text/cakewallet_weak_bitcoin_seeds_hashed_sorted_version1.txt');
     final vulnerableSeeds = vulnerableSeedsString.split("\n");
 
     final walletInfoSource = await CakeHive.openBox<WalletInfo>(WalletInfo.boxName);
@@ -477,7 +481,8 @@ abstract class DashboardViewModelBase with Store {
     for (var walletInfo in walletInfoSource.values) {
       if (walletInfo.type == WalletType.bitcoin) {
         final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-        final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+        final path =
+            await pathForWallet(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
         final jsonSource = await read(path: path, password: password);
         final data = json.decode(jsonSource) as Map;
         final mnemonic = data['mnemonic'] as String;

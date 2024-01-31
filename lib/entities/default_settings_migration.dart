@@ -20,6 +20,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:collection/collection.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
@@ -204,7 +205,7 @@ Future<void> defaultSettingsMigration(
 
 Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async {
   try {
-    final root = await getAppDir();
+    final root = await getAppDir(isFlatpak: isFlatpak);
 
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
@@ -223,7 +224,7 @@ Future<void> _validateWalletInfoBoxData(Box<WalletInfo> walletInfoSource) async 
       for (var name in walletNames) {
         final Directory dir;
         try {
-          dir = Directory(await pathForWalletDir(name: name, type: type));
+          dir = Directory(await pathForWalletDir(name: name, type: type, isFlatpak: isFlatpak));
         } catch (_) {
           continue;
         }
@@ -588,7 +589,7 @@ Future<void> addAddressesForMoneroWallets(Box<WalletInfo> walletInfoSource) asyn
   final moneroWalletsInfo = walletInfoSource.values.where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
-      final walletPath = await pathForWallet(name: info.name, type: WalletType.monero);
+      final walletPath = await pathForWallet(name: info.name, type: WalletType.monero, isFlatpak: isFlatpak);
       final addressFilePath = '$walletPath.address.txt';
       final addressFile = File(addressFilePath);
 

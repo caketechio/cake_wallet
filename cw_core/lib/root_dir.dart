@@ -5,7 +5,7 @@ String? _rootDirPath;
 
 void setRootDirFromEnv() => _rootDirPath = Platform.environment['CAKE_WALLET_DIR'];
 
-Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
+Future<Directory> getAppDir({String appName = 'cake_wallet', required bool isFlatpak}) async {
   Directory dir;
 
   if (_rootDirPath != null && _rootDirPath!.isNotEmpty) {
@@ -13,13 +13,23 @@ Future<Directory> getAppDir({String appName = 'cake_wallet'}) async {
     dir.create(recursive: true);
   } else {
     if (Platform.isLinux) {
-      String appDirPath;
+      String appDirPath = '';
 
-      try {
-        dir = await getApplicationDocumentsDirectory();
-        appDirPath = '${dir.path}/$appName';
-      } catch (e) {
-        appDirPath = '/home/${Platform.environment['USER']}/.$appName';
+      if (isFlatpak) {
+        appDirPath =
+            '/home/${Platform.environment['USER']}/.var/app/com.cakewallet.CakeWallet/data/.$appName';
+      } else {
+        final homePath = '/home/${Platform.environment['USER']}/.$appName';
+
+        if (await Directory(homePath).exists()) {
+          appDirPath = homePath;
+        } else {
+          final docPath = await getApplicationDocumentsDirectory();
+
+          if (await docPath.exists()) {
+            appDirPath = docPath.path;
+          }
+        }
       }
 
       dir = Directory.fromUri(Uri.file(appDirPath));

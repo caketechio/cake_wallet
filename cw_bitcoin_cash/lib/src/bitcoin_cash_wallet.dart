@@ -29,18 +29,19 @@ part 'bitcoin_cash_wallet.g.dart';
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
-  BitcoinCashWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      required EncryptionFileUtils encryptionFileUtils,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : super(
+  BitcoinCashWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    required EncryptionFileUtils encryptionFileUtils,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    int initialRegularAddressIndex = 0,
+    int initialChangeAddressIndex = 0,
+    required super.isFlatpak,
+  }) : super(
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
@@ -57,36 +58,38 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes)
-            .derivePath("m/44'/145'/0'/1"),
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/1"),
         networkType: networkType);
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
     });
   }
 
-
-  static Future<BitcoinCashWallet> create(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required EncryptionFileUtils encryptionFileUtils,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0}) async {
+  static Future<BitcoinCashWallet> create({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required EncryptionFileUtils encryptionFileUtils,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    int initialRegularAddressIndex = 0,
+    int initialChangeAddressIndex = 0,
+    required bool isFlatpak,
+  }) async {
     return BitcoinCashWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        initialBalance: initialBalance,
-        seedBytes: await Mnemonic.toSeed(mnemonic),
-        encryptionFileUtils: encryptionFileUtils,
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      seedBytes: await Mnemonic.toSeed(mnemonic),
+      encryptionFileUtils: encryptionFileUtils,
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      isFlatpak: isFlatpak,
+    );
   }
 
   static Future<BitcoinCashWallet> open({
@@ -95,19 +98,23 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
+    required bool isFlatpak,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(encryptionFileUtils, name, walletInfo.type, password);
+    final snp = await ElectrumWallletSnapshot.load(
+        encryptionFileUtils, name, walletInfo.type, password, isFlatpak);
     return BitcoinCashWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
-        seedBytes: await Mnemonic.toSeed(snp.mnemonic),
-        encryptionFileUtils: encryptionFileUtils,
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      initialBalance: snp.balance,
+      seedBytes: await Mnemonic.toSeed(snp.mnemonic),
+      encryptionFileUtils: encryptionFileUtils,
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      isFlatpak: isFlatpak,
+    );
   }
 
   @override
@@ -277,9 +284,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         electrumClient: electrumClient, amount: amount, fee: fee);
   }
 
-  bitbox.ECPair generateKeyPair(
-          {required bitcoin.HDWallet hd,
-          required int index}) =>
+  bitbox.ECPair generateKeyPair({required bitcoin.HDWallet hd, required int index}) =>
       bitbox.ECPair.fromWIF(hd.derive(index).wif!);
 
   @override
@@ -332,7 +337,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     final index = address != null
         ? walletAddresses.addresses
             .firstWhere((element) => element.address == AddressUtils.toLegacyAddress(address))
-            .index : null;
+            .index
+        : null;
     final HD = index == null ? hd : hd.derive(index);
     return base64Encode(HD.signMessage(message));
   }

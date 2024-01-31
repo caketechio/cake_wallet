@@ -16,10 +16,11 @@ import 'package:nanoutil/nanoutil.dart';
 
 class NanoWalletService extends WalletService<NanoNewWalletCredentials,
     NanoRestoreWalletFromSeedCredentials, NanoRestoreWalletFromKeysCredentials> {
-  NanoWalletService(this.walletInfoSource, this.isDirect);
+  NanoWalletService(this.walletInfoSource, this.isDirect, this.isFlatpak);
 
   final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
+  final bool isFlatpak;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
@@ -41,6 +42,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       mnemonic: mnemonic,
       password: credentials.password!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
     wallet.init();
     return wallet;
@@ -48,7 +50,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
+    final path = await pathForWalletDir(name: wallet, type: getType(), isFlatpak: isFlatpak);
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -73,6 +75,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       password: password,
       mnemonic: randomWords,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await currentWallet.renameWalletFiles(newName);
@@ -113,6 +116,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       mnemonic: mnemonic ?? credentials.seedKey,
       walletInfo: credentials.walletInfo!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
     await wallet.init();
     await wallet.save();
@@ -144,6 +148,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -153,7 +158,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
 
   @override
   Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
+      File(await pathForWallet(name: name, type: getType(), isFlatpak: isFlatpak)).existsSync();
 
   @override
   Future<NanoWallet> openWallet(String name, String password) async {
@@ -164,6 +169,7 @@ class NanoWalletService extends WalletService<NanoNewWalletCredentials,
       password: password,
       walletInfo: walletInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();

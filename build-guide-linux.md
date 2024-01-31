@@ -27,16 +27,16 @@ CakeWallet requires some packages to be install on your build system. You may ea
 > To check what gcc version you are using:
 >
 > ```bash
-> $ gcc --version
-> $ g++ --version
+> gcc --version
+> g++ --version
 > ```
 >
 > If you are using gcc version newer than 10, then you need to downgrade to version 10.4.0:
 >
 > ```bash
-> $ sudo apt install gcc-10 g++-10
-> $ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
-> $ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
+> sudo apt install gcc-10 g++-10
+> sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 10
+> sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 10
 > ```
 
 > [!NOTE]
@@ -44,7 +44,7 @@ CakeWallet requires some packages to be install on your build system. You may ea
 > Alternatively, you can use the [nix-shell](https://nixos.org/) with the `gcc10.nix` file\
 > present on `scripts/linux` like so:
 > ```bash
-> $ nix-shell gcc10.nix
+> nix-shell gcc10.nix
 > ```
 > This will get you in a nix environment with all the required dependencies that you can use to build the software from,\
 > and it works in any linux distro.
@@ -145,31 +145,38 @@ Path to executable file will be:
 
 # Flatpak
 
-For package the built application into flatpak you need fistly to install `flatpak` and `flatpak-builder`:
+> [!NOTE]
+>
+> To package the built application into flatpak, you will need to follow the steps above
+> but replace the `$ source ./app_env.sh cakewallet` step with `$ source ./app_env.sh cakewallet-flatpak` first.
+
+Install `flatpak` and `flatpak-builder`:
 
 `$ sudo apt install flatpak flatpak-builder`
 
-Then need to [add flathub](https://flatpak.org/setup/Ubuntu) (or just `$ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`). Then need to install freedesktop runtime and sdk:
+Then need to [add flathub](https://flatpak.org/setup/Ubuntu) (or just `$ flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo`). 
+Install the freedesktop runtime and sdk:
 
-`$ flatpak install flathub org.freedesktop.Platform//22.08 org.freedesktop.Sdk//22.08`
+`$ flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08`
 
-To build with using of `flatpak-build` directory run next:
+Next, to build using `flatpak-build` run:
 
 `$ flatpak-builder --force-clean flatpak-build com.cakewallet.CakeWallet.yml`
 
-And then export bundle:
+And then export the bundle:
 
-`$ flatpak build-export export flatpak-build`
+```bash
+flatpak build-export export flatpak-build
+flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet
+```
 
-`$ flatpak build-bundle export cake_wallet.flatpak com.cakewallet.CakeWallet`
+Result file: `cake_wallet.flatpak` should be generated in the current directory.
 
-Result file: `cake_wallet.flatpak` should be generated in current directory.
-
-For install generated flatpak file use:
+To install the generated flatpak file use:
 
 `$ flatpak --user install cake_wallet.flatpak`
 
-For run the installed application run:
+To run the installed application run:
 
 `$ flatpak run com.cakewallet.CakeWallet`
 

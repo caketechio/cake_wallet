@@ -11,7 +11,6 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/utils/file.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -19,6 +18,7 @@ import 'package:cw_ethereum/erc20_balance.dart';
 import 'package:cw_ethereum/ethereum_formatter.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_polygon/default_polygon_erc20_tokens.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_polygon/polygon_client.dart';
 import 'package:cw_polygon/polygon_exceptions.dart';
 import 'package:cw_polygon/polygon_formatter.dart';
@@ -48,19 +48,23 @@ abstract class PolygonWalletBase
     String? mnemonic,
     String? privateKey,
     required String password,
+    required EncryptionFileUtils encryptionFileUtils,
     ERC20Balance? initialBalance,
+    required this.isFlatpak,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
         _isTransactionUpdating = false,
+        _encryptionFileUtils = encryptionFileUtils,
         _client = PolygonClient(),
         walletAddresses = PolygonWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, ERC20Balance>.of(
             {CryptoCurrency.maticpoly: initialBalance ?? ERC20Balance(BigInt.zero)}),
         super(walletInfo) {
     this.walletInfo = walletInfo;
-    transactionHistory = PolygonTransactionHistory(walletInfo: walletInfo, password: password);
+    transactionHistory =
+        PolygonTransactionHistory(walletInfo: walletInfo, password: password, isFlatpak: isFlatpak);
 
     if (!CakeHive.isAdapterRegistered(Erc20Token.typeId)) {
       CakeHive.registerAdapter(Erc20TokenAdapter());
@@ -69,9 +73,13 @@ abstract class PolygonWalletBase
     _sharedPrefs.complete(SharedPreferences.getInstance());
   }
 
+  final bool isFlatpak;
+
   final String? _mnemonic;
   final String? _hexPrivateKey;
   final String _password;
+
+  final EncryptionFileUtils _encryptionFileUtils;
 
   late final Box<Erc20Token> polygonErc20TokensBox;
 
@@ -311,7 +319,7 @@ abstract class PolygonWalletBase
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
     final path = await makePath();
-    await write(path: path, password: _password, data: toJSON());
+    await _encryptionFileUtils.write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
   }
 
@@ -342,7 +350,8 @@ abstract class PolygonWalletBase
     }
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  Future<String> makePath() async =>
+      pathForWallet(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
 
   String toJSON() => json.encode({
         'mnemonic': _mnemonic,
@@ -350,13 +359,14 @@ abstract class PolygonWalletBase
         'balance': balance[currency]!.toJSON(),
       });
 
-  static Future<PolygonWallet> open({
-    required String name,
-    required String password,
-    required WalletInfo walletInfo,
-  }) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
-    final jsonSource = await read(path: path, password: password);
+  static Future<PolygonWallet> open(
+      {required String name,
+      required String password,
+      required WalletInfo walletInfo,
+      required EncryptionFileUtils encryptionFileUtils,
+      required bool isFlatpak}) async {
+    final path = await pathForWallet(name: name, type: walletInfo.type, isFlatpak: isFlatpak);
+    final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;
     final privateKey = data['private_key'] as String?;
@@ -368,6 +378,8 @@ abstract class PolygonWalletBase
       mnemonic: mnemonic,
       privateKey: privateKey,
       initialBalance: balance,
+      encryptionFileUtils: encryptionFileUtils,
+      isFlatpak: isFlatpak,
     );
   }
 
@@ -477,19 +489,23 @@ abstract class PolygonWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath =
+        await pathForWallet(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentWalletFile.copy(newWalletPath);
     }
     if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final newDirPath =
+          await pathForWalletDir(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
     }
 

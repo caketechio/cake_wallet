@@ -1,4 +1,5 @@
 import 'package:cake_wallet/buy/onramper/onramper_buy_provider.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -862,25 +863,26 @@ Future<void> setup({
       case WalletType.haven:
         return haven!.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
-        return monero!.createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return monero!
+            .createMoneroWalletService(_walletInfoSource, _unspentCoinsInfoSource, isFlatpak);
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+            SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       case WalletType.litecoin:
         return bitcoin!.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+            SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       case WalletType.ethereum:
         return ethereum!.createEthereumWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       case WalletType.bitcoinCash:
-        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource, _unspentCoinsInfoSource,
-            SettingsStoreBase.walletPasswordDirectInput);
+        return bitcoinCash!.createBitcoinCashWalletService(_walletInfoSource,
+            _unspentCoinsInfoSource, SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       case WalletType.nano:
         return nano!.createNanoWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       case WalletType.polygon:
         return polygon!.createPolygonWalletService(
-            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
+            _walletInfoSource, SettingsStoreBase.walletPasswordDirectInput, isFlatpak);
       default:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

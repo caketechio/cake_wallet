@@ -75,8 +75,9 @@ class CWNano extends Nano {
   }
 
   @override
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect) {
-    return NanoWalletService(walletInfoSource, isDirect);
+  WalletService createNanoWalletService(
+      Box<WalletInfo> walletInfoSource, bool isDirect, bool isFlatpak) {
+    return NanoWalletService(walletInfoSource, isDirect, isFlatpak);
   }
 
   @override
@@ -189,7 +190,6 @@ class CWNano extends Nano {
 }
 
 class CWNanoUtil extends NanoUtil {
-
   @override
   bool isValidBip39Seed(String seed) {
     return NanoDerivations.isValidBip39Seed(seed);

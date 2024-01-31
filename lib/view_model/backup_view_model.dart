@@ -10,6 +10,7 @@ import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 
 part 'backup_view_model.g.dart';
 
@@ -74,7 +75,7 @@ abstract class BackupViewModelBase with Store {
   }
 
   Future<String> saveBackupFileLocally(BackupExportFile backup) async {
-    final appDir = await getAppDir();
+    final appDir = await getAppDir(isFlatpak: isFlatpak);
     final path = '${appDir.path}/${backup.name}';
     final backupFile = File(path);
     await backupFile.writeAsBytes(backup.content);
@@ -82,7 +83,7 @@ abstract class BackupViewModelBase with Store {
   }
 
   Future<void> removeBackupFileLocally(BackupExportFile backup) async {
-    final appDir = await getAppDir();
+    final appDir = await getAppDir(isFlatpak: isFlatpak);
     final path = '${appDir.path}/${backup.name}';
     final backupFile = File(path);
     await backupFile.delete();

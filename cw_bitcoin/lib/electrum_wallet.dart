@@ -48,16 +48,17 @@ abstract class ElectrumWalletBase
     with Store {
   ElectrumWalletBase(
       {required String password,
-        required WalletInfo walletInfo,
-        required Box<UnspentCoinsInfo> unspentCoinsInfo,
-        required this.networkType,
-        required this.mnemonic,
-        required Uint8List seedBytes,
-        required this.encryptionFileUtils,
-        List<BitcoinAddressRecord>? initialAddresses,
-        ElectrumClient? electrumClient,
-        ElectrumBalance? initialBalance,
-        CryptoCurrency? currency})
+      required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required this.networkType,
+      required this.mnemonic,
+      required Uint8List seedBytes,
+      required this.encryptionFileUtils,
+      required this.isFlatpak,
+      List<BitcoinAddressRecord>? initialAddresses,
+      ElectrumClient? electrumClient,
+      ElectrumBalance? initialBalance,
+      CryptoCurrency? currency})
       : hd = currency == CryptoCurrency.bch
             ? bitcoinCashHDWallet(seedBytes)
             : bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/0"),
@@ -78,12 +79,14 @@ abstract class ElectrumWalletBase
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
-    transactionHistory =
-        ElectrumTransactionHistory(
-          walletInfo: walletInfo,
-          password: password,
-          encryptionFileUtils: encryptionFileUtils);
+    transactionHistory = ElectrumTransactionHistory(
+        walletInfo: walletInfo,
+        password: password,
+        encryptionFileUtils: encryptionFileUtils,
+        isFlatpak: isFlatpak);
   }
+
+  final bool isFlatpak;
 
   static bitcoin.HDWallet bitcoinCashHDWallet(Uint8List seedBytes) =>
       bitcoin.HDWallet.fromSeed(seedBytes).derivePath("m/44'/145'/0'/0");
@@ -440,19 +443,23 @@ abstract class ElectrumWalletBase
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath =
+        await pathForWallet(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath =
+        await pathForWalletDir(name: walletInfo.name, type: type, isFlatpak: isFlatpak);
     final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentWalletFile.copy(newWalletPath);
     }
     if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final newDirPath =
+          await pathForWalletDir(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
     }
 
@@ -480,7 +487,8 @@ abstract class ElectrumWalletBase
     } catch (_) {}
   }
 
-  Future<String> makePath() async => pathForWallet(name: walletInfo.name, type: walletInfo.type);
+  Future<String> makePath() async =>
+      pathForWallet(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
 
   Future<void> updateUnspent() async {
     final unspent = await Future.wait(walletAddresses.addresses.map((address) => electrumClient

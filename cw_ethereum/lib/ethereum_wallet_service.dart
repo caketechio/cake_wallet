@@ -15,10 +15,11 @@ import 'package:collection/collection.dart';
 
 class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
     EthereumRestoreWalletFromSeedCredentials, EthereumRestoreWalletFromPrivateKey> {
-  EthereumWalletService(this.walletInfoSource, this.isDirect);
+  EthereumWalletService(this.walletInfoSource, this.isDirect, this.isFlatpak);
 
   final Box<WalletInfo> walletInfoSource;
   final bool isDirect;
+  final bool isFlatpak;
 
   @override
   Future<EthereumWallet> create(EthereumNewWalletCredentials credentials) async {
@@ -30,6 +31,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       mnemonic: mnemonic,
       password: credentials.password!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -44,7 +46,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
+      File(await pathForWallet(name: name, type: getType(), isFlatpak: isFlatpak)).existsSync();
 
   @override
   Future<EthereumWallet> openWallet(String name, String password) async {
@@ -55,6 +57,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       password: password,
       walletInfo: walletInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -65,7 +68,8 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    File(await pathForWalletDir(name: wallet, type: getType(), isFlatpak: isFlatpak))
+        .delete(recursive: true);
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
@@ -78,6 +82,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -99,6 +104,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -117,6 +123,7 @@ class EthereumWalletService extends WalletService<EthereumNewWalletCredentials,
       name: currentName,
       walletInfo: currentWalletInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await currentWallet.renameWalletFiles(newName);

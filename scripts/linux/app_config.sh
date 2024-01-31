@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CAKEWALLET="cakewallet"
+CAKEWALLET_FLATPAK="cakewallet-flatpak"
 DIR=`pwd`
 
 if [ -z "$APP_LINUX_TYPE" ]; then
@@ -14,6 +15,8 @@ CONFIG_ARGS=""
 case $APP_LINUX_TYPE in
         $CAKEWALLET)
 		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --excludeFlutterSecureStorage";;
+        $CAKEWALLET_FLATPAK)
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --excludeFlutterSecureStorage --flatpak";;
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

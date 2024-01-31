@@ -9,6 +9,7 @@ const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
 const walletTypesPath = 'lib/wallet_types.g.dart';
 const secureStoragePath = 'lib/core/secure_storage.dart';
+const flatpakPath = 'lib/core/flatpak.dart';
 const pubspecDefaultPath = 'pubspec_default.yaml';
 const pubspecOutputPath = 'pubspec.yaml';
 
@@ -24,6 +25,7 @@ Future<void> main(List<String> args) async {
   final hasPolygon = args.contains('${prefix}polygon');
 
   final excludeFlutterSecureStorage = args.contains('${prefix}excludeFlutterSecureStorage');
+  final isFlatpak = args.contains('${prefix}flatpak');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
@@ -55,6 +57,7 @@ Future<void> main(List<String> args) async {
     hasPolygon: hasPolygon,
   );
   await injectSecureStorage(!excludeFlutterSecureStorage);
+  await injectFlatpak(isFlatpak);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -132,8 +135,8 @@ abstract class Bitcoin {
 
   List<Unspent> getUnspents(Object wallet);
   void updateUnspents(Object wallet);
-  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect, bool isFlatpak);
+  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect, bool isFlatpak);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getLitecoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPrioritySlow();
@@ -296,7 +299,7 @@ abstract class Monero {
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
-  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isFlatpak);
   Map<String, String> pendingTransactionInfo(Object transaction);
 }
 
@@ -547,7 +550,7 @@ import 'package:cw_ethereum/ethereum_transaction_priority.dart';
   const ethereumContent = """
 abstract class Ethereum {
   List<String> getEthereumWordList(String language);
-  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createEthereumWalletService(Box<WalletInfo> walletInfoSource, bool isDirect, bool isFlatpak);
   WalletCredentials createEthereumNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createEthereumRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createEthereumRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
@@ -634,7 +637,7 @@ import 'package:cw_ethereum/ethereum_mnemonics.dart';
   const polygonContent = """
 abstract class Polygon {
   List<String> getPolygonWordList(String language);
-  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createPolygonWalletService(Box<WalletInfo> walletInfoSource, bool isDirect, bool isFlatpak);
   WalletCredentials createPolygonNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password});
   WalletCredentials createPolygonRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password});
   WalletCredentials createPolygonRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
@@ -717,7 +720,7 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect, bool isFlatpak);
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password});
@@ -796,7 +799,7 @@ abstract class Nano {
 
   void setCurrentAccount(Object wallet, int id, String label, String? balance);
 
-  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirect);
+  WalletService createNanoWalletService(Box<WalletInfo> walletInfoSource, bool isDirec, bool isFlatpak);
 
   WalletCredentials createNanoNewWalletCredentials({
     required String name,
@@ -1054,7 +1057,8 @@ Future<void> generateWalletTypes(
 }
 
 Future<void> injectSecureStorage(bool hasFlutterSecureStorage) async {
-  const flutterSecureStorageHeader = "import 'package:flutter_secure_storage/flutter_secure_storage.dart';";
+  const flutterSecureStorageHeader =
+      "import 'package:flutter_secure_storage/flutter_secure_storage.dart';";
   const abstractSecureStorage = """
 abstract class SecureStorage {
   Future<String?> read({required String key});
@@ -1105,8 +1109,8 @@ class FakeSecureStorage extends SecureStorage {
 }""";
   final outputFile = File(secureStoragePath);
   final header = hasFlutterSecureStorage
-    ? '${flutterSecureStorageHeader}\n\nfinal SecureStorage secureStorageShared = DefaultSecureStorage();\n'
-    : 'final SecureStorage secureStorageShared = FakeSecureStorage();\n';
+      ? '${flutterSecureStorageHeader}\n\nfinal SecureStorage secureStorageShared = DefaultSecureStorage();\n'
+      : 'final SecureStorage secureStorageShared = FakeSecureStorage();\n';
   var output = '';
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -1121,4 +1125,14 @@ class FakeSecureStorage extends SecureStorage {
   }
 
   await outputFile.writeAsString(output);
+}
+
+Future<void> injectFlatpak(bool isFlatpak) async {
+  final outputFile = File(flatpakPath);
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile
+      .writeAsString(isFlatpak ? "const isFlatpak = true;" : "const isFlatpak = false;");
 }

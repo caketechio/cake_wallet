@@ -158,3 +158,10 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
+
+# Linux flatpak build related
+.flatpak-builder/
+export/
+cake_wallet.flatpak
+
+lib/core/flatpak.dart

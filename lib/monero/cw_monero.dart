@@ -224,13 +224,13 @@ class CWMonero extends Monero {
           name: name, password: password, height: height, mnemonic: mnemonic);
 
   @override
-  WalletCredentials createMoneroNewWalletCredentials({
-    required String name,
-    required String language,
-    required bool isPolyseed,
-    String? password}) =>
+  WalletCredentials createMoneroNewWalletCredentials(
+          {required String name,
+          required String language,
+          required bool isPolyseed,
+          String? password}) =>
       MoneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+          name: name, password: password, language: language, isPolyseed: isPolyseed);
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -302,9 +302,9 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(
-          Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(walletInfoSource, unspentCoinSource);
+  WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource,
+          Box<UnspentCoinsInfo> unspentCoinSource, bool isFlatpak) =>
+      MoneroWalletService(walletInfoSource, unspentCoinSource, isFlatpak);
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {

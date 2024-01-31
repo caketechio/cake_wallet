@@ -41,12 +41,14 @@ const moneroBlockSize = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
-abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
-    MoneroTransactionHistory, MoneroTransactionInfo> with Store {
-  MoneroWalletBase({required WalletInfo walletInfo,
+abstract class MoneroWalletBase
+    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+  MoneroWalletBase({
+    required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required String password})
-      : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
+    required String password,
+    required this.isFlatpak,
+  })  : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
               fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
               unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0))
@@ -78,6 +80,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       _updateSubAddress(enabled, account: walletAddresses.account);
     });
   }
+
+  final bool isFlatpak;
 
   static const int _autoSaveInterval = 30;
 
@@ -315,18 +319,21 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     await walletAddresses.updateAddressesInBox();
-    await backupWalletFiles(name);
+    await backupWalletFiles(name, isFlatpak);
     await monero_wallet.store();
   }
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
+    final currentWalletDirPath =
+        await pathForWalletDir(name: name, type: type, isFlatpak: isFlatpak);
 
     try {
       // -- rename the waller folder --
-      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+      final currentWalletDir =
+          Directory(await pathForWalletDir(name: name, type: type, isFlatpak: isFlatpak));
+      final newWalletDirPath =
+          await pathForWalletDir(name: newWalletName, type: type, isFlatpak: isFlatpak);
       await currentWalletDir.rename(newWalletDirPath);
 
       // -- use new waller folder to rename files with old names still --
@@ -336,7 +343,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       final currentKeysFile = File('$renamedWalletPath.keys');
       final currentAddressListFile = File('$renamedWalletPath.address.txt');
 
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
 
       if (currentCacheFile.existsSync()) {
         await currentCacheFile.rename(newWalletPath);
@@ -348,13 +356,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         await currentAddressListFile.rename('$newWalletPath.address.txt');
       }
     } catch (e) {
-      final currentWalletPath = await pathForWallet(name: name, type: type);
+      final currentWalletPath = await pathForWallet(name: name, type: type, isFlatpak: isFlatpak);
 
       final currentCacheFile = File(currentWalletPath);
       final currentKeysFile = File('$currentWalletPath.keys');
       final currentAddressListFile = File('$currentWalletPath.address.txt');
 
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
+      final newWalletPath =
+          await pathForWallet(name: newWalletName, type: type, isFlatpak: isFlatpak);
 
       // Copies current wallet files into new wallet name's dir and files
       if (currentCacheFile.existsSync()) {
@@ -413,9 +422,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         if (coin.spent == 0) {
           final unspent = MoneroUnspent.fromCoinsInfoRow(coin);
           if (unspent.hash.isNotEmpty) {
-            unspent.isChange = transaction_history
-                .getTransaction(unspent.hash)
-                .direction == 1;
+            unspent.isChange = transaction_history.getTransaction(unspent.hash).direction == 1;
           }
           unspentCoins.add(unspent);
         }
@@ -429,7 +436,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       if (unspentCoins.isNotEmpty) {
         unspentCoins.forEach((coin) {
           final coinInfoList = unspentCoinsInfo.values.where((element) =>
-          element.walletId.contains(id) &&
+              element.walletId.contains(id) &&
               element.accountIndex == walletAddresses.account!.id &&
               element.keyImage!.contains(coin.keyImage!));
 

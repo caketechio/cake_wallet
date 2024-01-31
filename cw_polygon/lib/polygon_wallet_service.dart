@@ -5,6 +5,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_ethereum/ethereum_mnemonics.dart';
 import 'package:cw_polygon/polygon_wallet.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -14,9 +15,11 @@ import 'package:collection/collection.dart';
 
 class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
     PolygonRestoreWalletFromSeedCredentials, PolygonRestoreWalletFromPrivateKey> {
-  PolygonWalletService(this.walletInfoSource);
+  PolygonWalletService(this.walletInfoSource, this.isDirect, this.isFlatpak);
 
   final Box<WalletInfo> walletInfoSource;
+  final bool isDirect;
+  final bool isFlatpak;
 
   @override
   Future<PolygonWallet> create(PolygonNewWalletCredentials credentials) async {
@@ -27,6 +30,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       walletInfo: credentials.walletInfo!,
       mnemonic: mnemonic,
       password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -41,7 +46,7 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
 
   @override
   Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
+      File(await pathForWallet(name: name, type: getType(), isFlatpak: isFlatpak)).existsSync();
 
   @override
   Future<PolygonWallet> openWallet(String name, String password) async {
@@ -51,6 +56,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       name: name,
       password: password,
       walletInfo: walletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -61,7 +68,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
 
   @override
   Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
+    File(await pathForWalletDir(name: wallet, type: getType(), isFlatpak: isFlatpak))
+        .delete(recursive: true);
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(wallet, getType()))!;
     await walletInfoSource.delete(walletInfo.key);
@@ -73,6 +81,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       password: credentials.password!,
       privateKey: credentials.privateKey,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -92,6 +102,8 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
     );
 
     await wallet.init();
@@ -106,7 +118,12 @@ class PolygonWalletService extends WalletService<PolygonNewWalletCredentials,
     final currentWalletInfo = walletInfoSource.values
         .firstWhere((info) => info.id == WalletBase.idFor(currentName, getType()));
     final currentWallet = await PolygonWalletBase.open(
-        password: password, name: currentName, walletInfo: currentWalletInfo);
+      password: password,
+      name: currentName,
+      walletInfo: currentWalletInfo,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      isFlatpak: isFlatpak,
+    );
 
     await currentWallet.renameWalletFiles(newName);
 

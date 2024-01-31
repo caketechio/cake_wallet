@@ -18,37 +18,37 @@ part 'bitcoin_wallet.g.dart';
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends ElectrumWallet with Store {
-  BitcoinWalletBase(
-      {required String mnemonic,
-      required String password,
-      required WalletInfo walletInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
-      required Uint8List seedBytes,
-      required EncryptionFileUtils encryptionFileUtils,
-      List<BitcoinAddressRecord>? initialAddresses,
-      ElectrumBalance? initialBalance,
-      int initialRegularAddressIndex = 0,
-      int initialChangeAddressIndex = 0})
-      : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            networkType: bitcoin.bitcoin,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.btc,
-            encryptionFileUtils: encryptionFileUtils) {
-    walletAddresses = BitcoinWalletAddresses(
-        walletInfo,
+  BitcoinWalletBase({
+    required String mnemonic,
+    required String password,
+    required WalletInfo walletInfo,
+    required Box<UnspentCoinsInfo> unspentCoinsInfo,
+    required Uint8List seedBytes,
+    required EncryptionFileUtils encryptionFileUtils,
+    List<BitcoinAddressRecord>? initialAddresses,
+    ElectrumBalance? initialBalance,
+    int initialRegularAddressIndex = 0,
+    int initialChangeAddressIndex = 0,
+    required super.isFlatpak,
+  }) : super(
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          networkType: bitcoin.bitcoin,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.btc,
+          encryptionFileUtils: encryptionFileUtils,
+        ) {
+    walletAddresses = BitcoinWalletAddresses(walletInfo,
         electrumClient: electrumClient,
         initialAddresses: initialAddresses,
         initialRegularAddressIndex: initialRegularAddressIndex,
         initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
-        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType)
-              .derivePath("m/0'/1"),
+        sideHd: bitcoin.HDWallet.fromSeed(seedBytes, network: networkType).derivePath("m/0'/1"),
         networkType: networkType);
     autorun((_) {
       this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
@@ -64,19 +64,22 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     int initialRegularAddressIndex = 0,
-    int initialChangeAddressIndex = 0
+    int initialChangeAddressIndex = 0,
+    required bool isFlatpak,
   }) async {
     return BitcoinWallet(
-        mnemonic: mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: initialAddresses,
-        initialBalance: initialBalance,
-        encryptionFileUtils: encryptionFileUtils,
-        seedBytes: await mnemonicToSeedBytes(mnemonic),
-        initialRegularAddressIndex: initialRegularAddressIndex,
-        initialChangeAddressIndex: initialChangeAddressIndex);
+      mnemonic: mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: initialAddresses,
+      initialBalance: initialBalance,
+      encryptionFileUtils: encryptionFileUtils,
+      seedBytes: await mnemonicToSeedBytes(mnemonic),
+      initialRegularAddressIndex: initialRegularAddressIndex,
+      initialChangeAddressIndex: initialChangeAddressIndex,
+      isFlatpak: isFlatpak,
+    );
   }
 
   static Future<BitcoinWallet> open({
@@ -85,18 +88,23 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
+    required bool isFlatpak,
   }) async {
-    final snp = await ElectrumWallletSnapshot.load(encryptionFileUtils, name, walletInfo.type, password);
+    final snp = await ElectrumWallletSnapshot.load(
+        encryptionFileUtils, name, walletInfo.type, password, isFlatpak);
     return BitcoinWallet(
-        mnemonic: snp.mnemonic,
-        password: password,
-        walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfo,
-        initialAddresses: snp.addresses,
-        initialBalance: snp.balance,
-        seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
-        encryptionFileUtils: encryptionFileUtils,
-        initialRegularAddressIndex: snp.regularAddressIndex,
-        initialChangeAddressIndex: snp.changeAddressIndex);
+      mnemonic: snp.mnemonic,
+      password: password,
+      walletInfo: walletInfo,
+      unspentCoinsInfo: unspentCoinsInfo,
+      initialAddresses: snp.addresses,
+      initialBalance: snp.balance,
+      seedBytes: await mnemonicToSeedBytes(snp.mnemonic),
+      encryptionFileUtils: encryptionFileUtils,
+      initialRegularAddressIndex: snp.regularAddressIndex,
+      initialChangeAddressIndex: snp.changeAddressIndex,
+      isFlatpak: isFlatpak,
+    );
   }
 }
+

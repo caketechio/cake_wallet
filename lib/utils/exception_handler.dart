@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
@@ -19,7 +19,7 @@ class ExceptionHandler {
   static const _coolDownDurationInDays = 7;
 
   static void _saveException(String? error, StackTrace? stackTrace, {String? library}) async {
-    final appDocDir = await getAppDir();
+    final appDocDir = await getAppDir(isFlatpak: isFlatpak);
 
     final file = File('${appDocDir.path}/error.txt');
     final exception = {
@@ -49,7 +49,7 @@ class ExceptionHandler {
 
   static void _sendExceptionFile() async {
     try {
-      final appDocDir = await getAppDir();
+      final appDocDir = await getAppDir(isFlatpak: isFlatpak);
 
       final file = File('${appDocDir.path}/error.txt');
 

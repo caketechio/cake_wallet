@@ -15,11 +15,13 @@ class PolygonTransactionHistory = PolygonTransactionHistoryBase with _$PolygonTr
 
 abstract class PolygonTransactionHistoryBase extends TransactionHistoryBase<PolygonTransactionInfo>
     with Store {
-  PolygonTransactionHistoryBase({required this.walletInfo, required String password})
+  PolygonTransactionHistoryBase(
+      {required this.walletInfo, required String password, required this.isFlatpak})
       : _password = password {
     transactions = ObservableMap<String, PolygonTransactionInfo>();
   }
 
+  final bool isFlatpak;
   final WalletInfo walletInfo;
   String _password;
 
@@ -28,7 +30,8 @@ abstract class PolygonTransactionHistoryBase extends TransactionHistoryBase<Poly
   @override
   Future<void> save() async {
     try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = await pathForWalletDir(
+          name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
       final path = '$dirPath/$transactionsHistoryFileName';
       final data = json.encode({'transactions': transactions});
       await writeData(path: path, password: _password, data: data);
@@ -46,7 +49,8 @@ abstract class PolygonTransactionHistoryBase extends TransactionHistoryBase<Poly
       this.transactions.addAll(transactions);
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+    final dirPath =
+        await pathForWalletDir(name: walletInfo.name, type: walletInfo.type, isFlatpak: isFlatpak);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await read(path: path, password: _password);
     if (content.isEmpty) {

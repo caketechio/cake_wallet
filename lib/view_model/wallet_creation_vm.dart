@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/flatpak.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -66,8 +67,8 @@ abstract class WalletCreationVMBase with Store {
       }
 
       walletCreationService.checkIfExists(name);
-      final dirPath = await pathForWalletDir(name: name, type: type);
-      final path = await pathForWallet(name: name, type: type);
+      final dirPath = await pathForWalletDir(name: name, type: type, isFlatpak: isFlatpak);
+      final path = await pathForWallet(name: name, type: type, isFlatpak: isFlatpak);
       final credentials = restoreWallet != null
           ? getCredentialsFromRestoredWallet(options, restoreWallet)
           : getCredentials(options);

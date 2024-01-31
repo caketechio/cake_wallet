@@ -10,14 +10,12 @@ import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cw_core/address_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/root_dir.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -43,6 +41,7 @@ import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cw_core/cake_hive.dart';
+import 'package:cake_wallet/core/flatpak.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -74,7 +73,7 @@ Future<void> main() async {
 
 Future<void> initializeAppConfigs() async {
   setRootDirFromEnv();
-  final appDir = await getAppDir();
+  final appDir = await getAppDir(isFlatpak: isFlatpak);
   await CakeHive.close();
   CakeHive.init(appDir.path);
 
