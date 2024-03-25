@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -20,6 +21,7 @@ import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -29,6 +31,8 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
@@ -44,6 +48,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/provider_types.dart';
+import 'package:tor/tor.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,19 +58,21 @@ part 'dashboard_view_model.g.dart';
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase(
-      {required this.balanceViewModel,
-      required this.appStore,
-      required this.tradesStore,
-      required this.tradeFilterStore,
-      required this.transactionFilterStore,
-      required this.settingsStore,
-      required this.yatStore,
-      required this.ordersStore,
-      required this.anonpayTransactionsStore,
-      required this.sharedPreferences,
-      required this.keyService})
-      : hasSellAction = false,
+  DashboardViewModelBase({
+    required this.balanceViewModel,
+    required this.appStore,
+    required this.tradesStore,
+    required this.tradeFilterStore,
+    required this.transactionFilterStore,
+    required this.settingsStore,
+    required this.yatStore,
+    required this.ordersStore,
+    required this.anonpayTransactionsStore,
+    required this.keyService,
+    required this.torViewModel,
+    required this.proxyWrapper,
+    required this.sharedPreferences,
+  })  : hasSellAction = false,
         hasBuyAction = false,
         hasExchangeAction = false,
         isShowFirstYatIntroduction = false,
@@ -283,10 +291,18 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero || wallet.type == WalletType.haven;
 
+  @computed
+  bool get isElectrumBased =>
+      [WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash].contains(wallet.type);
+
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
 
   BalanceViewModel balanceViewModel;
+
+  TorViewModel torViewModel;
+
+  ProxyWrapper proxyWrapper;
 
   AppStore appStore;
 
@@ -348,6 +364,14 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   bool hasBuyAction;
+
+  @computed
+  bool get isTorOnly => settingsStore.torConnectionMode == TorConnectionMode.torOnly;
+
+  @computed
+  bool get isTorEnabled =>
+      settingsStore.torConnectionMode == TorConnectionMode.enabled ||
+      settingsStore.torConnectionMode == TorConnectionMode.torOnly;
 
   @computed
   bool get isEnabledSellAction => !settingsStore.disableSell && availableSellProviders.isNotEmpty;
@@ -504,21 +528,24 @@ abstract class DashboardViewModelBase with Store {
 
   Future<ServicesResponse> getServicesStatus() async {
     try {
-      final res = await http.get(Uri.parse("https://service-api.cakewallet.com/v1/active-notices"));
+      final res = await proxyWrapper.get(
+        clearnetUri: Uri.parse("https://service-api.cakewallet.com/v1/active-notices"),
+      );
+      final responseBody = await utf8.decodeStream(res);
 
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        throw res.body;
+        throw responseBody;
       }
 
       final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-      final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+      final hash = await Cryptography.instance.sha256().hash(utf8.encode(responseBody));
       final currentSha = bytesToHex(hash.bytes);
 
       final hasUpdates = oldSha != currentSha;
 
       return ServicesResponse.fromJson(
-        json.decode(res.body) as Map<String, dynamic>,
+        json.decode(responseBody) as Map<String, dynamic>,
         hasUpdates,
         currentSha,
       );

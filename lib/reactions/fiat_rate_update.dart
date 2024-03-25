@@ -8,6 +8,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -32,9 +33,9 @@ Future<void> startFiatRateUpdate(
       } else {
         fiatConversionStore.prices[appStore.wallet!.currency] =
             await FiatConversionService.fetchPrice(
-                crypto: appStore.wallet!.currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+          crypto: appStore.wallet!.currency,
+          fiat: settingsStore.fiatCurrency,
+        );
       }
 
       Iterable<CryptoCurrency>? currencies;
@@ -58,9 +59,9 @@ Future<void> startFiatRateUpdate(
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              crypto: currency,
+              fiat: settingsStore.fiatCurrency,
+            );
           }.call();
         }
       }

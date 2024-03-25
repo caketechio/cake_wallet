@@ -11,16 +11,13 @@ import 'package:flutter/foundation.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-final getFileNameNative = moneroApi
-    .lookup<NativeFunction<get_filename>>('get_filename')
-    .asFunction<GetFilename>();
+final getFileNameNative =
+    moneroApi.lookup<NativeFunction<get_filename>>('get_filename').asFunction<GetFilename>();
 
-final getSeedNative =
-    moneroApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();
+final getSeedNative = moneroApi.lookup<NativeFunction<get_seed>>('seed').asFunction<GetSeed>();
 
-final getAddressNative = moneroApi
-    .lookup<NativeFunction<get_address>>('get_address')
-    .asFunction<GetAddress>();
+final getAddressNative =
+    moneroApi.lookup<NativeFunction<get_address>>('get_address').asFunction<GetAddress>();
 
 final getFullBalanceNative = moneroApi
     .lookup<NativeFunction<get_full_balanace>>('get_full_balance')
@@ -38,41 +35,34 @@ final getNodeHeightNative = moneroApi
     .lookup<NativeFunction<get_node_height>>('get_node_height')
     .asFunction<GetNodeHeight>();
 
-final isConnectedNative = moneroApi
-    .lookup<NativeFunction<is_connected>>('is_connected')
-    .asFunction<IsConnected>();
+final isConnectedNative =
+    moneroApi.lookup<NativeFunction<is_connected>>('is_connected').asFunction<IsConnected>();
 
-final setupNodeNative = moneroApi
-    .lookup<NativeFunction<setup_node>>('setup_node')
-    .asFunction<SetupNode>();
+final setupNodeNative =
+    moneroApi.lookup<NativeFunction<setup_node>>('setup_node').asFunction<SetupNode>();
 
-final startRefreshNative = moneroApi
-    .lookup<NativeFunction<start_refresh>>('start_refresh')
-    .asFunction<StartRefresh>();
+final startRefreshNative =
+    moneroApi.lookup<NativeFunction<start_refresh>>('start_refresh').asFunction<StartRefresh>();
 
 final connecToNodeNative = moneroApi
     .lookup<NativeFunction<connect_to_node>>('connect_to_node')
     .asFunction<ConnectToNode>();
 
 final setRefreshFromBlockHeightNative = moneroApi
-    .lookup<NativeFunction<set_refresh_from_block_height>>(
-        'set_refresh_from_block_height')
+    .lookup<NativeFunction<set_refresh_from_block_height>>('set_refresh_from_block_height')
     .asFunction<SetRefreshFromBlockHeight>();
 
 final setRecoveringFromSeedNative = moneroApi
-    .lookup<NativeFunction<set_recovering_from_seed>>(
-        'set_recovering_from_seed')
+    .lookup<NativeFunction<set_recovering_from_seed>>('set_recovering_from_seed')
     .asFunction<SetRecoveringFromSeed>();
 
-final storeNative =
-    moneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
+final storeNative = moneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
 
 final setPasswordNative =
     moneroApi.lookup<NativeFunction<set_password>>('set_password').asFunction<SetPassword>();
 
-final setListenerNative = moneroApi
-    .lookup<NativeFunction<set_listener>>('set_listener')
-    .asFunction<SetListener>();
+final setListenerNative =
+    moneroApi.lookup<NativeFunction<set_listener>>('set_listener').asFunction<SetListener>();
 
 final getSyncingHeightNative = moneroApi
     .lookup<NativeFunction<get_syncing_height>>('get_syncing_height')
@@ -83,8 +73,7 @@ final isNeededToRefreshNative = moneroApi
     .asFunction<IsNeededToRefresh>();
 
 final isNewTransactionExistNative = moneroApi
-    .lookup<NativeFunction<is_new_transaction_exist>>(
-        'is_new_transaction_exist')
+    .lookup<NativeFunction<is_new_transaction_exist>>('is_new_transaction_exist')
     .asFunction<IsNewTransactionExist>();
 
 final getSecretViewKeyNative = moneroApi
@@ -107,9 +96,8 @@ final closeCurrentWalletNative = moneroApi
     .lookup<NativeFunction<close_current_wallet>>('close_current_wallet')
     .asFunction<CloseCurrentWallet>();
 
-final onStartupNative = moneroApi
-    .lookup<NativeFunction<on_startup>>('on_startup')
-    .asFunction<OnStartup>();
+final onStartupNative =
+    moneroApi.lookup<NativeFunction<on_startup>>('on_startup').asFunction<OnStartup>();
 
 final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
@@ -123,13 +111,11 @@ final setTrustedDaemonNative = moneroApi
     .lookup<NativeFunction<set_trusted_daemon>>('set_trusted_daemon')
     .asFunction<SetTrustedDaemon>();
 
-final trustedDaemonNative = moneroApi
-    .lookup<NativeFunction<trusted_daemon>>('trusted_daemon')
-    .asFunction<TrustedDaemon>();
+final trustedDaemonNative =
+    moneroApi.lookup<NativeFunction<trusted_daemon>>('trusted_daemon').asFunction<TrustedDaemon>();
 
-final signMessageNative = moneroApi
-    .lookup<NativeFunction<sign_message>>('sign_message')
-    .asFunction<SignMessage>();
+final signMessageNative =
+    moneroApi.lookup<NativeFunction<sign_message>>('sign_message').asFunction<SignMessage>();
 
 int getSyncingHeight() => getSyncingHeightNative();
 
@@ -144,11 +130,9 @@ String getSeed() => convertUTF8ToString(pointer: getSeedNative());
 String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
 
-int getFullBalance({int accountIndex = 0}) =>
-    getFullBalanceNative(accountIndex);
+int getFullBalance({int accountIndex = 0}) => getFullBalanceNative(accountIndex);
 
-int getUnlockedBalance({int accountIndex = 0}) =>
-    getUnlockedBalanceNative(accountIndex);
+int getUnlockedBalance({int accountIndex = 0}) => getUnlockedBalanceNative(accountIndex);
 
 int getCurrentHeight() => getCurrentHeightNative();
 
@@ -187,7 +171,7 @@ bool setupNodeSync(
           passwordPointer,
           _boolToInt(useSSL),
           _boolToInt(isLightWallet),
-      socksProxyAddressPointer,
+          socksProxyAddressPointer,
           errorMessagePointer) !=
       0;
 
@@ -201,9 +185,14 @@ bool setupNodeSync(
     calloc.free(passwordPointer);
   }
 
+  if (socksProxyAddressPointer != null) {
+    calloc.free(socksProxyAddressPointer);
+  }
+
   if (!isSetupNode) {
-    throw SetupWalletException(
-        message: convertUTF8ToString(pointer: errorMessagePointer));
+    final errorMessage = convertUTF8ToString(pointer: errorMessagePointer);
+    calloc.free(errorMessagePointer);
+    throw SetupWalletException(message: errorMessage);
   }
 
   return isSetupNode;
@@ -213,8 +202,7 @@ void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-void setRefreshFromBlockHeight({required int height}) =>
-    setRefreshFromBlockHeightNative(height);
+void setRefreshFromBlockHeight({required int height}) => setRefreshFromBlockHeightNative(height);
 
 void setRecoveringFromSeed({required bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
@@ -230,7 +218,7 @@ void setPasswordSync(String password) {
   final errorMessagePointer = calloc<Utf8Box>();
   final changed = setPasswordNative(passwordPointer, errorMessagePointer) != 0;
   calloc.free(passwordPointer);
-  
+
   if (!changed) {
     final message = errorMessagePointer.ref.getValue();
     calloc.free(errorMessagePointer);
@@ -242,24 +230,19 @@ void setPasswordSync(String password) {
 
 void closeCurrentWallet() => closeCurrentWalletNative();
 
-String getSecretViewKey() =>
-    convertUTF8ToString(pointer: getSecretViewKeyNative());
+String getSecretViewKey() => convertUTF8ToString(pointer: getSecretViewKeyNative());
 
-String getPublicViewKey() =>
-    convertUTF8ToString(pointer: getPublicViewKeyNative());
+String getPublicViewKey() => convertUTF8ToString(pointer: getPublicViewKeyNative());
 
-String getSecretSpendKey() =>
-    convertUTF8ToString(pointer: getSecretSpendKeyNative());
+String getSecretSpendKey() => convertUTF8ToString(pointer: getSecretSpendKeyNative());
 
-String getPublicSpendKey() =>
-    convertUTF8ToString(pointer: getPublicSpendKeyNative());
+String getPublicSpendKey() => convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
-  SyncListener(this.onNewBlock, this.onNewTransaction) 
-    : _cachedBlockchainHeight = 0,
-    _lastKnownBlockHeight = 0,
-    _initialSyncHeight = 0;
-  
+  SyncListener(this.onNewBlock, this.onNewTransaction)
+      : _cachedBlockchainHeight = 0,
+        _lastKnownBlockHeight = 0,
+        _initialSyncHeight = 0;
 
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
@@ -281,8 +264,7 @@ class SyncListener {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
-    _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+    _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
         onNewTransaction();
       }
@@ -321,8 +303,8 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNewTransaction) {
+SyncListener setListeners(
+    void Function(int, int, double) onNewBlock, void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
   setListenerNative();
   return listener;
@@ -364,7 +346,7 @@ Future<void> setupNode(
         bool isLightWallet = false}) =>
     compute<Map<String, Object?>, void>(_setupNodeSync, {
       'address': address,
-      'login': login ,
+      'login': login,
       'password': password,
       'useSSL': useSSL,
       'isLightWallet': isLightWallet,

@@ -20,3 +20,6 @@
 -
   uri: node.moneroworld.com:18089
   is_default: false
+-
+  uri: sfprpc5klzs5vyitq2mrooicgk2wcs5ho2nm3niqduvzn5o6ylaslaqd.onion:18089
+  is_default: false

@@ -25,19 +25,16 @@ import 'package:cw_core/wallet_type.dart';
 ReactionDisposer? _onCurrentWalletChangeReaction;
 ReactionDisposer? _onCurrentWalletChangeFiatRateUpdateReaction;
 //ReactionDisposer _onCurrentWalletAddressChangeReaction;
-
 void startCurrentWalletChangeReaction(
     AppStore appStore, SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
   _onCurrentWalletChangeReaction?.reaction.dispose();
   _onCurrentWalletChangeFiatRateUpdateReaction?.reaction.dispose();
   //_onCurrentWalletAddressChangeReaction?.reaction?dispose();
-
   //_onCurrentWalletAddressChangeReaction = reaction((_) => appStore.wallet.walletAddresses.address,
   //(String address) async {
   //if (address == appStore.wallet.walletInfo.yatLastUsedAddress) {
   //  return;
   //}
-
   //try {
   //  final yatStore = getIt.get<YatStore>();
   //  await updateEmojiIdAddress(
@@ -52,7 +49,6 @@ void startCurrentWalletChangeReaction(
   //  print(e.toString());
   //}
   //});
-
   _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet,
       (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
@@ -60,9 +56,7 @@ void startCurrentWalletChangeReaction(
       if (wallet == null) {
         return;
       }
-
       final node = settingsStore.getCurrentNode(wallet.type);
-
       startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
@@ -74,20 +68,16 @@ void startCurrentWalletChangeReaction(
           wallet.type == WalletType.litecoin || wallet.type == WalletType.bitcoinCash ) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
-
       await wallet.connectToNode(node: node);
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
         await wallet.connectToPowNode(node: powNode);
       }
-
       if (wallet.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
       }
-
       if (wallet.walletInfo.address.isEmpty) {
         wallet.walletInfo.address = wallet.walletAddresses.address;
-
         if (wallet.walletInfo.isInBox) {
           await wallet.walletInfo.save();
         }
@@ -96,7 +86,6 @@ void startCurrentWalletChangeReaction(
       print(e.toString());
     }
   });
-
   _onCurrentWalletChangeFiatRateUpdateReaction = reaction((_) => appStore.wallet,
       (WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>?
           wallet) async {
@@ -107,9 +96,9 @@ void startCurrentWalletChangeReaction(
 
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+        crypto: wallet.currency,
+        fiat: settingsStore.fiatCurrency,
+      );
 
       Iterable<CryptoCurrency>? currencies;
       if (wallet.type == WalletType.ethereum) {
@@ -129,9 +118,9 @@ void startCurrentWalletChangeReaction(
         for (final currency in currencies) {
           () async {
             fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+              crypto: currency,
+              fiat: settingsStore.fiatCurrency,
+            );
           }.call();
         }
       }

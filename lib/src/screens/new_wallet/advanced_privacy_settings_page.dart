@@ -7,11 +7,19 @@ import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_picker_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/settings_tor_status.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
+import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
+import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/seed_type_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +29,19 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
-  AdvancedPrivacySettingsPage(this.useTestnet, this.toggleUseTestnet,
-      this.advancedPrivacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel);
+  AdvancedPrivacySettingsPage(
+    this.useTestnet,
+    this.toggleUseTestnet,
+    this.advancedPrivacySettingsViewModel,
+    this.nodeViewModel,
+    this.seedTypeViewModel,
+    this.torViewModel,
+  );
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedTypeViewModel seedTypeViewModel;
+  final TorViewModel torViewModel;
 
   @override
   String get title => S.current.privacy_settings;
@@ -35,19 +50,26 @@ class AdvancedPrivacySettingsPage extends BasePage {
   final Function(bool? val) toggleUseTestnet;
 
   @override
-  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(useTestnet, toggleUseTestnet,
-      advancedPrivacySettingsViewModel, nodeViewModel, seedTypeViewModel);
+  Widget body(BuildContext context) => AdvancedPrivacySettingsBody(
+        useTestnet,
+        toggleUseTestnet,
+        advancedPrivacySettingsViewModel,
+        nodeViewModel,
+        seedTypeViewModel,
+        torViewModel,
+      );
 }
 
 class AdvancedPrivacySettingsBody extends StatefulWidget {
   const AdvancedPrivacySettingsBody(this.useTestnet, this.toggleUseTestnet,
-      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel,
+      this.privacySettingsViewModel, this.nodeViewModel, this.seedTypeViewModel, this.torViewModel,
       {Key? key})
       : super(key: key);
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
   final SeedTypeViewModel seedTypeViewModel;
+  final TorViewModel torViewModel;
 
   final bool useTestnet;
   final Function(bool? val) toggleUseTestnet;
@@ -151,6 +173,56 @@ class _AdvancedPrivacySettingsBodyState extends State<AdvancedPrivacySettingsBod
                       widget.toggleUseTestnet!.call(testnetValue);
                     });
               }),
+            if (FeatureFlag.isInAppTorEnabled && DeviceInfo.instance.isMobile) ...[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                child: Column(children: [
+                  Observer(builder: (context) {
+                    return SettingsPickerCell<TorConnectionMode>(
+                      title: S.current.tor_connection,
+                      items: TorConnectionMode.enabledDisabled,
+                      displayItem: (TorConnectionMode mode) => mode.title,
+                      selectedItem: widget.torViewModel.torConnectionMode,
+                      onItemSelected: (TorConnectionMode mode) async {
+                        if (mode == TorConnectionMode.enabled) {
+                          await showPopUp<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertWithOneAction(
+                                alertTitle: S.of(context).warning,
+                                alertContent: S.of(context).tor_enabled_warning,
+                                buttonText: S.of(context).ok,
+                                buttonAction: () => Navigator.of(context).pop(),
+                              );
+                            },
+                          );
+                        }
+                        widget.torViewModel.setTorConnectionMode(mode);
+                      },
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25), topRight: Radius.circular(25)),
+                        color: Theme.of(context)
+                            .extension<SyncIndicatorTheme>()!
+                            .notSyncedBackgroundColor,
+                      ),
+                    );
+                  }),
+                  TorStatus(
+                    torViewModel: widget.torViewModel,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(25), bottomRight: Radius.circular(25)),
+                      color: Theme.of(context)
+                          .extension<SyncIndicatorTheme>()!
+                          .notSyncedBackgroundColor,
+                    ),
+                    title: S.current.tor_status,
+                    isSelected: false,
+                  ),
+                ]),
+              ),
+            ],
           ],
         ),
         bottomSectionPadding: EdgeInsets.all(24),

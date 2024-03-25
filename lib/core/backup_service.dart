@@ -218,6 +218,7 @@ class BackupService {
     final currentLanguageCode = data[PreferencesKey.currentLanguageCode] as String?;
     final displayActionListMode = data[PreferencesKey.displayActionListModeKey] as int?;
     final fiatApiMode = data[PreferencesKey.currentFiatApiModeKey] as int?;
+    final torConnectionMode = data[PreferencesKey.currentTorConnectionModeKey] as int?;
     final currentPinLength = data[PreferencesKey.currentPinLength] as int?;
     final currentTheme = data[PreferencesKey.currentTheme] as int?;
     final exchangeStatus = data[PreferencesKey.exchangeStatusKey] as int?;
@@ -289,6 +290,10 @@ class BackupService {
 
     if (fiatApiMode != null)
       await _sharedPreferences.setInt(PreferencesKey.currentFiatApiModeKey, fiatApiMode);
+
+    if (torConnectionMode != null)
+      await _sharedPreferences.setInt(PreferencesKey.currentTorConnectionModeKey, torConnectionMode);
+
     if (autoGenerateSubaddressStatus != null)
       await _sharedPreferences.setInt(
           PreferencesKey.autoGenerateSubaddressStatusKey, autoGenerateSubaddressStatus);
@@ -483,6 +488,8 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
       PreferencesKey.currentFiatApiModeKey:
           _sharedPreferences.getInt(PreferencesKey.currentFiatApiModeKey),
+      PreferencesKey.currentTorConnectionModeKey:
+          _sharedPreferences.getInt(PreferencesKey.currentTorConnectionModeKey),
       PreferencesKey.sortBalanceBy: _sharedPreferences.getInt(PreferencesKey.sortBalanceBy),
       PreferencesKey.pinNativeTokenAtTop:
           _sharedPreferences.getBool(PreferencesKey.pinNativeTokenAtTop),

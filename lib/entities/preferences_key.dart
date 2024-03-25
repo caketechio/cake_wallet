@@ -24,6 +24,7 @@ class PreferencesKey {
   static const walletListOrder = 'wallet_list_order';
   static const walletListAscending = 'wallet_list_ascending';
   static const currentFiatApiModeKey = 'current_fiat_api_mode';
+  static const currentTorConnectionModeKey = 'current_tor_connection_mode';
   static const failedTotpTokenTrials = 'failed_token_trials';
   static const disableExchangeKey = 'disable_exchange';
   static const exchangeStatusKey = 'exchange_status';
@@ -60,6 +61,9 @@ class PreferencesKey {
   static const lookupsUnstoppableDomains = 'looks_up_mastodon';
   static const lookupsOpenAlias = 'looks_up_mastodon';
   static const lookupsENS = 'looks_up_ens';
+  static const shouldShowTorSellWarning = 'shown_tor_sell_warning';
+  static const shouldShowTorBuyWarning = 'shown_tor_buy_warning';
+
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

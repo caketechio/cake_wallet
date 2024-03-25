@@ -36,10 +36,6 @@ abstract class PowNodeListViewModelBase with Store {
     return node;
   }
 
-  String getAlertContent(String uri) =>
-      S.current.change_current_node(uri) +
-      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
-
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
   final Box<Node> _nodeSource;

@@ -13,6 +13,7 @@ import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/background_tasks.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/nano/nano.dart';
@@ -49,7 +50,6 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_info_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_qr_page.dart';
@@ -63,6 +63,7 @@ import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/desktop_sidebar_view_model.dart';
 import 'package:cake_wallet/view_model/anon_invoice_page_view_model.dart';
@@ -100,6 +101,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
@@ -229,6 +231,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
+import 'package:tor/tor.dart';
 
 import 'buy/dfx/dfx_buy_provider.dart';
 import 'core/totp_request_details.dart';
@@ -348,9 +351,11 @@ Future<void> setup({
       (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
-      getIt.get<SharedPreferences>(),
-      getIt.get<KeyService>(),
-      (WalletType type) => getIt.get<WalletService>(param1: type)));
+        getIt.get<SharedPreferences>(),
+        getIt.get<KeyService>(),
+        (WalletType type) => getIt.get<WalletService>(param1: type),
+        getIt.get<TorViewModel>(),
+      ));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) => WalletNewVM(
       getIt.get<AppStore>(),
@@ -375,17 +380,20 @@ Future<void> setup({
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
-      balanceViewModel: getIt.get<BalanceViewModel>(),
-      appStore: getIt.get<AppStore>(),
-      tradesStore: getIt.get<TradesStore>(),
-      tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>(),
-      settingsStore: settingsStore,
-      yatStore: getIt.get<YatStore>(),
-      ordersStore: getIt.get<OrdersStore>(),
-      anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
-      sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+        balanceViewModel: getIt.get<BalanceViewModel>(),
+        appStore: getIt.get<AppStore>(),
+        tradesStore: getIt.get<TradesStore>(),
+        tradeFilterStore: getIt.get<TradeFilterStore>(),
+        transactionFilterStore: getIt.get<TransactionFilterStore>(),
+        settingsStore: settingsStore,
+        yatStore: getIt.get<YatStore>(),
+        ordersStore: getIt.get<OrdersStore>(),
+        anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
+        keyService: getIt.get<KeyService>(),
+        torViewModel: getIt.get<TorViewModel>(),
+        sharedPreferences: getIt.get<SharedPreferences>(),
+        proxyWrapper: getIt.get<ProxyWrapper>(),
+      ));
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
@@ -719,6 +727,22 @@ Future<void> setup({
   });
 
   getIt.registerFactory(() => TrocadorProvidersViewModel(getIt.get<SettingsStore>()));
+
+  getIt.registerSingleton(
+      TorViewModel(getIt.get<SettingsStore>(), getIt.get<SettingsStore>().nodes));
+  getIt.registerSingleton(ProxyWrapper(
+    settingsStore: getIt.get<SettingsStore>(),
+    torViewModel: getIt.get<TorViewModel>(),
+  ));
+
+  if (DeviceInfo.instance.isMobile) {
+    // only await if torOnly:
+    if (settingsStore.torConnectionMode == TorConnectionMode.enabled) {
+      getIt.get<TorViewModel>().startTor();
+    } else if (settingsStore.torConnectionMode == TorConnectionMode.torOnly) {
+      await getIt.get<TorViewModel>().startTor();
+    }
+  }
 
   getIt.registerFactory(() {
     return OtherSettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AppStore>().wallet!);
@@ -1133,9 +1157,7 @@ Future<void> setup({
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
-  getIt.registerFactory(() => AnonPayApi(
-      useTorOnly: getIt.get<SettingsStore>().exchangeStatus == ExchangeApiMode.torOnly,
-      wallet: getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => AnonPayApi(wallet: getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() =>
       DesktopWalletSelectionDropDown(getIt.get<WalletListViewModel>(), getIt.get<AuthService>()));
@@ -1193,8 +1215,8 @@ Future<void> setup({
   getIt.registerFactory(
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
-  getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
+  getIt.registerFactory(
+      () => NFTViewModel(appStore, getIt.get<BottomSheetService>(), getIt.get<ProxyWrapper>()));
 
   _isSetupFinished = true;
 }

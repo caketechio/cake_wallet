@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -8,15 +10,15 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:http/http.dart';
 
 class TrocadorExchangeProvider extends ExchangeProvider {
-  TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
-      : _lastUsedRateId = '', _provider = [],
+  TrocadorExchangeProvider({this.providerStates = const {}})
+      : _lastUsedRateId = '',
+        _provider = [],
         super(pairList: supportedPairs(_notSupported));
 
-  bool useTorOnly;
   final Map<String, bool> providerStates;
 
   static const List<String> availableProviders = [
@@ -24,7 +26,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     'StealthEx',
     'Simpleswap',
     'Swapuz'
-    'ChangeNow',
+        'ChangeNow',
     'Changehero',
     'FixedFloat',
     'LetsExchange',
@@ -83,13 +85,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'name': from.name,
     };
 
-    final uri = await _getUri(coinPath, params);
-    final response = await get(uri);
+    final response = await proxyGet(coinPath, params);
+    final responseBody = await utf8.decodeStream(response);
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as List<dynamic>;
+    final responseJSON = json.decode(responseBody) as List<dynamic>;
 
     if (responseJSON.isEmpty) throw Exception('No data');
 
@@ -124,9 +126,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         'markup': markup,
       };
 
-      final uri = await _getUri(newRatePath, params);
-      final response = await get(uri);
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final response = await proxyGet(newRatePath, params);
+      final responseBody = await utf8.decodeStream(response);
+      final responseJSON = json.decode(responseBody) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
@@ -145,7 +147,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request, required bool isFixedRateMode}) async {
-
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -172,7 +173,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       params['id'] = _lastUsedRateId;
     }
 
-
     String firstAvailableProvider = '';
 
     for (var provider in _provider) {
@@ -188,11 +188,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     params['provider'] = firstAvailableProvider;
 
-    final uri = await _getUri(createTradePath, params);
-    final response = await get(uri);
+    final response = await proxyGet(createTradePath, params);
+    final responseBody = await utf8.decodeStream(response);
 
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseBody) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -201,7 +201,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseBody) as Map<String, dynamic>;
     final id = responseJSON['trade_id'] as String;
     final inputAddress = responseJSON['address_provider'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
@@ -230,38 +230,37 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final uri = await _getUri(tradePath, {'api_key': apiKey, 'id': id});
-    return get(uri).then((response) {
-      if (response.statusCode != 200)
-        throw Exception('Unexpected http status: ${response.statusCode}');
+    final response = await proxyGet(tradePath, {'api_key': apiKey, 'id': id});
+    if (response.statusCode != 200)
+      throw Exception('Unexpected http status: ${response.statusCode}');
+    final String responseBody = await utf8.decodeStream(response);
 
-      final responseListJson = json.decode(response.body) as List;
-      final responseJSON = responseListJson.first;
-      final id = responseJSON['trade_id'] as String;
-      final payoutAddress = responseJSON['address_user'] as String;
-      final refundAddress = responseJSON['refund_address'] as String;
-      final inputAddress = responseJSON['address_provider'] as String;
-      final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
-      final password = responseJSON['password'] as String;
-      final providerId = responseJSON['id_provider'] as String;
-      final providerName = responseJSON['provider'] as String;
+    final responseListJson = json.decode(responseBody) as List;
+    final responseJSON = responseListJson.first;
+    final tradeId = responseJSON['trade_id'] as String;
+    final payoutAddress = responseJSON['address_user'] as String;
+    final refundAddress = responseJSON['refund_address'] as String;
+    final inputAddress = responseJSON['address_provider'] as String;
+    final fromAmount = responseJSON['amount_from']?.toString() ?? '0';
+    final password = responseJSON['password'] as String;
+    final providerId = responseJSON['id_provider'] as String;
+    final providerName = responseJSON['provider'] as String;
 
-      return Trade(
-        id: id,
-        from: CryptoCurrency.fromString(responseJSON['ticker_from'] as String),
-        to: CryptoCurrency.fromString(responseJSON['ticker_to'] as String),
-        provider: description,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
-        createdAt: DateTime.parse(responseJSON['date'] as String),
-        amount: fromAmount,
-        state: TradeState.deserialize(raw: responseJSON['status'] as String),
-        payoutAddress: payoutAddress,
-        password: password,
-        providerId: providerId,
-        providerName: providerName,
-      );
-    });
+    return Trade(
+      id: tradeId,
+      from: CryptoCurrency.fromString(responseJSON['ticker_from'] as String),
+      to: CryptoCurrency.fromString(responseJSON['ticker_to'] as String),
+      provider: description,
+      inputAddress: inputAddress,
+      refundAddress: refundAddress,
+      createdAt: DateTime.parse(responseJSON['date'] as String),
+      amount: fromAmount,
+      state: TradeState.deserialize(raw: responseJSON['status'] as String),
+      payoutAddress: payoutAddress,
+      password: password,
+      providerId: providerId,
+      providerName: providerName,
+    );
   }
 
   String _networkFor(CryptoCurrency currency) {
@@ -305,17 +304,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<Uri> _getUri(String path, Map<String, String> queryParams) async {
-    final uri = Uri.http(onionApiAuthority, path, queryParams);
-
-    if (useTorOnly) return uri;
-
-    try {
-      await get(uri);
-
-      return uri;
-    } catch (e) {
-      return Uri.https(clearNetAuthority, path, queryParams);
-    }
+  Future<HttpClientResponse> proxyGet(String path, Map<String, String> queryParams) async {
+    ProxyWrapper proxy = await getIt.get<ProxyWrapper>();
+    Uri onionUri = Uri.http(onionApiAuthority, path, queryParams);
+    Uri clearnetUri = Uri.http(clearNetAuthority, path, queryParams);
+    return await proxy.get(
+      onionUri: onionUri,
+      clearnetUri: clearnetUri,
+    );
   }
 }

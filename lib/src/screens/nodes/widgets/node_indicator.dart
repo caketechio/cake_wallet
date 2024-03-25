@@ -2,17 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class NodeIndicator extends StatelessWidget {
-  NodeIndicator({this.isLive = false});
+  NodeIndicator({
+    this.color = Palette.red,
+    this.text = "",
+  });
 
-  final bool isLive;
+  final Color? color;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 12.0,
-      height: 12.0,
-      decoration: BoxDecoration(
-          shape: BoxShape.circle, color: isLive ? Palette.green : Palette.red),
+    return Row(
+      children: [
+        Container(
+          width: 12.0,
+          height: 12.0,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color,
+          ),
+        ),
+        if (text.isNotEmpty) ...[
+          const SizedBox(width: 8.0),
+          Text(
+            text,
+            style: TextStyle(fontSize: 14.0),
+          )
+        ],
+      ],
     );
   }
 }

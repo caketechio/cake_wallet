@@ -105,5 +105,4 @@ class Routes {
       '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
-  static const torPage = '/tor_page';
 }

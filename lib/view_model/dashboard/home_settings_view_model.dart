@@ -6,6 +6,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -99,9 +100,9 @@ abstract class HomeSettingsViewModelBase with Store {
     try {
       _balanceViewModel.fiatConvertationStore.prices[token] =
           await FiatConversionService.fetchPrice(
-              crypto: token,
-              fiat: _settingsStore.fiatCurrency,
-              torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
+        crypto: token,
+        fiat: _settingsStore.fiatCurrency,
+      );
     } catch (_) {}
   }
 

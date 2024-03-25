@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:cake_wallet/core/wallet_connect/wc_bottom_sheet_service.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/message_display_widget.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
+import 'package:cake_wallet/view_model/settings/tor_connection.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -16,7 +18,7 @@ part 'nft_view_model.g.dart';
 class NFTViewModel = NFTViewModelBase with _$NFTViewModel;
 
 abstract class NFTViewModelBase with Store {
-  NFTViewModelBase(this.appStore, this.bottomSheetService)
+  NFTViewModelBase(this.appStore, this.bottomSheetService, this.proxyWrapper)
       : isLoading = false,
         isImportNFTLoading = false,
         nftAssetByWalletModels = ObservableList() {
@@ -27,6 +29,7 @@ abstract class NFTViewModelBase with Store {
 
   final AppStore appStore;
   final BottomSheetService bottomSheetService;
+  final ProxyWrapper proxyWrapper;
 
   @observable
   bool isLoading;
@@ -62,18 +65,25 @@ abstract class NFTViewModelBase with Store {
       },
     );
 
+    if (appStore.settingsStore.torConnectionMode == TorConnectionMode.torOnly) {
+      print("Can't load nfts with only tor enabled (cloudflare blocks tor)");
+      return;
+    }
+
     try {
       isLoading = true;
 
-      final response = await http.get(
-        uri,
+      final response = await proxyWrapper.get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
 
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBody = await utf8.decodeStream(response);
+
+      final decodedResponse = jsonDecode(responseBody) as Map<String, dynamic>;
 
       final result = WalletNFTsResponseModel.fromJson(decodedResponse).result ?? [];
 
@@ -85,6 +95,11 @@ abstract class NFTViewModelBase with Store {
     } catch (e) {
       isLoading = false;
       log(e.toString());
+      // this is just a connection error that happens while tor is initializing
+      // so we can ignore it:
+      if (e.toString().contains("Unexpected character")) {
+        return;
+      }
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(
@@ -116,15 +131,17 @@ abstract class NFTViewModelBase with Store {
     try {
       isImportNFTLoading = true;
 
-      final response = await http.get(
-        uri,
+      final response = await proxyWrapper.get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
 
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final responseBody = await utf8.decodeStream(response);
+
+      final decodedResponse = jsonDecode(responseBody) as Map<String, dynamic>;
 
       final nftAsset = NFTAssetModel.fromJson(decodedResponse);
 
@@ -133,6 +150,11 @@ abstract class NFTViewModelBase with Store {
       isImportNFTLoading = false;
     } catch (e) {
       isImportNFTLoading = false;
+      // this is just a connection error that happens while tor is initializing
+      // so we can ignore it:
+      if (e.toString().contains("Unexpected character")) {
+        return;
+      }
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(

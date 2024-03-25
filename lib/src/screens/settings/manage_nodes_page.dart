@@ -71,8 +71,7 @@ class ManageNodesPage extends BasePage {
                               builder: (BuildContext context) {
                                 return AlertWithTwoActions(
                                   alertTitle: S.of(context).change_current_node_title,
-                                  alertContent: nodeListViewModel?.getAlertContent(node.uriRaw) ??
-                                      powNodeListViewModel!.getAlertContent(node.uriRaw),
+                                  alertContent: S.current.change_current_node(node.uriRaw),
                                   leftButtonText: S.of(context).cancel,
                                   rightButtonText: S.of(context).change,
                                   actionLeftButton: () => Navigator.of(context).pop(),

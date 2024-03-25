@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
@@ -23,12 +24,16 @@ class NodeListRow extends StandardListRow {
     return FutureBuilder(
         future: node.requestNode(),
         builder: (context, snapshot) {
+          Color? color;
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return NodeIndicator(isLive: (snapshot.data as bool?) ?? false);
+              color = ((snapshot.data as bool?) ?? false) ? Palette.green : Palette.red;
+              break;
             default:
-              return NodeIndicator(isLive: false);
+              color = Palette.red;
+              break;
           }
+          return NodeIndicator(color: color);
         });
   }
 
@@ -41,14 +46,9 @@ class NodeListRow extends StandardListRow {
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsBackgroundColor),
+                color: Theme.of(context).extension<ReceivePageTheme>()!.iconsBackgroundColor),
             child: Icon(Icons.edit,
-                size: 14,
-                color: Theme.of(context)
-                                  .extension<ReceivePageTheme>()!
-                                  .iconsColor)));
+                size: 14, color: Theme.of(context).extension<ReceivePageTheme>()!.iconsColor)));
   }
 }
 
@@ -61,7 +61,7 @@ class NodeHeaderListRow extends StandardListRow {
     return SizedBox(
       width: 20,
       child: Icon(Icons.add,
-          color: Theme.of(context).extension<FilterTheme>()!.titlesColor,size: 24.0),
+          color: Theme.of(context).extension<FilterTheme>()!.titlesColor, size: 24.0),
     );
   }
 }

@@ -16,7 +16,7 @@ import 'package:erc20/erc20.dart';
 import 'package:web3dart/web3dart.dart';
 
 abstract class EVMChainClient {
-  final httpClient = Client();
+  Client httpClient = Client();
   Web3Client? _client;
 
   //! To be overridden by all child classes
@@ -32,6 +32,8 @@ abstract class EVMChainClient {
 
   bool connect(Node node) {
     try {
+      // re-initialize the client so any proxy wrapper settings take effect:
+      httpClient = Client();
       _client = Web3Client(node.uri.toString(), httpClient);
 
       return true;

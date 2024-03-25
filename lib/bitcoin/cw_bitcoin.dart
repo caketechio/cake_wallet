@@ -231,4 +231,10 @@ class CWBitcoin extends Bitcoin {
         return SegwitAddresType.p2wpkh;
     }
   }
+
+  @override
+	void setTorOnly(Object wallet, bool torOnly) {
+		final electrumWallet = wallet as ElectrumWallet;
+		electrumWallet.setTorOnly(torOnly);
+	}
 }

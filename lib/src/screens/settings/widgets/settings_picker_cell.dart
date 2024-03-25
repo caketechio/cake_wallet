@@ -14,10 +14,12 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       this.searchHintText,
       this.isGridView = false,
       this.matchingCriteria,
-      this.onItemSelected})
+      this.onItemSelected,
+      this.decoration})
       : super(
           title: title,
           isSelected: false,
+          decoration: decoration,
           onTap: (BuildContext context) async {
             final selectedAtIndex = items.indexOf(selectedItem);
 
@@ -47,6 +49,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final String? searchHintText;
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;
+  final BoxDecoration? decoration;
 
   @override
   Widget buildTrailing(BuildContext context) {

@@ -51,7 +51,7 @@ class BrightTheme extends LightTheme {
       super.syncIndicatorStyle.copyWith(
           textColor: Colors.white,
           syncedBackgroundColor: Colors.white.withOpacity(0.2),
-          notSyncedBackgroundColor: Colors.white.withOpacity(0.15));
+          notSyncedBackgroundColor: Colors.grey.withOpacity(0.15));
 
   @override
   ExchangePageTheme get exchangePageTheme => super.exchangePageTheme.copyWith(

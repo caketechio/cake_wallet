@@ -16,25 +16,31 @@ class StandardListRow extends StatelessWidget {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
 
-    return InkWell(
-      onTap: () => onTap?.call(context),
-      child: Container(
-        height: 56,
-        padding: EdgeInsets.only(left: 24, right: 24),
-        decoration: decoration ??
-            BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-            ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            if (leading != null) leading,
-            buildCenter(context, hasLeftOffset: leading != null),
-            if (trailing != null) trailing,
-          ],
-        ),
+    final base = Container(
+      height: 56,
+      padding: EdgeInsets.only(left: 24, right: 24),
+      decoration: decoration ??
+          BoxDecoration(
+            color: Theme.of(context).colorScheme.background,
+          ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          if (leading != null) leading,
+          buildCenter(context, hasLeftOffset: leading != null),
+          if (trailing != null) trailing,
+        ],
       ),
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: () => onTap?.call(context),
+        child: base,
+      );
+    } else {
+      return base;
+    }
   }
 
   Widget? buildLeading(BuildContext context) => null;

@@ -149,25 +149,26 @@ Future<void> initializeAppConfigs() async {
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
 
   await initialSetup(
-      sharedPreferences: await SharedPreferences.getInstance(),
-      nodes: nodes,
-      powNodes: powNodes,
-      walletInfoSource: walletInfoSource,
-      contactSource: contacts,
-      tradesSource: trades,
-      ordersSource: orders,
-      unspentCoinsInfoSource: unspentCoinsInfoSource,
-      // fiatConvertationService: fiatConvertationService,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptions: transactionDescriptions,
-      secureStorage: secureStorage,
-      anonpayInvoiceInfo: anonpayInvoiceInfo,
-      initialMigrationVersion: 29);
+    sharedPreferences: await SharedPreferences.getInstance(),
+    nodes: nodes,
+    powNodes: powNodes,
+    walletInfoSource: walletInfoSource,
+    contactSource: contacts,
+    tradesSource: trades,
+    ordersSource: orders,
+    unspentCoinsInfoSource: unspentCoinsInfoSource,
+    // fiatConvertationService: fiatConvertationService,
+    templates: templates,
+    exchangeTemplates: exchangeTemplates,
+    transactionDescriptions: transactionDescriptions,
+    secureStorage: secureStorage,
+    anonpayInvoiceInfo: anonpayInvoiceInfo,
+    initialMigrationVersion: 30,
+  );
 }
 
 Future<void> initialSetup(
-    {required SharedPreferences sharedPreferences, 
+    {required SharedPreferences sharedPreferences,
     required Box<Node> nodes,
     required Box<Node> powNodes,
     required Box<WalletInfo> walletInfoSource,
