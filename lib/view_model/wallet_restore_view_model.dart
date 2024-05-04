@@ -1,12 +1,15 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cw_core/nano_account_info_response.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -236,6 +239,54 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         break;
     }
     return list;
+  }
+
+  Future<DerivationInfo?> getFinalDerivationInfo(BuildContext context, dynamic credentials) async {
+    state = IsExecutingState();
+    try {
+      DerivationInfo? dInfo;
+
+      // get info about the different derivations:
+      List<DerivationInfo> derivations = await getDerivationInfo(credentials);
+
+      int derivationsWithHistory = 0;
+      int derivationWithHistoryIndex = 0;
+      for (int i = 0; i < derivations.length; i++) {
+        if (derivations[i].transactionsCount > 0) {
+          derivationsWithHistory++;
+          derivationWithHistoryIndex = i;
+        }
+      }
+
+      if (derivationsWithHistory > 1) {
+        dInfo = await Navigator.of(context).pushNamed(
+          Routes.restoreWalletChooseDerivation,
+          arguments: derivations,
+        ) as DerivationInfo?;
+      } else if (derivationsWithHistory == 1) {
+        dInfo = derivations[derivationWithHistoryIndex];
+      }
+
+      // get the default derivation for this wallet type:
+      if (dInfo == null) {
+        // we only return 1 derivation if we're pretty sure we know which one to use:
+        if (derivations.length == 1) {
+          dInfo = derivations.first;
+        } else {
+          // if we have multiple possible derivations, and none have histories
+          // we just default to the most common one:
+          dInfo = getCommonRestoreDerivation();
+        }
+      }
+
+      if (dInfo == null) {
+        dInfo = getDefaultDerivation();
+      }
+      return dInfo;
+    } catch (e) {
+      state = FailureState(e.toString());
+      rethrow;
+    }
   }
 
   @override

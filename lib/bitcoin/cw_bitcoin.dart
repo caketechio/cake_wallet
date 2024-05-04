@@ -287,6 +287,10 @@ class CWBitcoin extends Bitcoin {
   }) async {
     List<DerivationInfo> list = [];
 
+    if (!validateMnemonic(mnemonic) && !bip39.validateMnemonic(mnemonic)) {
+      throw BitcoinMnemonicIsIncorrectException();
+    }
+
     List<DerivationType> types = await compareDerivationMethods(mnemonic: mnemonic, node: node);
     if (types.length == 1 && types.first == DerivationType.electrum) {
       return [

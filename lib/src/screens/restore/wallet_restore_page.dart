@@ -96,9 +96,6 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
-
-  // DerivationType derivationType = DerivationType.unknown;
-  // String? derivationPath = null;
   DerivationInfo? derivationInfo;
 
   @override
@@ -322,7 +319,6 @@ class WalletRestorePage extends BasePage {
       }
     }
 
-    credentials['derivationInfo'] = this.derivationInfo;
     credentials['walletType'] = walletRestoreViewModel.type;
     return credentials;
   }
@@ -353,50 +349,10 @@ class WalletRestorePage extends BasePage {
       return;
     }
 
-    walletRestoreViewModel.state = IsExecutingState();
-
-    DerivationInfo? dInfo;
-
-    // get info about the different derivations:
-    List<DerivationInfo> derivations =
-        await walletRestoreViewModel.getDerivationInfo(_credentials());
-
-    int derivationsWithHistory = 0;
-    int derivationWithHistoryIndex = 0;
-    for (int i = 0; i < derivations.length; i++) {
-      if (derivations[i].transactionsCount > 0) {
-        derivationsWithHistory++;
-        derivationWithHistoryIndex = i;
-      }
-    }
-
-    if (derivationsWithHistory > 1) {
-      dInfo = await Navigator.of(context).pushNamed(
-        Routes.restoreWalletChooseDerivation,
-        arguments: derivations,
-      ) as DerivationInfo?;
-    } else if (derivationsWithHistory == 1) {
-      dInfo = derivations[derivationWithHistoryIndex];
-    }
-
-    // get the default derivation for this wallet type:
-    if (dInfo == null) {
-      // we only return 1 derivation if we're pretty sure we know which one to use:
-      if (derivations.length == 1) {
-        dInfo = derivations.first;
-      } else {
-        // if we have multiple possible derivations, and none have histories
-        // we just default to the most common one:
-        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
-      }
-    }
-
-    this.derivationInfo = dInfo;
-    if (this.derivationInfo == null) {
-      this.derivationInfo = walletRestoreViewModel.getDefaultDerivation();
-    }
-
-    walletRestoreViewModel.create(options: _credentials());
+    dynamic creds = _credentials();
+    creds['derivationInfo'] = await walletRestoreViewModel.getFinalDerivationInfo(context, creds);
+    
+    walletRestoreViewModel.create(options: creds);
   }
 
   Future<void> showNameExistsAlert(BuildContext context) {
