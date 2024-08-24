@@ -85,6 +85,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
+      case WalletType.lightning:
         return false;
     }
   }

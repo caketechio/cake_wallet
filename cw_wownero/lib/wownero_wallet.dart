@@ -155,7 +155,7 @@ abstract class WowneroWalletBase
   Future<void>? updateBalance() => null;
 
   @override
-  void close() async {
+  Future<void> close({bool? switchingToSameWalletType}) async {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();

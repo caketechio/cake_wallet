@@ -158,6 +158,9 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_lightning/lib/.secrets.g.dart
+          echo "const greenlightCert = '${{ secrets.GREENLIGHT_CERTIFICATE }}';" >> cw_lightning/lib/.secrets.g.dart
+          echo "const greenlightKey = '${{ secrets.GREENLIGHT_KEY }}';" >> cw_lightning/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart

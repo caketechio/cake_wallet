@@ -58,6 +58,9 @@ abstract class NodeListViewModelBase with Store {
           node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
         }
         break;
+      case WalletType.lightning:
+        node = getBitcoinDefaultElectrumServer(nodes: _nodeSource)!;
+        break;
       case WalletType.monero:
         node = getMoneroDefaultNode(nodes: _nodeSource);
         break;

@@ -11,6 +11,14 @@ import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart';
 
+double lightningDoubleToBitcoinDouble({required double amount}) {
+  return amount / 100000000;
+}
+
+double bitcoinDoubleToLightningDouble({required double amount}) {
+  return amount * 100000000;
+}
+
 class TrocadorExchangeProvider extends ExchangeProvider {
   TrocadorExchangeProvider({this.useTorOnly = false, this.providerStates = const {}})
       : _lastUsedRateId = '',
@@ -106,6 +114,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
+    // trocador treats btcln as just bitcoin amounts:
+    if (from == CryptoCurrency.btcln) {
+      return Limits(
+        min: bitcoinDoubleToLightningDouble(amount: (coinJson['minimum'] as double)),
+        max: bitcoinDoubleToLightningDouble(amount: (coinJson['maximum'] as double)),
+      );
+    }
+
     return Limits(
       min: coinJson['minimum'] as double,
       max: coinJson['maximum'] as double,
@@ -122,14 +138,20 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     try {
       if (amount == 0) return 0.0;
 
+      double amt = amount;
+
+      if (from == CryptoCurrency.btcln) {
+        amt = lightningDoubleToBitcoinDouble(amount: amount);
+      }
+
       final params = <String, String>{
         'api_key': apiKey,
         'ticker_from': _normalizeCurrency(from),
         'ticker_to': _normalizeCurrency(to),
         'network_from': _networkFor(from),
         'network_to': _networkFor(to),
-        if (!isFixedRateMode) 'amount_from': amount.toString(),
-        if (isFixedRateMode) 'amount_to': amount.toString(),
+        if (!isFixedRateMode) 'amount_from': amt.toString(),
+        if (isFixedRateMode) 'amount_to': amt.toString(),
         'payment': isFixedRateMode ? 'True' : 'False',
         'min_kycrating': 'C',
         'markup': markup,
@@ -160,6 +182,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
+    double fromAmt = double.parse(request.fromAmount);
+    double toAmt = double.parse(request.toAmount);
+    if (request.fromCurrency == CryptoCurrency.btcln) {
+      fromAmt = lightningDoubleToBitcoinDouble(amount: fromAmt);
+    }
+    if (request.toCurrency == CryptoCurrency.btcln) {
+      toAmt = lightningDoubleToBitcoinDouble(amount: toAmt);
+    }
     final params = {
       'api_key': apiKey,
       'ticker_from': _normalizeCurrency(request.fromCurrency),
@@ -169,17 +199,22 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'payment': isFixedRateMode ? 'True' : 'False',
       'min_kycrating': 'C',
       'markup': markup,
-      if (!isFixedRateMode) 'amount_from': request.fromAmount,
-      if (isFixedRateMode) 'amount_to': request.toAmount,
+      if (!isFixedRateMode) 'amount_from': fromAmt.toString(),
+      if (isFixedRateMode) 'amount_to': toAmt.toString(),
       'address': request.toAddress,
       'refund': request.refundAddress
     };
+
+    double amt = double.tryParse(request.toAmount) ?? 0;
+    if (request.fromCurrency == CryptoCurrency.btcln) {
+      amt = lightningDoubleToBitcoinDouble(amount: amt);
+    }
 
     if (isFixedRateMode) {
       await fetchRate(
         from: request.fromCurrency,
         to: request.toCurrency,
-        amount: double.tryParse(request.toAmount) ?? 0,
+        amount: amt,
         isFixedRateMode: true,
         isReceiveAmount: true,
       );
@@ -227,6 +262,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final amount = responseJSON['amount_from']?.toString();
     final receiveAmount = responseJSON['amount_to']?.toString();
 
+    String? responseAmount = responseJSON['amount_from']?.toString();
+    if (request.fromCurrency == CryptoCurrency.btcln && responseAmount != null) {
+      responseAmount =
+          bitcoinDoubleToLightningDouble(amount: double.parse(responseAmount)).toString();
+    }
+    responseAmount ??= fromAmt.toString();
+
     return Trade(
       id: id,
       from: request.fromCurrency,
@@ -239,7 +281,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       providerId: providerId,
       providerName: providerName,
       createdAt: DateTime.tryParse(date)?.toLocal(),
-      amount: amount ?? request.fromAmount,
+      amount: responseAmount,
       receiveAmount: receiveAmount ?? request.toAmount,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,
@@ -294,6 +336,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'MATIC';
       case CryptoCurrency.zec:
         return 'Mainnet';
+      case CryptoCurrency.btcln:
+        return 'Lightning';
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -305,6 +349,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
+      case CryptoCurrency.btcln:
+        return 'btc';
       default:
         return currency.title.toLowerCase();
     }

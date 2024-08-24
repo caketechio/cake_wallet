@@ -42,16 +42,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: LitecoinNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            encryptionFileUtils: encryptionFileUtils,
-            currency: CryptoCurrency.ltc) {
+          mnemonic: mnemonic,
+          password: password,
+          walletInfo: walletInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          network: LitecoinNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          encryptionFileUtils: encryptionFileUtils,
+          currency: CryptoCurrency.ltc,
+        ) {
     walletAddresses = LitecoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -89,7 +90,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         break;
       case DerivationType.electrum:
       default:
-        seedBytes = await mnemonicToSeedBytes(mnemonic);
+        seedBytes = await electrumMnemonicToSeedBytes(mnemonic);
         break;
     }
     return LitecoinWallet(
@@ -150,7 +151,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
-      seedBytes: await mnemonicToSeedBytes(keysData.mnemonic!),
+      seedBytes: await electrumMnemonicToSeedBytes(keysData.mnemonic!),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,

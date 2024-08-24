@@ -179,7 +179,7 @@ abstract class SolanaWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() {
+  void close({bool? switchingToSameWalletType}) {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
   }

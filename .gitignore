@@ -128,6 +128,7 @@ cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
 
 lib/bitcoin/bitcoin.dart
+lib/lightning/lightning.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
 lib/ethereum/ethereum.dart

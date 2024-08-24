@@ -5,6 +5,8 @@ import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
 import 'package:cw_core/sec_random_native.dart';
 import 'package:cw_core/utils/text_normalizer.dart';
+import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/wallet_info.dart';
 
 const segwit = '100';
 final wordlist = englishWordlist;
@@ -109,14 +111,7 @@ Future<bool> checkIfMnemonicIsElectrum2(String mnemonic) async {
   return prefixMatches(mnemonic, [segwit]).first;
 }
 
-Future<String> getMnemonicHash(String mnemonic) async {
-  final hmacSha512 = Hmac(sha512, utf8.encode('Seed version'));
-  final digest = hmacSha512.convert(utf8.encode(normalizeText(mnemonic)));
-  final hx = digest.toString();
-  return hx;
-}
-
-Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
+Future<Uint8List> electrumMnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) async {
   final pbkdf2 =
       cryptography.Pbkdf2(macAlgorithm: cryptography.Hmac.sha512(), iterations: 2048, bits: 512);
   final text = normalizeText(mnemonic);
@@ -129,12 +124,55 @@ Future<Uint8List> mnemonicToSeedBytes(String mnemonic, {String prefix = segwit})
 
 bool matchesAnyPrefix(String mnemonic) => prefixMatches(mnemonic, [segwit]).any((el) => el);
 
-bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
+bool validateElectrumMnemonic(String mnemonic, {String prefix = segwit}) {
   try {
     return matchesAnyPrefix(mnemonic);
   } catch (e) {
     return false;
   }
+}
+
+Future<Uint8List> universalMnemonictoSeedBytes(
+  String mnemonic, {
+  DerivationType? derivationType,
+  String passphrase = "",
+}) async {
+  bool isValidElectrum = validateElectrumMnemonic(mnemonic);
+  bool isValidBip39 = bip39.validateMnemonic(mnemonic);
+
+  Uint8List? seedBytes;
+
+  // override the default:
+  if (derivationType != null) {
+    switch (derivationType) {
+      case DerivationType.bip39:
+        seedBytes = await bip39.mnemonicToSeed(
+          mnemonic,
+          passphrase: passphrase,
+        );
+        break;
+      case DerivationType.electrum:
+        seedBytes = await electrumMnemonicToSeedBytes(mnemonic);
+        break;
+      default:
+        throw Exception("Invalid derivation type for bitcoin!");
+    }
+    return seedBytes;
+  }
+
+  if (isValidElectrum) {
+    seedBytes = await electrumMnemonicToSeedBytes(mnemonic);
+  }
+
+  if (isValidBip39) {
+    seedBytes = await bip39.mnemonicToSeed(mnemonic);
+  }
+
+  if (seedBytes != null) {
+    return seedBytes;
+  }
+
+  throw Exception("Invalid mnemonic!");
 }
 
 final englishWordlist = <String>[

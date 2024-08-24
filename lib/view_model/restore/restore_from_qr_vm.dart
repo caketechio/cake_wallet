@@ -85,6 +85,7 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 spendKey: restoreWallet.spendKey ?? '',
                 height: restoreWallet.height ?? 0);
           case WalletType.bitcoin:
+          case WalletType.lightning:
           case WalletType.litecoin:
             return bitcoin!.createBitcoinRestoreWalletFromWIFCredentials(
                 name: name, password: password, wif: wif);

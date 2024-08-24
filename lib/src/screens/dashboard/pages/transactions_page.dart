@@ -52,7 +52,7 @@ class TransactionsPage extends StatelessWidget {
                       try {
                         final uri = Uri.parse(
                             "https://guides.cakewallet.com/docs/FAQ/why_are_my_funds_not_appearing/");
-                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        launchUrl(uri, mode: LaunchMode.externalApplication);
                       } catch (_) {}
                     },
                     title: S.of(context).syncing_wallet_alert_title,
@@ -62,6 +62,22 @@ class TransactionsPage extends StatelessWidget {
               } else {
                 return Container();
               }
+            }),
+            Observer(builder: (_) {
+              final hasRedeemable = dashboardViewModel.balanceViewModel.hasRedeemableBalance;
+              if (!hasRedeemable) {
+                return const SizedBox();
+              }
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: DashBoardRoundedCardWidget(
+                  onTap: () {
+                    Navigator.of(context).pushNamed(Routes.lightningRefund);
+                  },
+                  title: S.current.lightning_redeemable_funds,
+                  subTitle: S.current.lightning_redeemable_description,
+                ),
+              );
             }),
             HeaderRow(dashboardViewModel: dashboardViewModel),
             Expanded(child: Observer(builder: (_) {
@@ -84,7 +100,7 @@ class TransactionsPage extends StatelessWidget {
 
                           final transaction = item.transaction;
                           final transactionType = dashboardViewModel.type == WalletType.ethereum &&
-                              transaction.evmSignatureName == 'approval'
+                                  transaction.evmSignatureName == 'approval'
                               ? ' (${transaction.evmSignatureName})'
                               : '';
 
@@ -100,8 +116,8 @@ class TransactionsPage extends StatelessWidget {
                                       ? ''
                                       : item.formattedFiatAmount,
                               isPending: transaction.isPending,
-                              title: item.formattedTitle +
-                                  item.formattedStatus + ' $transactionType',
+                              title:
+                                  item.formattedTitle + item.formattedStatus + ' $transactionType',
                             ),
                           );
                         }

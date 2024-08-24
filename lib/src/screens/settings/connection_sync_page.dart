@@ -15,6 +15,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cw_core/battery_optimization_native.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -90,14 +91,22 @@ class ConnectionSyncPage extends BasePage {
               }),
             ],
           ],
-          SettingsCellWithArrow(
-            title: S.current.manage_nodes,
-            handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
+          Observer(
+            builder: (context) {
+              if (!dashboardViewModel.hasNodes) return const SizedBox();
+              return Column(
+                children: [
+                  SettingsCellWithArrow(
+                    title: S.current.manage_nodes,
+                    handler: (context) => Navigator.of(context).pushNamed(Routes.manageNodes),
+                  ),
+                ],
+              );
+            },
           ),
           Observer(
             builder: (context) {
               if (!dashboardViewModel.hasPowNodes) return const SizedBox();
-
               return Column(
                 children: [
                   SettingsCellWithArrow(
@@ -109,7 +118,8 @@ class ConnectionSyncPage extends BasePage {
             },
           ),
           if (isWalletConnectCompatibleChain(dashboardViewModel.wallet.type) &&
-              !dashboardViewModel.wallet.isHardwareWallet) ...[ // ToDo: Remove this line once WalletConnect is implemented
+              !dashboardViewModel.wallet.isHardwareWallet) ...[
+            // ToDo: Remove this line once WalletConnect is implemented
             WalletConnectTile(
               onTap: () => Navigator.of(context).pushNamed(Routes.walletConnectConnectionsListing),
             ),
@@ -119,6 +129,19 @@ class ConnectionSyncPage extends BasePage {
               title: S.current.tor_connection,
               handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
             ),
+          Observer(
+            builder: (context) {
+              if (dashboardViewModel.wallet.type != WalletType.lightning) return const SizedBox();
+              return Column(
+                children: [
+                  SettingsCellWithArrow(
+                    title: S.current.refund_address,
+                    handler: (context) => Navigator.of(context).pushNamed(Routes.lightningRefund),
+                  ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );

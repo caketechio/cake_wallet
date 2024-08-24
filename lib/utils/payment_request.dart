@@ -1,8 +1,8 @@
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 
 class PaymentRequest {
-  PaymentRequest(this.address, this.amount, this.note, this.scheme, {this.callbackUrl, this.callbackMessage});
+  PaymentRequest(this.address, this.amount, this.note, this.scheme,
+      {this.callbackUrl, this.callbackMessage});
 
   factory PaymentRequest.fromUri(Uri? uri) {
     var address = "";

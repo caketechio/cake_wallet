@@ -57,6 +57,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
+      case WalletType.lightning:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.none:
@@ -105,6 +106,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             mnemonic: seed,
             password: password,
             passphrase: passphrase,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
+          );
+        case WalletType.lightning:
+          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
             derivationType: derivationInfo!.derivationType!,
             derivationPath: derivationInfo.derivationPath!,
           );

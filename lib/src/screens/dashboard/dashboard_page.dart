@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/main_actions.dart';
 import 'package:cake_wallet/src/screens/dashboard/desktop_widgets/desktop_sidebar_wrapper.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/bottom_sheet_listener.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/haven_wallet_removal_popup.dart';
 import 'package:cake_wallet/src/widgets/services_updates_widget.dart';

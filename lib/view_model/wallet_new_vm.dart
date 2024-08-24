@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -68,7 +69,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return monero!.createMoneroNewWalletCredentials(
             name: name, language: options!.first as String, password: walletPassword, isPolyseed: options.last as bool);
       case WalletType.bitcoin:
-        return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
+      case WalletType.lightning:
       case WalletType.litecoin:
         return bitcoin!.createBitcoinNewWalletCredentials(name: name, password: walletPassword);
       case WalletType.haven:

@@ -51,6 +51,12 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
   ];
 
+  static final bitcoinSecrets = [
+    SecretKey('breezApiKey', () => ''),
+    SecretKey('greenlightCert', () => ''),
+    SecretKey('greenlightKey', () => ''),
+  ];
+  
   static final solanaSecrets = [
     SecretKey('ankrApiKey', () => ''),
   ];

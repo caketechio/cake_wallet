@@ -30,46 +30,49 @@ Future<void> startFiatRateUpdate(
 
       if (appStore.wallet!.type == WalletType.haven) {
         await updateHavenRate(fiatConversionStore);
-      } else {
-        fiatConversionStore.prices[appStore.wallet!.currency] =
-            await FiatConversionService.fetchPrice(
-                crypto: appStore.wallet!.currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+        return;
       }
 
-      Iterable<CryptoCurrency>? currencies;
-      if (appStore.wallet!.type == WalletType.ethereum) {
-        currencies =
-            ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      Iterable<CryptoCurrency>? currencies = [];
+      switch (appStore.wallet!.type) {
+        case WalletType.ethereum:
+          currencies =
+              ethereum!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+          break;
+        case WalletType.polygon:
+          currencies =
+              polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+          break;
+        case WalletType.solana:
+          currencies =
+              solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+          break;
+        case WalletType.tron:
+          currencies =
+              tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+          break;
+        case WalletType.lightning:
+          currencies = [CryptoCurrency.btc];
+          break;
+        default:
+          currencies = [appStore.wallet!.currency];
+          break;
       }
 
-      if (appStore.wallet!.type == WalletType.polygon) {
-        currencies =
-            polygon!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
+      for (final currency in currencies) {
+        () async {
+          fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
+            crypto: currency,
+            fiat: settingsStore.fiatCurrency,
+            torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+          );
+        }.call();
       }
 
-      if (appStore.wallet!.type == WalletType.solana) {
-        currencies =
-            solana!.getSPLTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-      if (appStore.wallet!.type == WalletType.tron) {
-        currencies =
-            tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
-      }
-
-
-      if (currencies != null) {
-        for (final currency in currencies) {
-          () async {
-            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
-          }.call();
-        }
-      }
+      // keep btcln price in sync with btc (since the fiat api only returns btc and not btcln)
+      // (btcln price is just the btc price divided by 100000000)
+      fiatConversionStore.prices[CryptoCurrency.btcln] =
+          (fiatConversionStore.prices[CryptoCurrency.btc] ?? 0) / 100000000;
     } catch (e) {
       print(e);
     }

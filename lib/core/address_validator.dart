@@ -279,7 +279,8 @@ class AddressValidator extends TextValidator {
             '|([^0-9a-zA-Z]|^)((bc|tb)1q[ac-hj-np-z02-9]{40,80})([^0-9a-zA-Z]|\$)' //P2wshAddress type
             '|([^0-9a-zA-Z]|^)((bc|tb)1p([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59}|[ac-hj-np-z02-9]{8,89}))([^0-9a-zA-Z]|\$)' //P2trAddress type
             '|${SilentPaymentAddress.regex.pattern}\$';
-
+      case CryptoCurrency.btcln:
+        return '(lnbc|LNBC)([0-9]{1,}[a-zA-Z0-9]+)([^0-9a-zA-Z]|\$)';
       case CryptoCurrency.ltc:
         return '([^0-9a-zA-Z]|^)^L[a-zA-Z0-9]{26,33}([^0-9a-zA-Z]|\$)'
             '|([^0-9a-zA-Z]|^)[LM][a-km-zA-HJ-NP-Z1-9]{26,33}([^0-9a-zA-Z]|\$)'

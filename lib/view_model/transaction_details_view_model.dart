@@ -58,6 +58,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoinCash:
         _addElectrumListItems(tx, dateFormat);
         break;
+      case WalletType.lightning:
+        _addLightningListItems(tx, dateFormat);
+        break;
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);
         break;
@@ -100,15 +103,18 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final type = wallet.type;
 
-    items.add(BlockExplorerListItem(
-        title: S.current.view_in_block_explorer,
-        value: _explorerDescription(type),
-        onTap: () async {
-          try {
-            final uri = Uri.parse(_explorerUrl(type, tx.txHash));
-            if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-          } catch (e) {}
-        }));
+    if (_explorerDescription(type) != '') {
+      items.add(BlockExplorerListItem(
+          title: S.current.view_in_block_explorer,
+          value: _explorerDescription(type),
+          onTap: () async {
+            try {
+              final uri = Uri.parse(_explorerUrl(type, tx.txHash));
+              if (await canLaunchUrl(uri))
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } catch (e) {}
+          }));
+    }
 
     final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == transactionInfo.txHash,
@@ -173,6 +179,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://tronscan.org/#/transaction/${txId}';
       case WalletType.wownero:
         return 'https://explore.wownero.com/tx/${txId}';
+      case WalletType.lightning:
       case WalletType.none:
         return '';
     }
@@ -203,6 +210,7 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'tronscan.org';
       case WalletType.wownero:
         return S.current.view_transaction_on + 'Wownero.com';
+      case WalletType.lightning:
       case WalletType.none:
         return '';
     }
@@ -255,6 +263,19 @@ abstract class TransactionDetailsViewModelBase with Store {
           title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.confirmations, value: tx.confirmations.toString()),
       StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ];
+
+    items.addAll(_items);
+  }
+
+  void _addLightningListItems(TransactionInfo tx, DateFormat dateFormat) {
+    final _items = [
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
       StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
       if (tx.feeFormatted()?.isNotEmpty ?? false)
         StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),

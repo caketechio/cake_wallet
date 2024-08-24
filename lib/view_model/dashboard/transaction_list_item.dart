@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -76,6 +77,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         return formattedPendingStatus;
       }
     }
+    if (balanceViewModel.wallet.type == WalletType.lightning) {
+      if (transaction.additionalInfo['isChannelClose'] == true) {
+        return " ${S.current.channel_closed}";
+      }
+    }
     return transaction.isPending ? S.current.pending : '';
   }
 
@@ -126,6 +132,11 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.bitcoinCash:
         amount = calculateFiatAmountRaw(
             cryptoAmount: bitcoin!.formatterBitcoinAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.lightning:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: lightning!.formatterLightningAmountToDouble(amount: transaction.amount),
             price: price);
         break;
       case WalletType.haven:

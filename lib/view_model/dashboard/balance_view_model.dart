@@ -65,7 +65,9 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   double get price {
-    final price = fiatConvertationStore.prices[appStore.wallet!.currency];
+    CryptoCurrency currency = appStore.wallet!.currency;
+
+    final price = fiatConvertationStore.prices[currency];
 
     if (price == null) {
       // price should update on next fetch:
@@ -153,13 +155,40 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.nano:
       case WalletType.banano:
         return S.current.receivable_balance;
+      case WalletType.lightning:
+        return S.current.max_receivable;
       default:
         return S.current.unconfirmed;
     }
   }
 
   @computed
+  String get frozenBalanceLabel {
+    switch (wallet.type) {
+      case WalletType.lightning:
+        return S.current.on_chain_funds;
+      default:
+        return S.current.unavailable_balance;
+    }
+  }
+
+  @computed
   bool get hasMultiBalance => appStore.wallet!.type == WalletType.haven;
+
+  @computed
+  bool get hasRedeemableBalance {
+    if (wallet.type != WalletType.lightning) {
+      return false;
+    }
+    // 1000 sats is arbitrary but we don't have a better way to check
+    // what the actual minimum is
+    const minimumBalance = 1000;
+    int? bal = int.tryParse(frozenBalance.replaceAll(',', '')) ?? 0;
+    if (bal > minimumBalance) {
+      return true;
+    }
+    return false;
+  }
 
   @computed
   String get availableBalance {
@@ -249,6 +278,7 @@ abstract class BalanceViewModelBase with Store {
                 asset: key,
                 formattedAssetTitle: _formatterAsset(key)));
       }
+
       final fiatCurrency = settingsStore.fiatCurrency;
       final price = fiatConvertationStore.prices[key] ?? 0;
 
@@ -262,7 +292,7 @@ abstract class BalanceViewModelBase with Store {
               ' ' +
               _getFiatBalance(price: price, cryptoAmount: value.formattedAdditionalBalance));
 
-      final availableFiatBalance = isFiatDisabled
+      var availableFiatBalance = isFiatDisabled
           ? ''
           : (fiatCurrency.toString() +
               ' ' +
@@ -397,6 +427,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   String _getFiatBalance({required double price, String? cryptoAmount}) {
+    cryptoAmount = cryptoAmount?.replaceAll(',', ''); // fix for amounts > 1000
     if (cryptoAmount == null || cryptoAmount.isEmpty || double.tryParse(cryptoAmount) == null) {
       return '0.00';
     }

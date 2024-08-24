@@ -37,4 +37,10 @@ class CWBitcoinCash extends BitcoinCash {
   @override
   TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
       BitcoinCashTransactionPriority.slow;
+
+  @override
+  String getMnemonic(int? strength) => throw UnimplementedError();
+
+  @override
+  Uint8List getSeedFromMnemonic(String seed) => throw UnimplementedError();
 }

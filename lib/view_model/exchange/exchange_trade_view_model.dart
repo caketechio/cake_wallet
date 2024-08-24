@@ -190,6 +190,11 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   static bool _checkIfCanSend(TradesStore tradesStore, WalletBase wallet) {
+
+    if (wallet.currency == CryptoCurrency.btcln) {
+      return false;
+    }
+
     bool _isEthToken() =>
         wallet.currency == CryptoCurrency.eth &&
         tradesStore.trade!.from.tag == CryptoCurrency.eth.title;

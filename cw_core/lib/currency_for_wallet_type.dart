@@ -8,6 +8,8 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
         return CryptoCurrency.tbtc;
       }
       return CryptoCurrency.btc;
+    case WalletType.lightning:
+      return CryptoCurrency.btcln;
     case WalletType.monero:
       return CryptoCurrency.xmr;
     case WalletType.litecoin:

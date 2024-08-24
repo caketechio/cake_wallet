@@ -262,7 +262,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  void close() {
+  void close({bool? switchingToSameWalletType}) {
     _client.stop();
     _transactionsUpdateTimer?.cancel();
     _updateFeesTimer?.cancel();

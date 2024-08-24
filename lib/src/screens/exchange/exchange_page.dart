@@ -631,6 +631,7 @@ class ExchangePage extends BasePage {
               initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
               isAmountEstimated: false,
               hasRefundAddress: true,
+              hasAddress: exchangeViewModel.hasAddress,
               isMoneroWallet: exchangeViewModel.isMoneroWallet,
               currencies: exchangeViewModel.depositCurrencies,
               onCurrencySelected: (currency) {

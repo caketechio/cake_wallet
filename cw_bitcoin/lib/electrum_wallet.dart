@@ -73,6 +73,7 @@ abstract class ElectrumWalletBase
             getAccountHDWallet(currency, network, seedBytes, xpub, walletInfo.derivationInfo),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
+        _mnemonic = mnemonic,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         isEnabledAutoGenerateSubaddress = true,
@@ -1216,7 +1217,7 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  Future<void> close() async {
+  Future<void> close({bool? switchingToSameWalletType}) async {
     try {
       await electrumClient.close();
     } catch (_) {}

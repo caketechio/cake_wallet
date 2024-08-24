@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
@@ -113,6 +114,7 @@ abstract class SettingsStoreBase with Store {
       TransactionPriority? initialBitcoinTransactionPriority,
       TransactionPriority? initialMoneroTransactionPriority,
       TransactionPriority? initialWowneroTransactionPriority,
+      TransactionPriority? initialLightningTransactionPriority,
       TransactionPriority? initialHavenTransactionPriority,
       TransactionPriority? initialLitecoinTransactionPriority,
       TransactionPriority? initialEthereumTransactionPriority,
@@ -172,6 +174,10 @@ abstract class SettingsStoreBase with Store {
 
     if (initialWowneroTransactionPriority != null) {
       priority[WalletType.wownero] = initialWowneroTransactionPriority;
+    }
+
+    if (initialLightningTransactionPriority != null) {
+      priority[WalletType.lightning] = initialLightningTransactionPriority;
     }
 
     if (initialBitcoinTransactionPriority != null) {
@@ -798,6 +804,7 @@ abstract class SettingsStoreBase with Store {
     TransactionPriority? polygonTransactionPriority;
     TransactionPriority? bitcoinCashTransactionPriority;
     TransactionPriority? wowneroTransactionPriority;
+    TransactionPriority? lightningTransactionPriority;
 
     if (sharedPreferences.getInt(PreferencesKey.havenTransactionPriority) != null) {
       havenTransactionPriority = monero?.deserializeMoneroTransactionPriority(
@@ -823,6 +830,10 @@ abstract class SettingsStoreBase with Store {
       wowneroTransactionPriority = wownero?.deserializeWowneroTransactionPriority(
           raw: sharedPreferences.getInt(PreferencesKey.wowneroTransactionPriority)!);
     }
+    if (sharedPreferences.getInt(PreferencesKey.lightningTransactionPriority) != null) {
+      lightningTransactionPriority = lightning?.deserializeLightningTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.lightningTransactionPriority)!);
+    }
 
     moneroTransactionPriority ??= monero?.getDefaultTransactionPriority();
     bitcoinTransactionPriority ??= bitcoin?.getMediumTransactionPriority();
@@ -831,6 +842,7 @@ abstract class SettingsStoreBase with Store {
     ethereumTransactionPriority ??= ethereum?.getDefaultTransactionPriority();
     bitcoinCashTransactionPriority ??= bitcoinCash?.getDefaultTransactionPriority();
     wowneroTransactionPriority ??= wownero?.getDefaultTransactionPriority();
+    lightningTransactionPriority ??= lightning?.getDefaultTransactionPriority();
     polygonTransactionPriority ??= polygon?.getDefaultTransactionPriority();
 
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
@@ -957,6 +969,7 @@ abstract class SettingsStoreBase with Store {
 
     if (bitcoinElectrumServer != null) {
       nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+      nodes[WalletType.lightning] = bitcoinElectrumServer;
     }
 
     if (litecoinElectrumServer != null) {
@@ -1148,6 +1161,7 @@ abstract class SettingsStoreBase with Store {
       silentPaymentsAlwaysScan: silentPaymentsAlwaysScan,
       initialMoneroTransactionPriority: moneroTransactionPriority,
       initialWowneroTransactionPriority: wowneroTransactionPriority,
+      initialLightningTransactionPriority: lightningTransactionPriority,
       initialBitcoinTransactionPriority: bitcoinTransactionPriority,
       initialHavenTransactionPriority: havenTransactionPriority,
       initialLitecoinTransactionPriority: litecoinTransactionPriority,
@@ -1195,6 +1209,12 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority) != null) {
       priority[WalletType.bitcoin] = bitcoin!.deserializeBitcoinTransactionPriority(
           sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority)!);
+    }
+
+    if (lightning != null &&
+        sharedPreferences.getInt(PreferencesKey.lightningTransactionPriority) != null) {
+      priority[WalletType.lightning] = lightning!.deserializeLightningTransactionPriority(
+          raw: sharedPreferences.getInt(PreferencesKey.lightningTransactionPriority)!);
     }
 
     if (monero != null &&
@@ -1327,6 +1347,7 @@ abstract class SettingsStoreBase with Store {
 
     if (bitcoinElectrumServer != null) {
       nodes[WalletType.bitcoin] = bitcoinElectrumServer;
+      nodes[WalletType.lightning] = bitcoinElectrumServer;
     }
 
     if (litecoinElectrumServer != null) {

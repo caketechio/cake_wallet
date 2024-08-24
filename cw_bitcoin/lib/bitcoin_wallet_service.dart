@@ -146,7 +146,7 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> restoreFromSeed(BitcoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    if (!validateMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
+    if (!validateElectrumMnemonic(credentials.mnemonic) && !bip39.validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart' as qr;
+import 'package:qr_flutter/qr_flutter.dart';
 
 class QrImage extends StatelessWidget {
   QrImage({
@@ -23,7 +24,9 @@ class QrImage extends StatelessWidget {
     return qr.QrImageView(
       data: data,
       errorCorrectionLevel: errorCorrectionLevel,
-      version: version ?? 9, // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+      // Previous value: 7 something happened after flutter upgrade monero wallets addresses are longer than ver. 7 ???
+      // changed from 9 to auto
+      version: version ?? QrVersions.auto,
       size: size,
       foregroundColor: foregroundColor,
       backgroundColor: backgroundColor,

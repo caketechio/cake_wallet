@@ -166,7 +166,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   Future<void>? updateBalance() => null;
 
   @override
-  void close() async {
+  void close({bool? switchingToSameWalletType}) {
     _listener?.stop();
     _onAccountChangeReaction?.reaction.dispose();
     _autoSaveTimer?.cancel();

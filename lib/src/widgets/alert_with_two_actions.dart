@@ -10,6 +10,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
     required this.rightButtonText,
     required this.actionLeftButton,
     required this.actionRightButton,
+    this.contentWidget,
     this.alertBarrierDismissible = true,
     this.isDividerExist = false,
     // this.leftActionColor,
@@ -20,6 +21,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final String alertContent;
   final String leftButtonText;
   final String rightButtonText;
+  final Widget? contentWidget;
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
@@ -47,4 +49,9 @@ class AlertWithTwoActions extends BaseAlertDialog {
   // Color get rightButtonColor => rightActionColor;
   @override
   bool get isDividerExists => isDividerExist;
+
+  @override
+  Widget content(BuildContext context) {
+    return contentWidget ?? super.content(context);
+  }
 }

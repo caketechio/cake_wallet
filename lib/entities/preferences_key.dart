@@ -45,6 +45,7 @@ class PreferencesKey {
   static const polygonTransactionPriority = 'current_fee_priority_polygon';
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
+  static const lightningTransactionPriority = 'current_fee_priority_lightning';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';

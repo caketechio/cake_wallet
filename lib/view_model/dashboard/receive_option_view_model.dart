@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/lightning/lightning.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -16,14 +17,28 @@ abstract class ReceiveOptionViewModelBase with Store {
                 : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
-    _options = walletType == WalletType.haven
-        ? [ReceivePageOption.mainnet]
-        : walletType == WalletType.bitcoin
-            ? [
-                ...bitcoin!.getBitcoinReceivePageOptions(),
-                ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
-              ]
-            : ReceivePageOptions;
+
+    switch (walletType) {
+      case WalletType.haven:
+        _options = [ReceivePageOption.mainnet];
+        break;
+      case WalletType.lightning:
+        _options = [...lightning!.getLightningReceivePageOptions()];
+        break;
+      case WalletType.bitcoin:
+        _options = [
+          ...bitcoin!.getBitcoinReceivePageOptions(),
+          ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
+        ];
+        break;
+      default:
+        _options = [
+          ReceivePageOption.mainnet,
+          ReceivePageOption.anonPayDonationLink,
+          ReceivePageOption.anonPayInvoice
+        ];
+        break;
+    }
   }
 
   final WalletBase _wallet;

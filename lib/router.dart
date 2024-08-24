@@ -1,3 +1,4 @@
+import 'package:breez_sdk/bridge_generated.dart';
 import 'package:cake_wallet/anonpay/anonpay_info_base.dart';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -43,6 +44,8 @@ import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_invoice_page.dart';
+import 'package:cake_wallet/src/screens/receive/lightning_receive_page.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -54,8 +57,9 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
-import 'package:cake_wallet/src/screens/restore/sweeping_wallet_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
+import 'package:cake_wallet/src/screens/send/lightning_refund_page.dart';
+import 'package:cake_wallet/src/screens/send/lightning_send_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
@@ -567,8 +571,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayBuyCardPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayBuyCardPage>(param1: args));
 
     case Routes.cakePayBuyCardDetailPage:
       final args = settings.arguments as List;
@@ -582,7 +585,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayVerifyOtpPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<CakePayVerifyOtpPage>(param1: args));
 
     case Routes.cakePayAccountPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<CakePayAccountPage>());
@@ -702,6 +706,25 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.torPage:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<TorPage>());
+
+    case Routes.lightningSend:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<LightningSendPage>(param1: settings.arguments as String?));
+
+    case Routes.lightningRefund:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningRefundPage>(param1: settings.arguments as String?));
+
+    case Routes.lightningReceiveOnchain:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true,
+          builder: (_) => getIt.get<LightningReceiveOnchainPage>(param1: args));
+
+    case Routes.lightningInvoice:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LightningInvoicePage>());
 
     case Routes.signPage:
       return MaterialPageRoute<void>(

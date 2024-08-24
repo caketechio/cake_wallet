@@ -99,6 +99,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final lightningIcon = Image.asset('assets/images/lightning_logo.png', height: 24, width: 24);
   final tBitcoinIcon = Image.asset('assets/images/tbtc.png', height: 24, width: 24);
   final litecoinIcon = Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
@@ -312,6 +313,8 @@ class WalletListBodyState extends State<WalletListBody> {
           return tBitcoinIcon;
         }
         return bitcoinIcon;
+      case WalletType.lightning:
+        return lightningIcon;
       case WalletType.monero:
         return moneroIcon;
       case WalletType.litecoin:

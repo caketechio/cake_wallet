@@ -84,6 +84,16 @@ class BitcoinURI extends PaymentURI {
   }
 }
 
+class LightningURI extends PaymentURI {
+  LightningURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    throw Exception('N/A for lightning wallets (need to make a bolt11 invoice).');
+  }
+}
+
 class LitecoinURI extends PaymentURI {
   LitecoinURI({required String amount, required String address})
       : super(amount: amount, address: address);
@@ -281,6 +291,10 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
     if (wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
+    }
+
+    if (wallet.type == WalletType.lightning) {
+      return LightningURI(amount: amount, address: address.address);
     }
 
     if (wallet.type == WalletType.litecoin) {

@@ -212,7 +212,9 @@ abstract class TronWalletBase
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
 
   @override
-  void close() => _transactionsUpdateTimer?.cancel();
+  void close({bool? switchingToSameWalletType}) {
+    _transactionsUpdateTimer?.cancel();
+  }
 
   @action
   @override

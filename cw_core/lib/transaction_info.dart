@@ -24,6 +24,5 @@ abstract class TransactionInfo extends Object with Keyable {
   @override
   dynamic get keyIndex => id;
 
-  late Map<String, dynamic> additionalInfo;
+  Map<String, dynamic> additionalInfo = {};
 }
-

@@ -7,6 +7,7 @@ const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
 const polygonOutputPath = 'lib/polygon/polygon.dart';
+const lightningOutputPath = 'lib/lightning/lightning.dart';
 const solanaOutputPath = 'lib/solana/solana.dart';
 const tronOutputPath = 'lib/tron/tron.dart';
 const wowneroOutputPath = 'lib/wownero/wownero.dart';
@@ -25,6 +26,7 @@ Future<void> main(List<String> args) async {
   final hasNano = args.contains('${prefix}nano');
   final hasBanano = args.contains('${prefix}banano');
   final hasPolygon = args.contains('${prefix}polygon');
+  final hasLightning = args.contains('${prefix}lightning');
   final hasSolana = args.contains('${prefix}solana');
   final hasTron = args.contains('${prefix}tron');
   final hasWownero = args.contains('${prefix}wownero');
@@ -37,6 +39,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
   await generatePolygon(hasPolygon);
+  await generateLightning(hasLightning);
   await generateSolana(hasSolana);
   await generateTron(hasTron);
   await generateWownero(hasWownero);
@@ -52,6 +55,7 @@ Future<void> main(List<String> args) async {
     hasBitcoinCash: hasBitcoinCash,
     hasFlutterSecureStorage: !excludeFlutterSecureStorage,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
@@ -65,6 +69,7 @@ Future<void> main(List<String> args) async {
     hasBanano: hasBanano,
     hasBitcoinCash: hasBitcoinCash,
     hasPolygon: hasPolygon,
+    hasLightning: hasLightning,
     hasSolana: hasSolana,
     hasTron: hasTron,
     hasWownero: hasWownero,
@@ -995,6 +1000,78 @@ abstract class Polygon {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateLightning(bool hasImplementation) async {
+  final outputFile = File(lightningOutputPath);
+  const lightningCommonHeaders = """
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/receive_page_option.dart';
+import 'package:cw_core/crypto_amount_format.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:intl/intl.dart';
+""";
+  const lightningCWHeaders = """
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_lightning/lightning_wallet_service.dart';
+import 'package:cw_lightning/lightning_receive_page_option.dart';
+import 'package:cw_lightning/lightning_transaction_priority.dart';
+import 'package:cw_lightning/lightning_wallet.dart';
+import 'package:cw_lightning/.secrets.g.dart' as secrets;
+""";
+  const lightningCwPart = "part 'cw_lightning.dart';";
+  const lightningContent = """
+abstract class Lightning {
+  String formatterLightningAmountToString({required int amount});
+  double formatterLightningAmountToDouble({required int amount});
+  int formatterStringDoubleToLightningAmount(String amount);
+  WalletService createLightningWalletService(
+      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+  List<ReceivePageOption> getLightningReceivePageOptions();
+  String satsToLightningString(int sats);
+  ReceivePageOption getOptionInvoice();
+  ReceivePageOption getOptionOnchain();
+  String bitcoinAmountToLightningString({required int amount});
+  int bitcoinAmountToLightningAmount({required int amount});
+  double bitcoinDoubleToLightningDouble({required double amount});
+  double lightningDoubleToBitcoinDouble({required double amount});
+  Map<String, int> getIncomingPayments(Object wallet);
+  void clearIncomingPayments(Object wallet);
+  String lightningTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
+  List<TransactionPriority> getTransactionPriorities();
+  TransactionPriority getLightningTransactionPriorityCustom();
+  int getFeeRate(Object wallet, TransactionPriority priority);
+  int getMaxCustomFeeRate(Object wallet);
+  Future<void> fetchFees(Object wallet);
+  Future<int> calculateEstimatedFeeAsync(Object wallet, TransactionPriority? priority, int? amount);
+  Future<int> getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount);
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority deserializeLightningTransactionPriority({required int raw});
+  String getBreezApiKey();
+  int getOnchainBalance(Object wallet);
+}
+  """;
+
+  const lightningEmptyDefinition = 'Lightning? lightning;\n';
+  const lightningCWDefinition = 'Lightning? lightning = CWLightning();\n';
+
+  final output = '$lightningCommonHeaders\n' +
+      (hasImplementation ? '$lightningCWHeaders\n' : '\n') +
+      (hasImplementation ? '$lightningCwPart\n\n' : '\n') +
+      (hasImplementation ? lightningCWDefinition : lightningEmptyDefinition) +
+      '\n' +
+      lightningContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
@@ -1360,6 +1437,7 @@ Future<void> generatePubspec({
   required bool hasPolygon,
   required bool hasSolana,
   required bool hasTron,
+  required bool hasLightning,
   required bool hasWownero,
 }) async {
   const cwCore = """
@@ -1417,11 +1495,15 @@ Future<void> generatePubspec({
   const cwEVM = """
   cw_evm:
     path: ./cw_evm
-    """;
+  """;
   const cwTron = """
   cw_tron:
     path: ./cw_tron
-    """;
+  """;
+  const cwLightning = """
+  cw_lightning:
+    path: ./cw_lightning
+  """;
   const cwWownero = """
   cw_wownero:
     path: ./cw_wownero
@@ -1483,6 +1565,10 @@ Future<void> generatePubspec({
     output += '\n$cwEVM';
   }
 
+  if (hasLightning) {
+    output += '\n$cwLightning';
+  }
+
   if (hasWownero) {
     output += '\n$cwWownero';
   }
@@ -1510,6 +1596,7 @@ Future<void> generateWalletTypes({
   required bool hasPolygon,
   required bool hasSolana,
   required bool hasTron,
+  required bool hasLightning,
   required bool hasWownero,
 }) async {
   final walletTypesFile = File(walletTypesPath);
@@ -1528,6 +1615,10 @@ Future<void> generateWalletTypes({
 
   if (hasBitcoin) {
     outputContent += '\tWalletType.bitcoin,\n';
+  }
+
+  if (hasLightning) {
+    outputContent += '\tWalletType.lightning,\n';
   }
 
   if (hasEthereum) {

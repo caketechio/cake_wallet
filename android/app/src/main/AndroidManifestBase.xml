@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <!--bibo01 : hardware option-->
@@ -69,6 +71,9 @@
                 <data android:scheme="bitcoin" />
                 <data android:scheme="bitcoin-wallet" />
                 <data android:scheme="bitcoin_wallet" />
+                <data android:scheme="lightning" />
+                <data android:scheme="lightning-wallet" />
+                <data android:scheme="lightning_wallet" />
                 <data android:scheme="monero" />
                 <data android:scheme="monero-wallet" />
                 <data android:scheme="monero_wallet" />
@@ -115,6 +120,24 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <!-- service to handle messaging events -->
+        <!-- commented out until we decide what to do -->
+        <!-- <service
+            android:name=".NotificationFcmService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service> -->
+
+        <!-- service to handle the foreground service -->
+        <service
+            android:name=".NotificationForegroundService"
+            android:foregroundServiceType="shortService"
+            android:exported="false"
+            android:stopWithTask="false">
+        </service>
     </application>
     
     <queries>

@@ -28,6 +28,8 @@ class AmountConverter {
       case CryptoCurrency.bch:
       case CryptoCurrency.ltc:
         return _bitcoinAmountToString(amount);
+      case CryptoCurrency.btcln:
+        return _lightningAmountToString(amount);
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:
       case CryptoCurrency.xau:
@@ -56,6 +58,11 @@ class AmountConverter {
 
   static String _bitcoinAmountToString(int amount) => _bitcoinAmountFormat
       .format(cryptoAmountToDouble(amount: amount, divider: _bitcoinAmountDivider));
+
+  static String _lightningAmountToString(int amount) {
+    String formattedAmount = _bitcoinAmountFormat.format(amount);
+    return formattedAmount.substring(0, formattedAmount.length - 2);
+  }
 
   static String _wowneroAmountToString(int amount) => _wowneroAmountFormat
       .format(cryptoAmountToDouble(amount: amount, divider: _wowneroAmountDivider));

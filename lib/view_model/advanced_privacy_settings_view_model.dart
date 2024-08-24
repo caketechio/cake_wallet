@@ -39,6 +39,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
       case WalletType.polygon:
       case WalletType.solana:
       case WalletType.tron:
+      case WalletType.lightning:
         return true;
       case WalletType.monero:
       case WalletType.wownero:

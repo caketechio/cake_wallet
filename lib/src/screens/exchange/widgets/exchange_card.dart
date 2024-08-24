@@ -34,6 +34,7 @@ class ExchangeCard extends StatefulWidget {
       this.title = '',
       this.initialIsAddressEditable = true,
       this.hasRefundAddress = false,
+      this.hasAddress = true,
       this.isMoneroWallet = false,
       this.currencyButtonColor = Colors.transparent,
       this.addressButtonsColor = Colors.transparent,
@@ -58,6 +59,7 @@ class ExchangeCard extends StatefulWidget {
   final bool initialIsAddressEditable;
   final bool isAmountEstimated;
   final bool hasRefundAddress;
+  final bool hasAddress;
   final bool isMoneroWallet;
   final Image? imageArrow;
   final Color currencyButtonColor;
@@ -229,138 +231,142 @@ class ExchangeCardState extends State<ExchangeCard> {
                     : Offstage(),
               ])),
         ),
-        !_isAddressEditable && widget.hasRefundAddress
-            ? Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  S.of(context).refund_address,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
-                ))
-            : Offstage(),
-        _isAddressEditable
-            ? FocusTraversalOrder(
-                order: NumericFocusOrder(2),
-                child: Padding(
+        if (widget.hasAddress) ...[
+          !_isAddressEditable && widget.hasRefundAddress
+              ? Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: AddressTextField(
-                      focusNode: widget.addressFocusNode,
-                      controller: addressController,
-                      onURIScanned: (uri) {
-                        final paymentRequest = PaymentRequest.fromUri(uri);
-                        addressController.text = paymentRequest.address;
+                  child: Text(
+                    S.of(context).refund_address,
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                  ))
+              : Offstage(),
+          _isAddressEditable
+              ? FocusTraversalOrder(
+                  order: NumericFocusOrder(2),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: AddressTextField(
+                        focusNode: widget.addressFocusNode,
+                        controller: addressController,
+                        onURIScanned: (uri) {
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          addressController.text = paymentRequest.address;
 
-                        if (amountController.text.isNotEmpty) {
-                          _showAmountPopup(context, paymentRequest);
-                          return;
-                        }
-                        widget.amountFocusNode?.requestFocus();
-                        amountController.text = paymentRequest.amount;
-                      },
-                      placeholder: widget.hasRefundAddress ? S.of(context).refund_address : null,
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                        AddressTextFieldOption.addressBook,
-                      ],
-                      isBorderExist: false,
-                      textStyle:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                      hintStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
-                      buttonColor: widget.addressButtonsColor,
-                      validator: widget.addressTextFieldValidator,
-                      onPushPasteButton: widget.onPushPasteButton,
-                      onPushAddressBookButton: widget.onPushAddressBookButton,
-                      selectedCurrency: _selectedCurrency),
-                ),
-              )
-            : Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Builder(
-                    builder: (context) => Stack(children: <Widget>[
-                          FocusTraversalOrder(
-                            order: NumericFocusOrder(3),
-                            child: BaseTextFormField(
-                                controller: addressController,
-                                borderColor: Colors.transparent,
-                                suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
-                                textStyle: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
-                                validator: widget.addressTextFieldValidator),
-                          ),
-                          Positioned(
-                              top: 2,
-                              right: 0,
-                              child: SizedBox(
-                                  width: _isMoneroWallet ? 80 : 36,
-                                  child: Row(children: <Widget>[
-                                    if (_isMoneroWallet)
+                          if (amountController.text.isNotEmpty) {
+                            _showAmountPopup(context, paymentRequest);
+                            return;
+                          }
+                          widget.amountFocusNode?.requestFocus();
+                          amountController.text = paymentRequest.amount;
+                        },
+                        placeholder: widget.hasRefundAddress ? S.of(context).refund_address : null,
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook,
+                        ],
+                        isBorderExist: false,
+                        textStyle: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                        hintStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context).extension<ExchangePageTheme>()!.hintTextColor),
+                        buttonColor: widget.addressButtonsColor,
+                        validator: widget.addressTextFieldValidator,
+                        onPushPasteButton: widget.onPushPasteButton,
+                        onPushAddressBookButton: widget.onPushAddressBookButton,
+                        selectedCurrency: _selectedCurrency),
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Builder(
+                      builder: (context) => Stack(children: <Widget>[
+                            FocusTraversalOrder(
+                              order: NumericFocusOrder(3),
+                              child: BaseTextFormField(
+                                  controller: addressController,
+                                  borderColor: Colors.transparent,
+                                  suffixIcon: SizedBox(width: _isMoneroWallet ? 80 : 36),
+                                  textStyle: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                  validator: widget.addressTextFieldValidator),
+                            ),
+                            Positioned(
+                                top: 2,
+                                right: 0,
+                                child: SizedBox(
+                                    width: _isMoneroWallet ? 80 : 36,
+                                    child: Row(children: <Widget>[
+                                      if (_isMoneroWallet)
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 10),
+                                          child: Container(
+                                              width: 34,
+                                              height: 34,
+                                              padding: EdgeInsets.only(top: 0),
+                                              child: Semantics(
+                                                label: S.of(context).address_book,
+                                                child: InkWell(
+                                                  onTap: () async {
+                                                    final contact =
+                                                        await Navigator.of(context).pushNamed(
+                                                      Routes.pickerAddressBook,
+                                                      arguments: widget.initialCurrency,
+                                                    );
+
+                                                    if (contact is ContactBase) {
+                                                      setState(() =>
+                                                          addressController.text = contact.address);
+                                                      widget.onPushAddressBookButton?.call(context);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                      padding: EdgeInsets.all(8),
+                                                      decoration: BoxDecoration(
+                                                          color: widget.addressButtonsColor,
+                                                          borderRadius:
+                                                              BorderRadius.all(Radius.circular(6))),
+                                                      child: Image.asset(
+                                                        'assets/images/open_book.png',
+                                                        color: Theme.of(context)
+                                                            .extension<SendPageTheme>()!
+                                                            .textFieldButtonIconColor,
+                                                      )),
+                                                ),
+                                              )),
+                                        ),
                                       Padding(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            padding: EdgeInsets.only(top: 0),
-                                            child: Semantics(
-                                              label: S.of(context).address_book,
-                                              child: InkWell(
-                                                onTap: () async {
-                                                  final contact =
-                                                      await Navigator.of(context).pushNamed(
-                                                    Routes.pickerAddressBook,
-                                                    arguments: widget.initialCurrency,
-                                                  );
-
-                                                  if (contact is ContactBase) {
-                                                    setState(() =>
-                                                        addressController.text = contact.address);
-                                                    widget.onPushAddressBookButton?.call(context);
-                                                  }
-                                                },
-                                                child: Container(
-                                                    padding: EdgeInsets.all(8),
-                                                    decoration: BoxDecoration(
-                                                        color: widget.addressButtonsColor,
-                                                        borderRadius:
-                                                            BorderRadius.all(Radius.circular(6))),
-                                                    child: Image.asset(
-                                                      'assets/images/open_book.png',
-                                                      color: Theme.of(context)
-                                                          .extension<SendPageTheme>()!
-                                                          .textFieldButtonIconColor,
-                                                    )),
-                                              ),
-                                            )),
-                                      ),
-                                    Padding(
-                                        padding: EdgeInsets.only(left: 2),
-                                        child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            padding: EdgeInsets.only(top: 0),
-                                            child: Semantics(
-                                              label: S.of(context).copy_address,
-                                              child: InkWell(
-                                                onTap: () {
-                                                  Clipboard.setData(
-                                                      ClipboardData(text: addressController.text));
-                                                  showBar<void>(
-                                                      context, S.of(context).copied_to_clipboard);
-                                                },
-                                                child: Container(
-                                                    padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
-                                                    color: Colors.transparent,
-                                                    child: copyImage),
-                                              ),
-                                            )))
-                                  ])))
-                        ])),
-              ),
+                                          padding: EdgeInsets.only(left: 2),
+                                          child: Container(
+                                              width: 34,
+                                              height: 34,
+                                              padding: EdgeInsets.only(top: 0),
+                                              child: Semantics(
+                                                label: S.of(context).copy_address,
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    Clipboard.setData(ClipboardData(
+                                                        text: addressController.text));
+                                                    showBar<void>(
+                                                        context, S.of(context).copied_to_clipboard);
+                                                  },
+                                                  child: Container(
+                                                      padding: EdgeInsets.fromLTRB(8, 8, 0, 8),
+                                                      color: Colors.transparent,
+                                                      child: copyImage),
+                                                ),
+                                              )))
+                                    ])))
+                          ])),
+                ),
+        ],
       ]),
     );
   }
