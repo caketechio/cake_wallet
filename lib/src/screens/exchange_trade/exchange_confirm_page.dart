@@ -97,22 +97,39 @@ class ExchangeConfirmPage extends BasePage {
                   ],
                 ),
               ),
-              Flexible(
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      (trade.provider.image?.isNotEmpty ?? false)
-                          ? ImageUtil.getImageFromPath(
-                          imagePath: trade.provider.image, width: 50)
-                          : const SizedBox(),
-                      if (!trade.provider.horizontalLogo)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(trade.provider.title),
+              Expanded(
+                child: Column(
+                  children: [
+                    if (trade.provider == ExchangeProviderDescription.trocador)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                       S.of(context).selected_trocador_provider +':${trade.providerName}',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).extension<TransactionTradeTheme>()!.detailsTitlesColor),
+                      ),
+                    ),
+                    Flexible(
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            (trade.provider.image?.isNotEmpty ?? false)
+                                ? Image.asset(trade.provider.image, height: 50)
+                                : const SizedBox(),
+                            if (!trade.provider.horizontalLogo)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(trade.provider.title),
+                              ),
+                          ],
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
