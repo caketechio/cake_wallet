@@ -57,7 +57,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = ExolixExchangeProvider();
         break;
       case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider(tradesStore: trades);
+        _provider = ThorChainExchangeProvider(tradesStore: trades, settingsStore: settingsStore);
         break;
       case ExchangeProviderDescription.quantex:
         _provider = QuantexExchangeProvider();

@@ -117,7 +117,7 @@ class AmountMinValidator extends Validator<String> {
       return false;
     }
 
-    return valueInDouble > minInDouble;
+    return valueInDouble >= minInDouble;
   }
 
   double? parseToDouble(String value) {

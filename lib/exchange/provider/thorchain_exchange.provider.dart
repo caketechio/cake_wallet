@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:cake_wallet/core/fiat_conversion_service.dart';
+import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -7,27 +10,28 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
 class ThorChainExchangeProvider extends ExchangeProvider {
-  ThorChainExchangeProvider({required this.tradesStore})
+  ThorChainExchangeProvider({required this.tradesStore, required this.settingsStore})
       : super(pairList: supportedPairs(_notSupported));
 
   static final List<CryptoCurrency> _notSupported = [
     ...(CryptoCurrency.all
         .where((element) => ![
               CryptoCurrency.btc,
-              // CryptoCurrency.eth,
+              CryptoCurrency.eth,
               CryptoCurrency.ltc,
               CryptoCurrency.bch,
-              // CryptoCurrency.aave,
-              // CryptoCurrency.dai,
-              // CryptoCurrency.gusd,
-              // CryptoCurrency.usdc,
-              // CryptoCurrency.usdterc20,
-              // CryptoCurrency.wbtc, // TODO: temporarily commented until https://github.com/cake-tech/cake_wallet/pull/1436 is merged
+              CryptoCurrency.aave,
+              CryptoCurrency.dai,
+              CryptoCurrency.gusd,
+              CryptoCurrency.usdc,
+              CryptoCurrency.usdterc20,
+              CryptoCurrency.wbtc,
             ].contains(element))
         .toList())
   ];
@@ -43,6 +47,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   static const _nameLookUpPath = 'v2/thorname/lookup/';
 
   final Box<Trade> tradesStore;
+  final SettingsStore settingsStore;
 
   @override
   String get title => 'THORChain';
@@ -96,16 +101,22 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
+    final amount = from == CryptoCurrency.usdterc20 || from == CryptoCurrency.usdc ? 200.00 : 10.00;
     final params = {
       'from_asset': _normalizeCurrency(from),
       'to_asset': _normalizeCurrency(to),
-      'amount': _doubleToThorChainString(1),
+      'amount': _doubleToThorChainString(amount),
       'affiliate': _affiliateName,
       'affiliate_bps': _affiliateBps
     };
 
     final responseJSON = await _getSwapQuote(params);
     final minAmountIn = responseJSON['recommended_min_amount_in'] as String? ?? '0.0';
+    final dustThreshold = responseJSON['dust_threshold'] as String? ?? '0.0';
+
+    if (double.parse(minAmountIn) < double.parse(dustThreshold)) {
+      throw Exception('ThorChain: Min amount in is less than dust threshold');
+    }
 
     return Limits(min: _thorChainAmountToDouble(minAmountIn));
   }
@@ -137,6 +148,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
     final inputAddress = responseJSON['inbound_address'] as String?;
     final memo = responseJSON['memo'] as String?;
+    final router = responseJSON['router'] as String?;
     final directAmountOutResponse = responseJSON['expected_amount_out'] as String?;
 
     String? receiveAmount;
@@ -157,6 +169,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       payoutAddress: request.toAddress,
       memo: memo,
       isSendAll: isSendAll,
+      router: router,
     );
   }
 
@@ -243,6 +256,12 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
+
+    // Remove 'affiliate_bps' if the fiat value is less than $100
+    if (await isSwapUnder100$(params: params) && params['affiliate_bps'] != null) {
+      params.remove('affiliate_bps');
+    }
+
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
     final response = await http.get(uri);
@@ -287,5 +306,23 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     }
 
     return currentState;
+  }
+
+  Future<bool> isSwapUnder100$({required Map<String, String> params}) async {
+    if (params['from_asset'] != null && params['amount'] != null) {
+      final String formattedAsset = params['from_asset']!.split('.')[1];
+      final CryptoCurrency selectedCryptoCurrency = CryptoCurrency.fromString(formattedAsset);
+
+      final double price = await FiatConversionService.fetchPrice(
+        crypto: selectedCryptoCurrency,
+        fiat: FiatCurrency.usd,
+        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      );
+
+      final double fiatValue = price * _thorChainAmountToDouble(params['amount']!);
+
+      return fiatValue < 100;
+    }
+    return false;
   }
 }

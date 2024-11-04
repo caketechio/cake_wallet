@@ -167,6 +167,7 @@ flutter:
     - assets/text/
     - assets/faq/
     - assets/animation/
+    - assets/smart_contracts/
 
   fonts:
     - family: Lato

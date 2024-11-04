@@ -331,12 +331,11 @@ abstract class EVMChainWalletBase
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
 
-    final String? opReturnMemo = outputs.first.memo;
+    final String? memo = outputs.first.memo;
 
     String? hexOpReturnMemo;
-    if (opReturnMemo != null) {
-      hexOpReturnMemo =
-          '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
+    if (memo != null) {
+      hexOpReturnMemo = '0x${memo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
     }
 
     final CryptoCurrency transactionCurrency =
@@ -429,6 +428,8 @@ abstract class EVMChainWalletBase
       contractAddress:
           transactionCurrency is Erc20Token ? transactionCurrency.contractAddress : null,
       data: hexOpReturnMemo,
+      memo: memo,
+      router: _credentials.outputs.first.router,
     );
 
     return pendingEVMChainTransaction;
