@@ -278,11 +278,25 @@ abstract class ElectrumWalletBase
   }
 
   @override
-  BitcoinWalletKeys get keys => BitcoinWalletKeys(
-        wif: WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
-        privateKey: hd.privateKey.toHex(),
-        publicKey: hd.publicKey.toHex(),
-      );
+  BitcoinWalletKeys get keys {
+    final extendedPrivateKey = accountHD.privateKey.toExtended;
+    final extendedPublicKey = accountHD.publicKey.toExtended;
+
+    final p2wpkhMainnetPrivKey = KeysVersionBytesConverter.changePrivateKeyVersionBytes(
+        key: extendedPrivateKey, targetType: PrivateKeyType.zprv);
+
+    final p2wpkhMainnetPubKey = KeysVersionBytesConverter.changePublicKeyVersionBytes(
+        key: extendedPublicKey, targetType: PublicKeyType.zpub);
+
+    final wif = WifEncoder.encode(accountHD.privateKey.raw, netVer: network.wifNetVer);
+
+    return BitcoinWalletKeys(
+        wif: wif,
+        privateKey: extendedPrivateKey,
+        publicKey: extendedPublicKey,
+        p2wpkhMainnetPubKey: p2wpkhMainnetPubKey,
+        p2wpkhMainnetPrivKey: p2wpkhMainnetPrivKey);
+  }
 
   String _password;
   List<BitcoinUnspent> unspentCoins;

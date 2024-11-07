@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -38,12 +39,10 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.wownero) {
       final accountTransactions = _getWalletTransactions(_appStore.wallet!);
       if (accountTransactions.isNotEmpty) {
-        final incomingAccountTransactions = accountTransactions
-            .where((tx) => tx.direction == TransactionDirection.incoming);
+        final incomingAccountTransactions =
+            accountTransactions.where((tx) => tx.direction == TransactionDirection.incoming);
         if (incomingAccountTransactions.isNotEmpty) {
-          incomingAccountTransactions
-              .toList()
-              .sort((a, b) => a.date.compareTo(b.date));
+          incomingAccountTransactions.toList().sort((a, b) => a.date.compareTo(b.date));
           _restoreHeightByTransactions = _getRestoreHeightByTransactions(
               _appStore.wallet!.type, incomingAccountTransactions.first.date);
         }
@@ -69,38 +68,27 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_public,
-              value: keys['publicSpendKey']!),
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
         if (keys['privateSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_private,
-              value: keys['privateSpendKey']!),
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_public, value: keys['publicViewKey']!),
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_private,
-              value: keys['privateViewKey']!),
-        if (_appStore.wallet!.seed!.isNotEmpty)
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
-      if (_appStore.wallet?.seed != null &&
-          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+      if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
-            value: (_appStore.wallet as MoneroWalletBase)
-                .seedLegacy(lang.nameEnglish)));
+            value: (_appStore.wallet as MoneroWalletBase).seedLegacy(lang.nameEnglish)));
       }
 
       final restoreHeight = monero!.getRestoreHeight(_appStore.wallet!);
       if (restoreHeight != null) {
         items.add(StandartListItem(
-            title: S.current.wallet_recovery_height,
-            value: restoreHeight.toString()));
+            title: S.current.wallet_recovery_height, value: restoreHeight.toString()));
       }
     }
 
@@ -109,22 +97,14 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_public,
-              value: keys['publicSpendKey']!),
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
         if (keys['privateSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_private,
-              value: keys['privateSpendKey']!),
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_public, value: keys['publicViewKey']!),
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_private,
-              value: keys['privateViewKey']!),
-        if (_appStore.wallet!.seed!.isNotEmpty)
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -133,26 +113,17 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         if (keys['publicSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_public,
-              value: keys['publicSpendKey']!),
+          StandartListItem(title: S.current.spend_key_public, value: keys['publicSpendKey']!),
         if (keys['privateSpendKey'] != null)
-          StandartListItem(
-              title: S.current.spend_key_private,
-              value: keys['privateSpendKey']!),
+          StandartListItem(title: S.current.spend_key_private, value: keys['privateSpendKey']!),
         if (keys['publicViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_public, value: keys['publicViewKey']!),
+          StandartListItem(title: S.current.view_key_public, value: keys['publicViewKey']!),
         if (keys['privateViewKey'] != null)
-          StandartListItem(
-              title: S.current.view_key_private,
-              value: keys['privateViewKey']!),
-        if (_appStore.wallet!.seed!.isNotEmpty)
-          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(title: S.current.view_key_private, value: keys['privateViewKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
 
-      if (_appStore.wallet?.seed != null &&
-          Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
+      if (_appStore.wallet?.seed != null && Polyseed.isValidSeed(_appStore.wallet!.seed!)) {
         final lang = PolyseedLang.getByPhrase(_appStore.wallet!.seed!);
         items.add(StandartListItem(
             title: S.current.wallet_seed_legacy,
@@ -163,17 +134,23 @@ abstract class WalletKeysViewModelBase with Store {
     if (_appStore.wallet!.type == WalletType.bitcoin ||
         _appStore.wallet!.type == WalletType.litecoin ||
         _appStore.wallet!.type == WalletType.bitcoinCash) {
-      // final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
+      final keys = bitcoin!.getWalletKeys(_appStore.wallet!);
 
       items.addAll([
-        // if (keys['wif'] != null)
-        //   StandartListItem(title: "WIF", value: keys['wif']!),
-        // if (keys['privateKey'] != null)
-        //   StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
-        // if (keys['publicKey'] != null)
-        //   StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
-        StandartListItem(
-            title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+        if (keys['wif'] != null) StandartListItem(title: "WIF", value: keys['wif']!),
+        if (keys['privateKey'] != null)
+          StandartListItem(title: S.current.private_key, value: keys['privateKey']!),
+        if (keys['p2wpkhMainnetPrivKey'] != null)
+          StandartListItem(
+              title: S.current.private_key + ' (mainnet P2WPKH)',
+              value: keys['p2wpkhMainnetPrivKey']!),
+        if (keys['publicKey'] != null)
+          StandartListItem(title: S.current.public_key, value: keys['publicKey']!),
+        if (keys['p2wpkhMainnetPubKey'] != null)
+          StandartListItem(
+              title: S.current.public_key + ' (mainnet P2WPKH)',
+              value: keys['p2wpkhMainnetPubKey']!),
+        StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
@@ -182,32 +159,24 @@ abstract class WalletKeysViewModelBase with Store {
         _appStore.wallet!.type == WalletType.tron) {
       items.addAll([
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(
-              title: S.current.private_key,
-              value: _appStore.wallet!.privateKey!),
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
         if (_appStore.wallet!.seed != null)
-          StandartListItem(
-              title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
       ]);
     }
 
-    bool nanoBased = _appStore.wallet!.type == WalletType.nano ||
-        _appStore.wallet!.type == WalletType.banano;
+    bool nanoBased =
+        _appStore.wallet!.type == WalletType.nano || _appStore.wallet!.type == WalletType.banano;
 
     if (nanoBased) {
       // we always have the hex version of the seed and private key:
       items.addAll([
         if (_appStore.wallet!.seed != null)
-          StandartListItem(
-              title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
+          StandartListItem(title: S.current.wallet_seed, value: _appStore.wallet!.seed!),
         if (_appStore.wallet!.hexSeed != null)
-          StandartListItem(
-              title: S.current.seed_hex_form,
-              value: _appStore.wallet!.hexSeed!),
+          StandartListItem(title: S.current.seed_hex_form, value: _appStore.wallet!.hexSeed!),
         if (_appStore.wallet!.privateKey != null)
-          StandartListItem(
-              title: S.current.private_key,
-              value: _appStore.wallet!.privateKey!),
+          StandartListItem(title: S.current.private_key, value: _appStore.wallet!.privateKey!),
       ]);
     }
   }
@@ -273,8 +242,7 @@ abstract class WalletKeysViewModelBase with Store {
       if (_appStore.wallet!.seed != null) 'seed': _appStore.wallet!.seed!,
       if (_appStore.wallet!.seed == null && _appStore.wallet!.hexSeed != null)
         'hexSeed': _appStore.wallet!.hexSeed!,
-      if (_appStore.wallet!.seed == null &&
-          _appStore.wallet!.privateKey != null)
+      if (_appStore.wallet!.seed == null && _appStore.wallet!.privateKey != null)
         'private_key': _appStore.wallet!.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult},
       if (_appStore.wallet!.passphrase != null) 'passphrase': _appStore.wallet!.passphrase!
@@ -292,11 +260,7 @@ abstract class WalletKeysViewModelBase with Store {
     } else if (wallet.type == WalletType.haven) {
       return haven!.getTransactionHistory(wallet).transactions.values.toList();
     } else if (wallet.type == WalletType.wownero) {
-      return wownero!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .toList();
+      return wownero!.getTransactionHistory(wallet).transactions.values.toList();
     }
     return [];
   }
@@ -312,6 +276,5 @@ abstract class WalletKeysViewModelBase with Store {
     return 0;
   }
 
-  String getRoundedRestoreHeight(int height) =>
-      ((height / 1000).floor() * 1000).toString();
+  String getRoundedRestoreHeight(int height) => ((height / 1000).floor() * 1000).toString();
 }

@@ -60,14 +60,16 @@ class CWBitcoin extends Bitcoin {
   List<String> getWordList() => wordlist;
 
   @override
-  Map<String, String> getWalletKeys(Object wallet) {
+  Map<String, String?> getWalletKeys(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     final keys = bitcoinWallet.keys;
 
-    return <String, String>{
+    return <String, String?>{
       'wif': keys.wif,
       'privateKey': keys.privateKey,
-      'publicKey': keys.publicKey
+      'publicKey': keys.publicKey,
+      'p2wpkhMainnetPubKey': keys.p2wpkhMainnetPubKey,
+      'p2wpkhMainnetPrivKey': keys.p2wpkhMainnetPrivKey,
     };
   }
 
