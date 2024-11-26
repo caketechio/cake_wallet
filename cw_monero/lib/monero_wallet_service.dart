@@ -66,6 +66,12 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   final String spendKey;
 }
 
+enum OpenWalletTry {
+  initial,
+  cacheRestored,
+  cacheRemoved,
+}
+
 class MoneroWalletService extends WalletService<
     MoneroNewWalletCredentials,
     MoneroRestoreWalletFromSeedCredentials,
@@ -128,7 +134,7 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> openWallet(String name, String password, {bool? retryOnFailure}) async {
+  Future<MoneroWallet> openWallet(String name, String password, {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
       final path = await pathForWallet(name: name, type: getType());
 
@@ -163,12 +169,16 @@ class MoneroWalletService extends WalletService<
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      if (retryOnFailure == false) {
-        rethrow;
+      switch (openWalletTry) {
+        case OpenWalletTry.initial:
+          await restoreOrResetWalletFiles(name);
+          return openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
+        case OpenWalletTry.cacheRestored:
+          await removeCache(name);
+          return openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
+        case OpenWalletTry.cacheRemoved:
+          rethrow;
       }
-
-      await restoreOrResetWalletFiles(name);
-      return openWallet(name, password, retryOnFailure: false);
     }
   }
 
