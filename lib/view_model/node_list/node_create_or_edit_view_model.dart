@@ -9,6 +9,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:collection/collection.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:tor/tor.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
@@ -57,6 +58,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   bool useSocksProxy;
+
+  @computed
+  bool get usesEmbeddedProxy => Tor.instance.started;
 
   @observable
   String socksProxyAddress;

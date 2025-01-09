@@ -294,6 +294,7 @@ class BackupService {
     final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
+    final builtinTor = data[PreferencesKey.builtinTorKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
     final autoGenerateSubaddressStatus =
         data[PreferencesKey.autoGenerateSubaddressStatusKey] as int?;
@@ -404,6 +405,8 @@ class BackupService {
     if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+
+    if (builtinTor != null) await _sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
 
     if (syncMode != null) await _sharedPreferences.setInt(PreferencesKey.syncModeKey, syncMode);
 
@@ -544,6 +547,7 @@ class BackupService {
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
+      PreferencesKey.builtinTorKey: _sharedPreferences.getBool(PreferencesKey.builtinTorKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:
           _sharedPreferences.getInt(PreferencesKey.autoGenerateSubaddressStatusKey),
     };

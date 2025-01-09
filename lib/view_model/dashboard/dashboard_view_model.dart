@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/anonpay/anonpay_transactions_store.dart';
@@ -42,15 +43,19 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/file.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_wownero/api/wallet.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tor/tor.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -750,6 +755,25 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get syncAll => settingsStore.currentSyncAll;
 
+  @computed
+  bool get builtinTor => settingsStore.builtinTor;
+
+  @action
+  void setBuiltinTor(bool value, BuildContext context) {
+    settingsStore.builtinTor = value;
+    if (value) {
+      unawaited(ensureTorStarted(context: context).then((_) async {
+        if (settingsStore.builtinTor == false) return; // return when tor got disabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    } else {
+      unawaited(ensureTorStopped(context: context).then((_) async {
+        if (settingsStore.builtinTor == true) return; // return when tor got enabled in the meantime;
+        await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
+      }));
+    }
+  }
+  
   @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 

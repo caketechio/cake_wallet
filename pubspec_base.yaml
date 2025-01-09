@@ -109,6 +109,10 @@ dependencies:
   solana: ^0.31.0+1
   ledger_flutter_plus: ^1.4.1
   hashlib: ^1.19.2
+  tor:
+    git:
+      url: https://github.com/Foundation-Devices/tor/
+      ref: d01450765029a4af436be1f6bf1a2d4400dea222
 
 dev_dependencies:
   flutter_test:
@@ -146,6 +150,10 @@ dependency_overrides:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v9
   ffi: 2.1.0
+  tor:
+    git:
+      url: https://github.com/Foundation-Devices/tor/
+      ref: d01450765029a4af436be1f6bf1a2d4400dea222
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

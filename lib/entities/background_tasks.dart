@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -48,6 +49,10 @@ void callbackDispatcher() {
               wallet =
                   await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
               final node = getIt.get<SettingsStore>().getCurrentNode(moneroWallets[i].type);
+              final settingsStore = getIt.get<SettingsStore>();
+              if (settingsStore.builtinTor) {
+                await ensureTorStarted(context: null);
+              }
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }
@@ -60,7 +65,11 @@ void callbackDispatcher() {
 
               wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
               final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
-
+              final settingsStore = getIt.get<SettingsStore>();
+              if (settingsStore.builtinTor) {
+                await ensureTorStarted(context: null);
+              }
+      
               await wallet.connectToNode(node: node);
               await wallet.startSync();
             }

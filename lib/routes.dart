@@ -109,7 +109,6 @@ class Routes {
   static const walletConnectConnectionsListing = '/wallet-connect-connections-listing';
   static const nftDetailsPage = '/nft_details_page';
   static const importNFTPage = '/import_nft_page';
-  static const torPage = '/tor_page';
 
   static const signPage = '/sign_page';
   static const connectDevices = '/device/connect';

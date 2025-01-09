@@ -39,6 +39,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:tor/tor.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -183,6 +184,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    String socksProxy = node.socksProxyAddress ?? '';
+    printV("bootstrapped: ${Tor.instance.bootstrapped}");
+    printV("     enabled: ${Tor.instance.enabled}");
+    printV("        port: ${Tor.instance.port}");
+    printV("     started: ${Tor.instance.started}");
+    if (Tor.instance.enabled) {
+      socksProxy = "127.0.0.1:${Tor.instance.port}";
+    }
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
@@ -192,7 +201,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           useSSL: node.isSSL,
           isLightWallet: false,
           // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+          socksProxyAddress: socksProxy);
 
       monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();

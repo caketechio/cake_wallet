@@ -5,6 +5,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
@@ -74,6 +75,10 @@ void startCurrentWalletChangeReaction(
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 
+      if (settingsStore.builtinTor) {
+        await ensureTorStarted(context: null);
+      }
+      
       await wallet.connectToNode(node: node);
       if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
         final powNode = settingsStore.getCurrentPowNode(wallet.type);
