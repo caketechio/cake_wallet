@@ -9,6 +9,7 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:tor/tor.dart';
 
 part 'pow_node_list_view_model.g.dart';
 
@@ -38,7 +39,7 @@ abstract class PowNodeListViewModelBase with Store {
 
   String getAlertContent(String uri) =>
       S.current.change_current_node(uri) +
-      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
+      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + (Tor.instance.enabled ? '' : S.current.orbot_running_alert) : ''}';
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
