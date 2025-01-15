@@ -34,7 +34,7 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
         final alive = await settingsStore.getCurrentNode(wallet.type).requestNode();
 
         if (alive) {
-          if (settingsStore.builtinTor) {
+          if (settingsStore.currentBuiltinTor) {
             await ensureTorStarted(context: null);
           }
       

@@ -756,19 +756,19 @@ abstract class DashboardViewModelBase with Store {
   bool get syncAll => settingsStore.currentSyncAll;
 
   @computed
-  bool get builtinTor => settingsStore.builtinTor;
+  bool get builtinTor => settingsStore.currentBuiltinTor;
 
   @action
   void setBuiltinTor(bool value, BuildContext context) {
-    settingsStore.builtinTor = value;
+    settingsStore.currentBuiltinTor = value;
     if (value) {
       unawaited(ensureTorStarted(context: context).then((_) async {
-        if (settingsStore.builtinTor == false) return; // return when tor got disabled in the meantime;
+        if (settingsStore.currentBuiltinTor == false) return; // return when tor got disabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
-        if (settingsStore.builtinTor == true) return; // return when tor got enabled in the meantime;
+        if (settingsStore.currentBuiltinTor == true) return; // return when tor got enabled in the meantime;
         await wallet.connectToNode(node: appStore.settingsStore.getCurrentNode(wallet.type));
       }));
     }

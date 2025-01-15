@@ -75,7 +75,7 @@ void startCurrentWalletChangeReaction(
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }
 
-      if (settingsStore.builtinTor) {
+      if (settingsStore.currentBuiltinTor) {
         await ensureTorStarted(context: null);
       }
       

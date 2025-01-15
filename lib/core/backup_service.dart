@@ -386,6 +386,7 @@ class BackupService {
       await _sharedPreferences.setString(PreferencesKey.defaultBananoRep, defaultBananoRep);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
+    if (builtinTor != null) await _sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
     if (lookupsTwitter != null)
       await _sharedPreferences.setBool(PreferencesKey.lookupsTwitter, lookupsTwitter);
 

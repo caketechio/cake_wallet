@@ -50,7 +50,7 @@ void callbackDispatcher() {
                   await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
               final node = getIt.get<SettingsStore>().getCurrentNode(moneroWallets[i].type);
               final settingsStore = getIt.get<SettingsStore>();
-              if (settingsStore.builtinTor) {
+              if (settingsStore.currentBuiltinTor) {
                 await ensureTorStarted(context: null);
               }
               await wallet.connectToNode(node: node);
@@ -66,7 +66,7 @@ void callbackDispatcher() {
               wallet = await walletLoadingService.load(WalletType.values[typeRaw!], name!);
               final node = getIt.get<SettingsStore>().getCurrentNode(WalletType.values[typeRaw]);
               final settingsStore = getIt.get<SettingsStore>();
-              if (settingsStore.builtinTor) {
+              if (settingsStore.currentBuiltinTor) {
                 await ensureTorStarted(context: null);
               }
       
