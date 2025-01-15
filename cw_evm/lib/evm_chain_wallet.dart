@@ -299,7 +299,7 @@ abstract class EVMChainWalletBase
 
   @action
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       syncStatus = AttemptingSyncStatus();
       await _updateBalance();

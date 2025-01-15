@@ -5,6 +5,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:cake_wallet/entities/wellknown_record.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/mastodon/mastodon_api.dart';
 import 'package:cake_wallet/nostr/nostr_api.dart';
@@ -204,6 +205,17 @@ class AddressResolver {
                 }
               }
             }
+          }
+        }
+      }
+
+      // .well-known scheme:
+      if (text.contains('.') && text.contains('@')) {
+        if (settingsStore.lookupsWellKnown) {
+          final record =
+              await WellKnownRecord.fetchAddressAndName(formattedName: text, currency: currency);
+          if (record != null) {
+            return ParsedAddress.fetchWellKnownAddress(address: record.address, name: text);
           }
         }
       }

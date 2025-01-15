@@ -51,7 +51,9 @@ abstract class WowneroWalletBase
     extends WalletBase<WowneroBalance, WowneroTransactionHistory, WowneroTransactionInfo>
     with Store {
   WowneroWalletBase(
-      {required WalletInfo walletInfo, required Box<UnspentCoinsInfo> unspentCoinsInfo, required String password})
+      {required WalletInfo walletInfo,
+      required Box<UnspentCoinsInfo> unspentCoinsInfo,
+      required String password})
       : balance = ObservableMap<CryptoCurrency, WowneroBalance>.of({
           CryptoCurrency.wow: WowneroBalance(
               fullBalance: wownero_wallet.getFullBalance(accountIndex: 0),
@@ -191,7 +193,19 @@ abstract class WowneroWalletBase
   }
 
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
+    if (isBackgroundSync) {
+      try {
+        syncStatus = AttemptingSyncStatus();
+        wownero_wallet.startBackgroundSync();
+        return;
+      } catch (e) {
+        syncStatus = FailedSyncStatus();
+        printV(e);
+        rethrow;
+      }
+    }
+
     try {
       _assertInitialHeight();
     } catch (_) {

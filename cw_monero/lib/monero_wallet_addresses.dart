@@ -96,8 +96,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
       });
 
       await saveAddressesInBox();
-    } catch (e) {
+    } catch (e, s) {
       printV(e.toString());
+      printV(s.toString());
     }
   }
 

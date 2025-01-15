@@ -133,7 +133,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     final syncingWalletTypes = [WalletType.litecoin, WalletType.monero, WalletType.bitcoin];
     switch (state) {
       case AppLifecycleState.paused:
@@ -143,10 +143,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
-        }
-
-        if (FeatureFlag.isBackgroundSyncEnabled && syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
-          widget.appStore.wallet?.stopSync();
         }
 
         break;
@@ -163,39 +159,47 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         break;
     }
 
+    // _stateTimer?.cancel();
+    // _stateTimer = Timer(const Duration(seconds: 1), () async {
+    //   getIt.get<BackgroundTasks>().lastAppState(state);
+    // });
+
+    getIt.get<BackgroundTasks>().lastAppState(state);
+
     // background service handling:
+    printV("state: $state");
+    final appStore = widget.appStore;
+    final wallet = appStore.wallet;
     switch (state) {
       case AppLifecycleState.resumed:
-        // restart the background service if it was running before:
-        getIt.get<BackgroundTasks>().serviceForeground();
-        _stateTimer?.cancel();
-        if (!wasInBackground) {
+        bool isBackgroundSyncing = await getIt.get<BackgroundTasks>().isBackgroundSyncing();
+
+        printV("isBackgroundSyncing: $isBackgroundSyncing");
+
+        if (!isBackgroundSyncing) {
           return;
         }
-        wasInBackground = false;
-        if (syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
-          // wait a few seconds before starting the sync make sure the background service is fully exited:
-          Future.delayed(const Duration(seconds: 3), () {
-            widget.appStore.wallet?.startSync();
-          });
-        }
+
+        // await wallet?.closeWallet();
+        // restart the background service if it was running before:
+        await getIt.get<BackgroundTasks>().serviceForeground();
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.stopSync(isBackgroundSync: true);
+
+        await Future.delayed(const Duration(seconds: 10));
+
+        await wallet?.reopenWallet();
+
         break;
-      case AppLifecycleState.paused:
-        // TODO: experimental: maybe should uncomment this:
-        // getIt.get<BackgroundTasks>().serviceBackground(false, showNotifications);
-        getIt.get<BackgroundTasks>().serviceReady();
+      case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:
       case AppLifecycleState.detached:
-      default:
-        // anything other than resumed update the notification to say we're in the "ready" state:
-        // if we enter any state other than resumed start a timer for 30 seconds
-        // after which we'll consider the app to be in the background
-        _stateTimer?.cancel();
-        // TODO: bump this to > 30 seconds when testing is done:
-        _stateTimer = Timer(const Duration(seconds: 10), () async {
-          wasInBackground = true;
-          getIt.get<BackgroundTasks>().serviceBackground();
-        });
+        break;
+      case AppLifecycleState.paused:
+        await wallet?.stopSync();
+        await wallet?.close();
         break;
     }
     _previousState = state;

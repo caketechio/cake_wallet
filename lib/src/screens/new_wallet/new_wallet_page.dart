@@ -221,6 +221,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           ),
                           if (_walletNewVM.hasWalletPassword) ...[
                             TextFormField(
+                              key: ValueKey('password'),
                               onChanged: (value) => _walletNewVM.walletPassword = value,
                               controller: _passwordController,
                               textAlign: TextAlign.center,
@@ -257,6 +258,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               ),
                             ),
                             TextFormField(
+                              key: ValueKey('repeat_wallet_password'),
                               onChanged: (value) => _walletNewVM.repeatedWalletPassword = value,
                               controller: _repeatedPasswordController,
                               textAlign: TextAlign.center,

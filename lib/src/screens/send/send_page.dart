@@ -525,6 +525,10 @@ class SendPage extends BasePage {
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
 
+          if (!context.mounted) {
+            return;
+          }
+
           final successMessage = S.of(context).send_success(
               sendViewModel.selectedCryptoCurrency.toString());
 

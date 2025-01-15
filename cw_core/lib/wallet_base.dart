@@ -60,14 +60,16 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   bool get isHardwareWallet => walletInfo.isHardwareWallet;
 
+  Future<void> init();
+
   Future<void> connectToNode({required Node node});
 
   // there is a default definition here because only coins with a pow node (nano based) need to override this
   Future<void> connectToPowNode({required Node node}) async {}
 
-  Future<void> startSync();
+  Future<void> startSync({bool isBackgroundSync = false});
 
-  Future<void> stopSync() async {}
+  Future<void> stopSync({bool isBackgroundSync = false}) async {}
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
@@ -100,4 +102,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<bool> verifyMessage(String message, String signature, {String? address = null});
 
   bool isTestnet = false;
+
+  // TODO: use proxy layer
+  Future<void> reopenWallet() async {}
 }

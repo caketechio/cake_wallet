@@ -94,6 +94,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
 
+  @computed
+  bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
@@ -130,6 +133,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setLookupsENS(bool value) => _settingsStore.lookupsENS = value;
 
+  @action
+  void setLookupsWellKnown(bool value) => _settingsStore.lookupsWellKnown = value;
+  
   @action
   void setLookupsYatService(bool value) => _settingsStore.lookupsYatService = value;
 

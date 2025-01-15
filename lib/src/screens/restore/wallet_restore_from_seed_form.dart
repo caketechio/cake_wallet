@@ -223,12 +223,14 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             ),
           if (widget.displayWalletPassword)
             ...[BaseTextFormField(
+                key: ValueKey('password'),
                 controller: passwordTextEditingController,
                 hintText: S
                     .of(context)
                     .password,
                 obscureText: true),
               BaseTextFormField(
+                  key: ValueKey('repeat_wallet_password'),
                   controller: repeatedPasswordTextEditingController,
                   hintText: S
                       .of(context)

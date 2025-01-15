@@ -334,20 +334,20 @@ Future<void> defaultSettingsMigration(
           );
           break;
         case 46:
-          _fixNodesUseSSLFlag(nodes);
-          updateWalletTypeNodesWithNewNode(
+          await _fixNodesUseSSLFlag(nodes);
+          await updateWalletTypeNodesWithNewNode(
             newNodeUri: 'litecoin.stackwallet.com:20063',
             nodes: nodes,
             type: WalletType.litecoin,
             useSSL: true,
           );
-          updateWalletTypeNodesWithNewNode(
+          await updateWalletTypeNodesWithNewNode(
             newNodeUri: 'electrum-ltc.bysh.me:50002',
             nodes: nodes,
             type: WalletType.litecoin,
             useSSL: true,
           );
-          _changeDefaultNode(
+          await _changeDefaultNode(
             nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.solana,
@@ -360,13 +360,13 @@ Future<void> defaultSettingsMigration(
               'solana-rpc.publicnode.com:443',
             ],
           );
-          _updateNode(
+          await _updateNode(
             nodes: nodes,
             currentUri: "ethereum.publicnode.com",
             newUri: "ethereum-rpc.publicnode.com",
             useSSL: true,
           );
-          _updateNode(
+          await _updateNode(
             nodes: nodes,
             currentUri: "polygon-bor.publicnode.com",
             newUri: "polygon-bor-rpc.publicnode.com",
@@ -387,12 +387,12 @@ Future<void> defaultSettingsMigration(
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
 }
 
-void _updateNode({
+Future<void> _updateNode({
   required Box<Node> nodes,
   required String currentUri,
   String? newUri,
   bool? useSSL,
-}) {
+}) async {
   for (Node node in nodes.values) {
     if (node.uriRaw == currentUri) {
       if (newUri != null) {
@@ -401,6 +401,7 @@ void _updateNode({
       if (useSSL != null) {
         node.useSSL = useSSL;
       }
+      await node.save();
     }
   }
 }
@@ -481,7 +482,7 @@ void _deselectExchangeProvider(SharedPreferences sharedPreferences, String provi
   );
 }
 
-void _fixNodesUseSSLFlag(Box<Node> nodes) {
+Future<void> _fixNodesUseSSLFlag(Box<Node> nodes) async {
   for (Node node in nodes.values) {
     switch (node.uriRaw) {
       case cakeWalletLitecoinElectrumUri:
@@ -490,6 +491,7 @@ void _fixNodesUseSSLFlag(Box<Node> nodes) {
       case newCakeWalletMoneroUri:
         node.useSSL = true;
         node.trusted = true;
+        await node.save();
     }
   }
 }

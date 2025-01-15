@@ -56,6 +56,10 @@ void main() {
       await authPageRobot.enterPinCode(CommonTestConstants.pin);
     }
 
+    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+    if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+    }
     await exchangeConfirmPageRobot.onSavedTradeIdButtonPressed();
     await exchangeTradePageRobot.onGotItButtonPressed();
   });

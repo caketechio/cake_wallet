@@ -23,20 +23,16 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:intl/intl.dart';
 
-const moneroSyncTaskKey = "com.fotolockr.cakewallet.monero_sync_task";
-const mwebSyncTaskKey = "com.fotolockr.cakewallet.mweb_sync_task";
-
-const initialNotificationTitle = 'Cake Background Sync';
-const standbyMessage = 'On standby - app is in the foreground';
-const readyMessage = 'Ready to sync - waiting until the app has been in the background for a while';
-const startMessage = 'Starting sync - app is in the background';
-const allWalletsSyncedMessage = 'All wallets synced - waiting for next queue refresh';
+const initialNotificationTitle = "Cake Background Sync";
+const standbyMessage = "On standby - app is in the foreground";
+const readyMessage = "Ready to sync - waiting until the app has been in the background for a while";
+const startMessage = "Starting sync - app is in the background";
+const allWalletsSyncedMessage = "All wallets synced - waiting for next queue refresh";
 const notificationId = 888;
-const notificationChannelId = 'cake_service';
-const notificationChannelName = 'CAKE BACKGROUND SERVICE';
-const notificationChannelDescription = 'Cake Wallet Background Service';
+const notificationChannelId = "cake_service";
+const notificationChannelName = "CAKE BACKGROUND SERVICE";
+const notificationChannelDescription = "Cake Wallet Background Service";
 const DELAY_SECONDS_BEFORE_SYNC_START = 15;
 const spNodeNotificationMessage =
     "Currently configured Bitcoin node does not support Silent Payments. skipping wallet";
@@ -58,7 +54,7 @@ void setMainNotification(
       android: AndroidNotificationDetails(
         notificationChannelId,
         notificationChannelName,
-        icon: 'ic_bg_service_small',
+        icon: "ic_bg_service_small",
         ongoing: true,
         silent: true,
       ),
@@ -114,7 +110,7 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
       android: AndroidNotificationDetails(
         "${notificationChannelId}_$walletNum",
         "${notificationChannelName}_$walletNum",
-        icon: 'ic_bg_service_small',
+        icon: "ic_bg_service_small",
         ongoing: true,
         silent: true,
       ),
@@ -122,13 +118,36 @@ void setWalletNotification(FlutterLocalNotificationsPlugin flutterLocalNotificat
   );
 }
 
-@pragma('vm:entry-point')
+AppLifecycleState appStateFromString(String state) {
+  switch (state) {
+    case "AppLifecycleState.paused":
+      return AppLifecycleState.paused;
+    case "AppLifecycleState.resumed":
+      return AppLifecycleState.resumed;
+    case "AppLifecycleState.hidden":
+      return AppLifecycleState.hidden;
+    case "AppLifecycleState.detached":
+      return AppLifecycleState.detached;
+    case "AppLifecycleState.inactive":
+      return AppLifecycleState.inactive;
+  }
+  throw Exception("unknown app state: $state");
+}
+
+@pragma("vm:entry-point")
 Future<void> onStart(ServiceInstance service) async {
   printV("BACKGROUND SERVICE STARTED");
   bool bgSyncStarted = false;
   Timer? _syncTimer;
   Timer? _stuckSyncTimer;
   Timer? _queueTimer;
+  Timer? _appStateTimer;
+  List<WalletBase> syncingWallets = [];
+  List<WalletBase> standbyWallets = [];
+  Timer? _bgTimer;
+  AppLifecycleState lastAppState = AppLifecycleState.resumed;
+  final List<AppLifecycleState> lastAppStates = [];
+  String serviceState = "NOT_RUNNING";
 
   // commented because the behavior appears to be bugged:
   // DartPluginRegistrant.ensureInitialized();
@@ -136,34 +155,72 @@ Future<void> onStart(ServiceInstance service) async {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  service.on('stopService').listen((event) async {
-    printV("STOPPING BACKGROUND SERVICE");
+  Future<void> stopAllSyncing() async {
     _syncTimer?.cancel();
     _stuckSyncTimer?.cancel();
     _queueTimer?.cancel();
+    try {
+      // stop all syncing wallets:
+      for (int i = 0; i < syncingWallets.length; i++) {
+        final wallet = syncingWallets[i];
+        await wallet.stopSync(isBackgroundSync: true);
+      }
+      // stop all standby wallets (just in case):
+      for (int i = 0; i < standbyWallets.length; i++) {
+        final wallet = standbyWallets[i];
+        await wallet.stopSync(isBackgroundSync: true);
+      }
+    } catch (e) {
+      printV("error stopping sync: $e");
+    }
+    printV("done stopping sync");
+  }
+
+  service.on("stopService").listen((event) async {
+    printV("STOPPING BACKGROUND SERVICE");
+    await stopAllSyncing();
+    // stop the service itself:
+    service.invoke("serviceState", {"state": "NOT_RUNNING"});
     await service.stopSelf();
   });
 
-  service.on('status').listen((event) async {
+  service.on("status").listen((event) async {
     printV(event);
   });
 
-  service.on('setForeground').listen((event) async {
+  Future<void> setForeground() async {
+    serviceState = "FOREGROUND";
     bgSyncStarted = false;
-    _syncTimer?.cancel();
     setNotificationStandby(flutterLocalNotificationsPlugin);
+  }
+
+  service.on("setForeground").listen((event) async {
+    await setForeground();
+    service.invoke("serviceState", {"state": "FOREGROUND"});
   });
 
-  service.on('setReady').listen((event) async {
-    setNotificationReady(flutterLocalNotificationsPlugin);
+  void setReady() {
+    if (serviceState != "READY" && serviceState != "BACKGROUND") {
+      serviceState = "READY";
+      setNotificationReady(flutterLocalNotificationsPlugin);
+    }
+  }
+
+  service.on("setReady").listen((event) async {
+    setReady();
+  });
+
+  service.on("appState").listen((event) async {
+    printV("APP STATE: ${event?["state"]}");
+    lastAppState = appStateFromString(event?["state"] as String);
   });
 
   // we have entered the background, start the sync:
-  service.on('setBackground').listen((event) async {
-    if (bgSyncStarted) {
-      return;
-    }
+  void setBackground() async {
+    // only runs once per service instance:
+    if (bgSyncStarted) return;
     bgSyncStarted = true;
+    serviceState = "BACKGROUND";
 
     await Future.delayed(const Duration(seconds: DELAY_SECONDS_BEFORE_SYNC_START));
     printV("STARTING SYNC FROM BG");
@@ -185,20 +242,21 @@ Future<void> onStart(ServiceInstance service) async {
     final settingsStore = getIt.get<SettingsStore>();
     final walletListViewModel = getIt.get<WalletListViewModel>();
 
-    List<WalletBase> syncingWallets = [];
-    List<WalletBase> standbyWallets = [];
-
     // get all Monero / Wownero wallets and add them
     final List<WalletListItem> moneroWallets = walletListViewModel.wallets
         .where((element) => [WalletType.monero, WalletType.wownero].contains(element.type))
         .toList();
 
+    printV("LOADING MONERO WALLETS");
+
     for (int i = 0; i < moneroWallets.length; i++) {
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name);
-      final node = settingsStore.getCurrentNode(moneroWallets[i].type);
-      await wallet.stopSync();
+      // stop regular sync process if it's been started
+      // await wallet.stopSync(isBackgroundSync: false);
       syncingWallets.add(wallet);
     }
+
+    printV("MONERO WALLETS LOADED");
 
     // get all litecoin wallets and add them:
     final List<WalletListItem> litecoinWallets = walletListViewModel.wallets
@@ -272,7 +330,7 @@ Future<void> onStart(ServiceInstance service) async {
             printV("${wallet.name} NOT CONNECTED");
             final node = settingsStore.getCurrentNode(wallet.type);
             await wallet.connectToNode(node: node);
-            wallet.startSync();
+            wallet.startSync(isBackgroundSync: true);
             printV("STARTED SYNC");
           }
 
@@ -282,7 +340,7 @@ Future<void> onStart(ServiceInstance service) async {
               syncedTicks = 0;
               printV("WALLET $i SYNCED");
               try {
-                await wallet.stopSync();
+                await wallet.stopSync(isBackgroundSync: true);
               } catch (e) {
                 printV("error stopping sync: $e");
               }
@@ -330,7 +388,7 @@ Future<void> onStart(ServiceInstance service) async {
           }
         } else {
           if (syncStatus is! NotConnectedSyncStatus) {
-            wallet.stopSync();
+            wallet.stopSync(isBackgroundSync: true);
           }
           if (progress < SYNC_THRESHOLD) {
             content = "$progressPercent - Waiting in sync queue";
@@ -396,7 +454,7 @@ Future<void> onStart(ServiceInstance service) async {
         if (syncStatus is NotConnectedSyncStatus) {
           final node = settingsStore.getCurrentNode(wallet.type);
           await wallet.connectToNode(node: node);
-          await wallet.startSync();
+          await wallet.startSync(isBackgroundSync: true);
         }
 
         // wait a while before checking progress:
@@ -428,7 +486,7 @@ Future<void> onStart(ServiceInstance service) async {
         printV("syncing appears to be stuck, restarting...");
         try {
           stuckWallets.add(wallet.name);
-          await wallet.stopSync();
+          await wallet.stopSync(isBackgroundSync: true);
         } catch (e) {
           printV("error restarting sync: $e");
         }
@@ -440,9 +498,38 @@ Future<void> onStart(ServiceInstance service) async {
           stuckWallets = [];
           return;
         }
-        wallet.startSync();
+        wallet.startSync(isBackgroundSync: true);
       }
     });
+  }
+
+  service.on("setBackground").listen((event) async {
+    setBackground();
+  });
+
+  // if the app state changes to paused, setReady()
+  // if the app state has been paused for more than 10 seconds, setBackground()
+  _appStateTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+    lastAppStates.add(lastAppState);
+    if (lastAppStates.length > 10) {
+      lastAppStates.removeAt(0);
+    }
+    // printV(lastAppStates);
+    // if (lastAppState == AppLifecycleState.resumed && serviceState != "FOREGROUND") {
+    //   setForeground();
+    // }
+    if (lastAppStates.length < 5) {
+      service.invoke("serviceState", {"state": serviceState});
+      return;
+    }
+    if (lastAppState == AppLifecycleState.paused && serviceState != "READY") {
+      setReady();
+    }
+    // if all 10 states are paused, setBackground()
+    if (lastAppStates.every((state) => state == AppLifecycleState.paused) && !bgSyncStarted) {
+      setBackground();
+    }
+    service.invoke("serviceState", {"state": serviceState});
   });
 }
 
@@ -523,24 +610,47 @@ class BackgroundTasks {
   FlutterBackgroundService bgService = FlutterBackgroundService();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  static Timer? _pingTimer;
+  static String serviceState = "NOT_RUNNING";
 
   void serviceBackground() {
     bgService.invoke("setBackground");
+    _pingTimer?.cancel();
+  }
+
+  void foregroundPing() {
+    bgService.invoke("foregroundPing");
+  }
+
+  void lastAppState(AppLifecycleState state) {
+    bgService.invoke("appState", {"state": state.toString()});
   }
 
   Future<void> serviceForeground() async {
+    printV("SERVICE FOREGROUNDED");
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
-    bgService.invoke('stopService');
-    await Future.delayed(const Duration(seconds: 2));
+    bgService.invoke("stopService");
+    await Future.delayed(const Duration(seconds: 5));
     initializeService(bgService, showNotifications);
+    bgService.invoke("setForeground");
+  }
+
+  Future<bool> isServiceRunning() async {
+    return await bgService.isRunning();
+  }
+
+  Future<bool> isBackgroundSyncing() async {
+    printV("serviceState: ${serviceState}");
+    printV("isRunning: ${await bgService.isRunning()}");
+    return await bgService.isRunning() && serviceState == "BACKGROUND";
   }
 
   void serviceReady() {
     final settingsStore = getIt.get<SettingsStore>();
     bool showNotifications = settingsStore.showSyncNotification;
     if (showNotifications) {
-      bgService.invoke('setReady');
+      bgService.invoke("setReady");
     }
   }
 
@@ -587,7 +697,18 @@ class BackgroundTasks {
 
       REFRESH_QUEUE_DURATION = syncMode.frequency;
 
+      _pingTimer?.cancel();
+      _pingTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+        getIt.get<BackgroundTasks>().foregroundPing();
+      });
+
+      bgService.on("serviceState").listen((event) {
+        printV("UPDATING SERVICE STATE: ${event?["state"]}");
+        serviceState = event?["state"] as String;
+      });
+
       await initializeService(bgService, useNotifications);
+      bgService.invoke("setForeground");
     } catch (error, stackTrace) {
       printV(error);
       printV(stackTrace);

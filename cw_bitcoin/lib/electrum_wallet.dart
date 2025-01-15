@@ -452,7 +452,7 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       if (syncStatus is SyncronizingSyncStatus) {
         return;
@@ -490,7 +490,7 @@ abstract class ElectrumWalletBase
 
   @action
   @override
-  Future<void> stopSync() async {
+  Future<void> stopSync({bool isBackgroundSync = false}) async {
     syncStatus = NotConnectedSyncStatus();
     try {
       await _receiveStream?.cancel();

@@ -366,7 +366,7 @@ abstract class SolanaWalletBase
 
   @action
   @override
-  Future<void> startSync() async {
+  Future<void> startSync({bool isBackgroundSync = false}) async {
     try {
       syncStatus = AttemptingSyncStatus();
 

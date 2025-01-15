@@ -20,6 +20,11 @@ class AuthPageRobot extends PinCodeWidgetRobot {
     return hasPin;
   }
 
+  bool onAuthPageDesktop() {
+    final hasWalletPasswordInput = find.byKey(ValueKey('enter_wallet_password'));
+    return hasWalletPasswordInput.tryEvaluate();
+  }
+
   Future<void> isAuthPage() async {
     await commonTestCases.isSpecificPage<AuthPage>();
   }

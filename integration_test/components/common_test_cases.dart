@@ -32,6 +32,11 @@ class CommonTestCases {
     expect(textWidget, hasWidget ? findsOneWidget : findsNothing);
   }
 
+  void hasTextAtLestOnce(String text, {bool hasWidget = true}) {
+    final textWidget = find.text(text);
+    expect(textWidget, hasWidget ? findsAny : findsNothing);
+  }
+
   void hasType<T>() {
     final typeWidget = find.byType(T);
     expect(typeWidget, findsOneWidget);

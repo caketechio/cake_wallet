@@ -1,0 +1,68 @@
+# Usage:
+# docker build . -f Dockerfile.windows -t ghcr.io/cake-tech/cake_wallet:main-windows
+# docker push ghcr.io/cake-tech/cake_wallet:main-windows
+
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+
+ENV FLUTTER_VERSION=3.24.0
+ENV GIT_VERSION=2.47.1
+ENV VS_INSTALLED_DIR="C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools"
+ENV PATH="C:\Users\ContainerAdministrator\.cargo\bin;C:\ProgramData\chocolatey\bin;C:\flutter\flutter\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Users\ContainerAdministrator\AppData\Local\Microsoft\WindowsApps"
+ENV RUNNER_VERSION=2.321.0
+ENV RUNNER_URL=https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-win-x64-${RUNNER_VERSION}.zip
+ENV RUNNER_WORKDIR=_work
+
+RUN powershell -Command \
+    curl.exe -L https://aka.ms/vs/17/release/vc_redist.x64.exe -o vc_redist.x64.exe ; \
+    Start-Process -Wait -FilePath .\vc_redist.x64.exe -ArgumentList '/quiet', '/install' ; \
+    Remove-Item -Force vc_redist.x64.exe
+
+RUN powershell -Command \
+    $GIT_VERSION = [Environment]::GetEnvironmentVariable('GIT_VERSION'); \
+    curl.exe -L https://github.com/git-for-windows/git/releases/download/v$($GIT_VERSION).windows.1/Git-$($GIT_VERSION)-64-bit.exe -o git_installer.exe ; \
+    Start-Process -Wait -FilePath .\git_installer.exe -ArgumentList '/SILENT', '/NOICONS' ; \
+    Remove-Item -Force git_installer.exe
+
+RUN powershell -NoProfile -ExecutionPolicy Bypass -Command \
+    Set-ExecutionPolicy RemoteSigned -Scope Process; \
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; \
+    Invoke-WebRequest https://chocolatey.org/install.ps1 -UseBasicP -OutFile install.ps1; \
+    powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1; \
+    Remove-Item -Force install.ps1
+
+RUN choco install -y visualstudio2022community
+RUN choco install -y visualstudio2022-workload-nativedesktop
+RUN choco install -y nodejs
+RUN choco install -y go
+RUN choco install -y 7zip
+
+RUN powershell -Command \
+    curl.exe -L https://win.rustup.rs -o rustup-init.exe; \
+    Start-Process -Wait -FilePath .\rustup-init.exe -ArgumentList "-y"; \
+    Remove-Item -Force .\rustup-init.exe
+
+RUN powershell -Command \
+    curl.exe -L https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o C:\Windows\System32\nuget.exe
+
+RUN powershell -Command \
+    $FLUTTER_VERSION = [Environment]::GetEnvironmentVariable('FLUTTER_VERSION'); \
+    curl.exe -L https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_$($FLUTTER_VERSION)-stable.zip -o flutter.zip ; \
+    7z x flutter.zip -oC:\flutter -bsp1 -bse1 ; \
+    Remove-Item -Force flutter.zip
+
+RUN flutter precache
+
+WORKDIR C:\\actions-runner
+
+RUN powershell -Command \
+    curl.exe -L $env:RUNNER_URL -o 'actions-runner.zip'; \
+    7z x actions-runner.zip -oC:\actions-runner -bsp1 -bse1 ; \
+    Remove-Item -Path 'actions-runner.zip'
+
+COPY actions-runner/.credentials /actions-runner/.credentials
+COPY actions-runner/.credentials_rsaparams /actions-runner/.credentials_rsaparams
+COPY actions-runner/.runner /actions-runner/.runner
+
+COPY ci_entrypoint.ps1 /actions-runner/ci_entrypoint.ps1
+
+ENTRYPOINT ["powershell", "-File", "ci_entrypoint.ps1"]

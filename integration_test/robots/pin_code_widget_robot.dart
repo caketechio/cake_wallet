@@ -24,6 +24,20 @@ class PinCodeWidgetRobot {
     commonTestCases.hasValueKey('pin_code_button_0_key');
   }
 
+  Future<void> enterPassword(String password, {int pumpDuration = 100}) async {
+    await commonTestCases.enterText(
+      password,
+      'enter_wallet_password',
+    );
+    await tester.pumpAndSettle();
+    await commonTestCases.tapItemByKey(
+      'unlock',
+    );
+    await tester.pumpAndSettle();
+
+    await commonTestCases.defaultSleepTime();
+  }
+
   Future<void> enterPinCode(List<int> pinCode, {int pumpDuration = 100}) async {
     for (int pin in pinCode) {
       await commonTestCases.tapItemByKey(

@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 
+bool debugMonero = false;
+
 int getSyncingHeight() {
   // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
   final h2 = monero.Wallet_blockChainHeight(wptr!);
@@ -32,8 +34,7 @@ String getFilename() => monero.Wallet_filename(wptr!);
 
 String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
-  final cakepolyseed =
-      monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepolyseed = monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
   if (cakepolyseed != "") {
     return cakepolyseed;
   }
@@ -48,11 +49,21 @@ String getSeed() {
 String getSeedLegacy(String? language) {
   var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
   switch (language) {
-    case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
-    case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
-    case "Korean": language = "English"; break;
-    case "Czech": language = "English"; break;
-    case "Japanese": language = "English"; break;
+    case "Chinese (Traditional)":
+      language = "Chinese (simplified)";
+      break;
+    case "Chinese (Simplified)":
+      language = "Chinese (simplified)";
+      break;
+    case "Korean":
+      language = "English";
+      break;
+    case "Czech":
+      language = "English";
+      break;
+    case "Japanese":
+      language = "English";
+      break;
   }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
@@ -71,15 +82,22 @@ String getSeedLegacy(String? language) {
 Map<int, Map<int, Map<int, String>>> addressCache = {};
 
 String getAddress({int accountIndex = 0, int addressIndex = 0}) {
-  // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
-  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)-1 < addressIndex) {
+
+  int count = 0;
+
+  while (monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex) - 1 < addressIndex) {
     printV("adding subaddress");
     monero.Wallet_addSubaddress(wptr!, accountIndex: accountIndex);
+    if (count > 50) {
+      throw Exception("Failed to add subaddress");
+    }
+    count++;
   }
+
   addressCache[wptr!.address] ??= {};
   addressCache[wptr!.address]![accountIndex] ??= {};
-  addressCache[wptr!.address]![accountIndex]![addressIndex] ??= monero.Wallet_address(wptr!,
-        accountIndex: accountIndex, addressIndex: addressIndex);
+  addressCache[wptr!.address]![accountIndex]![addressIndex] ??=
+      monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex);
   return addressCache[wptr!.address]![accountIndex]![addressIndex]!;
 }
 
@@ -132,9 +150,10 @@ Future<bool> setupNodeSync(
     }
   }
 
-  if (kDebugMode) {
+  if (kDebugMode && debugMonero) {
     monero.Wallet_init3(
-      wptr!, argv0: '',
+      wptr!,
+      argv0: '',
       defaultLogBaseName: 'moneroc',
       console: true,
       logPath: '',
@@ -149,16 +168,37 @@ void startRefreshSync() {
   monero.Wallet_startRefresh(wptr!);
 }
 
+void setupBackgroundSync(
+    {required int backgroundSyncType,
+    required String walletPassword,
+    required String backgroundCachePassword}) {
+  monero.Wallet_setupBackgroundSync(wptr!,
+      backgroundSyncType: backgroundSyncType,
+      walletPassword: walletPassword,
+      backgroundCachePassword: backgroundCachePassword);
+}
+
+bool isBackgroundSyncing() => monero.Wallet_isBackgroundSyncing(wptr!);
+
+void startBackgroundSync() {
+  monero.Wallet_startBackgroundSync(wptr!);
+}
+
+void stopBackgroundSync(String walletPassword) {
+  monero.Wallet_stopBackgroundSync(wptr!, walletPassword);
+}
+
+void stopSync() {
+  monero.Wallet_init(wptr!, daemonAddress: "");
+}
 
 void setRefreshFromBlockHeight({required int height}) =>
-    monero.Wallet_setRefreshFromBlockHeight(wptr!,
-        refresh_from_block_height: height);
+    monero.Wallet_setRefreshFromBlockHeight(wptr!, refresh_from_block_height: height);
 
 void setRecoveringFromSeed({required bool isRecovery}) =>
     monero.Wallet_setRecoveringFromSeed(wptr!, recoveringFromSeed: isRecovery);
 
 final storeMutex = Mutex();
-
 
 int lastStorePointer = 0;
 int lastStoreHeight = 0;
@@ -169,7 +209,7 @@ void storeSync({bool force = false}) async {
   });
   if (lastStorePointer == wptr!.address &&
       lastStoreHeight + 5000 > monero.Wallet_blockChainHeight(wptr!) &&
-      !synchronized && 
+      !synchronized &&
       !force) {
     return;
   }
@@ -192,6 +232,10 @@ void setPasswordSync(String password) {
 }
 
 void closeCurrentWallet() {
+  monero.Wallet_stop(wptr!);
+}
+
+void stopWallet() {
   monero.Wallet_stop(wptr!);
 }
 
@@ -229,8 +273,7 @@ class SyncListener {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
-    _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+    _updateSyncInfoTimer ??= Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
         onNewTransaction();
       }
@@ -269,8 +312,8 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNewTransaction) {
+SyncListener setListeners(
+    void Function(int, int, double) onNewBlock, void Function() onNewTransaction) {
   final listener = SyncListener(onNewBlock, onNewTransaction);
   // setListenerNative();
   return listener;
@@ -332,8 +375,7 @@ String getSubaddressLabel(int accountIndex, int addressIndex) {
       accountIndex: accountIndex, addressIndex: addressIndex);
 }
 
-Future setTrustedDaemon(bool trusted) async =>
-    monero.Wallet_setTrustedDaemon(wptr!, arg: trusted);
+Future setTrustedDaemon(bool trusted) async => monero.Wallet_setTrustedDaemon(wptr!, arg: trusted);
 
 Future<bool> trustedDaemon() async => monero.Wallet_trustedDaemon(wptr!);
 
@@ -342,5 +384,6 @@ String signMessage(String message, {String address = ""}) {
 }
 
 bool verifyMessage(String message, String address, String signature) {
-  return monero.Wallet_verifySignedMessage(wptr!, message: message, address: address, signature: signature);
+  return monero.Wallet_verifySignedMessage(wptr!,
+      message: message, address: address, signature: signature);
 }
