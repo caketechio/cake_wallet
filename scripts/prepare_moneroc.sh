@@ -4,9 +4,9 @@ set -x -e
 
 cd "$(dirname "$0")"
 
-if [[ ! -d "monero_c" ]];
+if [[ ! -d "monero_c/.git" ]];
 then
-    git clone https://github.com/mrcyjanek/monero_c --branch master
+    git clone https://github.com/mrcyjanek/monero_c --branch master monero_c
     cd monero_c
     git checkout af5277f96073917185864d3596e82b67bee54e78
     git reset --hard

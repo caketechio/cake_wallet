@@ -115,7 +115,7 @@ Install Flutter package dependencies with this command:
 > `$ ./cakewallet.sh`
 > and back to project root directory:
 > `$ cd ../..`
-> and fetch dependecies again
+> and fetch dependencies again
 > `$ flutter pub get`
 
 Your CakeWallet binary will be built with some specific keys for iterate with 3rd party services. You may generate these secret keys placeholders with the following command:

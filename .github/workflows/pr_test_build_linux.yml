@@ -1,139 +1,89 @@
-name: PR Test Build linux
+name: Cake Wallet Linux
 
-on:
-  pull_request:
-    branches: [main]
-  workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch name to build"
-        required: true
-        default: "main"
+on: [push]
 
+defaults:
+  run:
+    shell: bash
 jobs:
   PR_test_build:
-    runs-on: ubuntu-20.04
-    env:
-      STORE_PASS: test@cake_wallet
-      KEY_PASS: test@cake_wallet
-      PR_NUMBER: ${{ github.event.number }}
+    runs-on: linux-amd64
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:main-linux
+      env:
+        STORE_PASS: test@cake_wallet
+        KEY_PASS: test@cake_wallet
+        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        DESKTOP_FORCE_MOBILE: Y
+      volumes:
+        - /opt/cw_cache_linux/root/.cache:/root/.cache
+        - /opt/cw_cache_linux/root/.ccache:/root/.ccache
+        - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
+        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
+        - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
+    strategy:
+      matrix:
+        api-level: [29]
 
     steps:
-      - name: is pr
-        if: github.event_name == 'pull_request'
-        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF}" >> $GITHUB_ENV
-
-      - name: is not pr
-        if: github.event_name != 'pull_request'
-        run: echo "BRANCH_NAME=${{ github.event.inputs.branch }}" >> $GITHUB_ENVg
-
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: "17.x"
-      - name: Configure placeholder git details
+      - name: Fix github actions messing up $HOME...
+        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+      - uses: actions/checkout@v4
+      - name: configure git
         run: |
-          git config --global user.email "CI@cakewallet.com"
-          git config --global user.name "Cake Github Actions"
-      - name: Flutter action
-        uses: subosito/flutter-action@v1
-        with:
-          flutter-version: "3.24.0"
-          channel: stable
-
-      - name: Install package dependencies
-        run: |
-          sudo apt update
-          sudo apt-get install -y curl unzip automake build-essential file pkg-config git python-is-python3 libtool libtinfo5 cmake clang
-
-      - name: Install desktop dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y ninja-build libgtk-3-dev gperf
-      - name: Execute Build and Setup Commands
-        run: |
-          sudo mkdir -p /opt/android
-          sudo chown $USER /opt/android
-          cd /opt/android
-          -y curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-          cargo install cargo-ndk
-          git clone https://github.com/cake-tech/cake_wallet.git --branch ${{ env.BRANCH_NAME }}
-          cd scripts && ./gen_android_manifest.sh && cd ..
-          cd cake_wallet/scripts/android/
-          source ./app_env.sh cakewallet
-          ./app_config.sh
-          cd ../../..
-          cd cake_wallet/scripts/linux/
-          source ./app_env.sh cakewallet
-          ./app_config.sh
-          cd ../../..
-
-      - name: Cache Externals
-        id: cache-externals
-        uses: actions/cache@v3
-        with:
-          path: |
-            /opt/android/cake_wallet/cw_haven/android/.cxx
-            /opt/android/cake_wallet/scripts/monero_c/release
-          key: linux_${{ hashFiles('**/prepare_moneroc.sh' ,'**/build_monero_all.sh' ,'**/cache_dependencies.yml') }}
-
-      - if: ${{ steps.cache-externals.outputs.cache-hit != 'true' }}
-        name: Generate Externals
-        run: |
-          cd /opt/android/cake_wallet/scripts/linux/
-          source ./app_env.sh cakewallet
-          ./build_monero_all.sh
-
-      - name: Install Flutter dependencies
-        run: |
-          cd /opt/android/cake_wallet
-          flutter pub get
-
-      - name: Install go and gomobile
-        run: |
-          # install go > 1.23:
-          wget https://go.dev/dl/go1.23.1.linux-amd64.tar.gz
-          sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.23.1.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          export PATH=$PATH:~/go/bin
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          gomobile init
-
-      - name: Build mwebd
-        run: |
-          # paths are reset after each step, so we need to set them again:
-          export PATH=$PATH:/usr/local/go/bin
-          export PATH=$PATH:~/go/bin
-          # build mwebd:
-          cd /opt/android/cake_wallet/scripts/android/
-          ./build_mwebd.sh --dont-install
-
-      - name: Generate localization
-        run: |
-          cd /opt/android/cake_wallet
-          dart run tool/generate_localization.dart
-
-      - name: Build generated code
-        run: |
-          cd /opt/android/cake_wallet
-          ./model_generator.sh
-
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
       - name: Add secrets
         run: |
-          cd /opt/android/cake_wallet
           touch lib/.secrets.g.dart
           touch cw_evm/lib/.secrets.g.dart
           touch cw_solana/lib/.secrets.g.dart
           touch cw_core/lib/.secrets.g.dart
           touch cw_nano/lib/.secrets.g.dart
           touch cw_tron/lib/.secrets.g.dart
-          echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
-          echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
-          echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
-          echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
-          echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
-          echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
-          echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          if [[ "x${{ secrets.SALT }}" == "x" ]];
+          then
+            echo "const salt = '954f787f12622067f7e548d9450c3832';" > lib/.secrets.g.dart
+          else
+            echo "const salt = '${{ secrets.SALT }}';" > lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.KEY_CHAIN_SALT }}" == "x" ]];
+          then
+            echo "const keychainSalt = '2d2beba777dbf7dff7013b7a';" >> lib/.secrets.g.dart
+          else
+            echo "const keychainSalt = '${{ secrets.KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.KEY }}" == "x" ]];
+          then
+            echo "const key = '638e98820ec10a2945e968435c9397a3';" >> lib/.secrets.g.dart
+          else
+            echo "const key = '${{ secrets.KEY }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.WALLET_SALT }}" == "x" ]];
+          then
+            echo "const walletSalt = '8f7f1b70';" >> lib/.secrets.g.dart
+          else
+            echo "const walletSalt = '${{ secrets.WALLET_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.SHORT_KEY }}" == "x" ]];
+          then
+            echo "const shortKey = '653f270c2c152bc7ec864afe';" >> lib/.secrets.g.dart
+          else
+            echo "const shortKey = '${{ secrets.SHORT_KEY }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.BACKUP_SALT }}" == "x" ]];
+          then
+            echo "const backupSalt = 'bf630d24ff0b6f60';" >> lib/.secrets.g.dart
+          else
+            echo "const backupSalt = '${{ secrets.BACKUP_SALT }}';" >> lib/.secrets.g.dart
+          fi
+          if [[ "x${{ secrets.BACKUP_KEY_CHAIN_SALT }}" == "x" ]];
+          then
+            echo "const backupKeychainSalt = 'bf630d24ff0b6f60';" >> lib/.secrets.g.dart
+          else
+            echo "const backupKeychainSalt = '${{ secrets.BACKUP_KEY_CHAIN_SALT }}';" >> lib/.secrets.g.dart
+          fi
           echo "const changeNowApiKey = '${{ secrets.CHANGE_NOW_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const changeNowApiKeyDesktop = '${{ secrets.CHANGE_NOW_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
           echo "const wyreSecretKey = '${{ secrets.WYRE_SECRET_KEY }}';" >> lib/.secrets.g.dart
@@ -144,8 +94,6 @@ jobs:
           echo "const sideShiftAffiliateId = '${{ secrets.SIDE_SHIFT_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const simpleSwapApiKey = '${{ secrets.SIMPLE_SWAP_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const simpleSwapApiKeyDesktop = '${{ secrets.SIMPLE_SWAP_API_KEY_DESKTOP }}';" >> lib/.secrets.g.dart
-          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const onramperApiKey = '${{ secrets.ONRAMPER_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const anypayToken = '${{ secrets.ANY_PAY_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const ioniaClientId = '${{ secrets.IONIA_CLIENT_ID }}';" >> lib/.secrets.g.dart
@@ -156,8 +104,11 @@ jobs:
           echo "const fiatApiKey = '${{ secrets.FIAT_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const chatwootWebsiteToken = '${{ secrets.CHATWOOT_WEBSITE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const exolixApiKey = '${{ secrets.EXOLIX_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const robinhoodApplicationId = '${{ secrets.ROBINHOOD_APPLICATION_ID }}';" >> lib/.secrets.g.dart
@@ -165,7 +116,6 @@ jobs:
           echo "const walletConnectProjectId = '${{ secrets.WALLET_CONNECT_PROJECT_ID }}';" >> lib/.secrets.g.dart
           echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
-          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
           echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
           echo "const testCakePayApiKey = '${{ secrets.TEST_CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
@@ -178,39 +128,172 @@ jobs:
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
           echo "const meldTestApiKey = '${{ secrets.MELD_TEST_API_KEY }}';" >> lib/.secrets.g.dart
-          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dar
+          echo "const meldTestPublicKey = '${{ secrets.MELD_TEST_PUBLIC_KEY}}';" >> lib/.secrets.g.dart
           echo "const letsExchangeBearerToken = '${{ secrets.LETS_EXCHANGE_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
-
-      - name: Rename app
+          # tests
+          echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletSeeds = '${{ secrets.ETHEREUM_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletSeeds =  '${{ secrets.LITECOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletSeeds =  '${{ secrets.BITCOIN_CASH_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletSeeds = '${{ secrets.POLYGON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletSeeds = '${{ secrets.SOLANA_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletSeeds = '${{ secrets.TRON_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletSeeds =  '${{ secrets.NANO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletSeeds = '${{ secrets.WOWNERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletReceiveAddress = '${{ secrets.MONERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinTestWalletReceiveAddress =  '${{ secrets.BITCOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const ethereumTestWalletReceiveAddress =  '${{ secrets.ETHEREUM_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const litecoinTestWalletReceiveAddress =  '${{ secrets.LITECOIN_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const bitcoinCashTestWalletReceiveAddress = '${{ secrets.BITCOIN_CASH_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const polygonTestWalletReceiveAddress =  '${{ secrets.POLYGON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const solanaTestWalletReceiveAddress =  '${{ secrets.SOLANA_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart  
+      - name: prepare monero_c and cache
         run: |
-          echo -e "id=com.cakewallet.test_${{ env.PR_NUMBER }}\nname=${{ env.BRANCH_NAME }}" > /opt/android/cake_wallet/android/app.properties
+          export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
+          echo MONEROC_HASH=$MONEROC_HASH >> /etc/environment
+          mkdir -p "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
+          pushd scripts
+            ln -s "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
+            ./prepare_moneroc.sh
+          popd
+          pushd scripts/monero_c
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" || true
+            mkdir -p "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" || true
 
-      - name: Build
+            rm -rf "$PWD/contrib/depends/built" "$PWD/monero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
+            rm -rf "$PWD/contrib/depends/sources" "$PWD/monero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
+            mkdir -p contrib/depends || true
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/built" "$PWD/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/built" "$PWD/monero/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/built" "$PWD/wownero/contrib/depends/built"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/contrib/depends/sources" "$PWD/contrib/depends/sources"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/monero/contrib/depends/sources" "$PWD/monero/contrib/depends/sources"
+            ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
+          popd
+
+      - name: Execute Build and Setup Commands
         run: |
-          cd /opt/android/cake_wallet
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Build monero_c
+        run: |
+          pushd scripts/linux/
+            source ./app_env.sh cakewallet
+            ./build_monero_all.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      - name: Build generated code
+        run: |
+          ./model_generator.sh async
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Build linux
+        run: |
           flutter build linux --release
 
-      - name: Prepare release zip file
+      - name: Compress release
         run: |
-          cd /opt/android/cake_wallet/build/linux/x64/release
-          zip -r ${{env.BRANCH_NAME}}.zip bundle
+          pushd build/linux/x64/release
+          zip -r cakewallet_linux.zip bundle
+          popd
 
-      - name: Upload Artifact
-        uses: kittaakos/upload-artifact-as-is@v0
+      - name: Upload Artifact to github
+        uses: actions/upload-artifact@v4
         with:
-          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
+          path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
+          name: cakewallet_linux
 
-#        Just as an artifact would be enough
-#      - name: Send Test APK
-#        continue-on-error: true
-#        uses: adrey/slack-file-upload-action@1.0.5
-#        with:
-#          token: ${{ secrets.SLACK_APP_TOKEN }}
-#          path: /opt/android/cake_wallet/build/linux/x64/release/${{env.BRANCH_NAME}}.zip
-#          channel: ${{ secrets.SLACK_APK_CHANNEL }}
-#          title: "${{ env.BRANCH_NAME }}_linux.zip"
-#          filename: ${{ env.BRANCH_NAME }}_linux.zip
-#          initial_comment: ${{ github.event.head_commit.message }}
+      - name: Prepare virtual desktop
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        run: |
+            nohup Xvfb :99 -screen 0 720x1280x16 &
+            echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
+            dbus-daemon --system --fork
+            nohup NetworkManager &
+            nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
+
+      # Note for people adding tests:
+      # - Tests are ran on Linux, with some things being mocked out.
+      # - Screen recording is being provided for the entire length of the test, you can download it in github articats.
+      # - Screen recordeding is encrypted, look at step "Stop screen recording, encrypt and upload", and add your key if you want
+      #   Reason for encryption is the fact that we restore the wallet from seed, and we don't want to leak that, while there
+      #   isn't much in those wallets anyway, we still wouldn't like to leak it to anyone who is able to access github.
+
+      - name: Test [confirm_seeds_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "confirm_seeds_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
+      - name: Test [create_wallet_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "create_wallet_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
+      - name: Test [exchange_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "exchange_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
+      - name: Test [restore_wallet_through_seeds_flow_test]
+        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        timeout-minutes: 20
+        run: |
+          xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &
+          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
+          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
+      - name: Stop screen recording, encrypt and upload
+        if: always()
+        run: |
+          if [[ ! -f "/opt/screen_grab.mkv" ]];
+          then
+            exit 0;
+          fi
+          killall ffmpeg
+          sleep 5
+          killall -9 ffmpeg || true
+          sleep 5
+          # Feel free to add your own public key if you wish
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
+          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
+          gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
+            --recipient 6B3199AD9B3D23B8 \
+            --recipient 35C8DBAFB8D9ACAC \
+            /opt/screen_grab.mkv
+          rm /opt/screen_grab.mkv
+          mv /opt/screen_grab.mkv.gpg ./screen_grab.mkv.gpg
+      - name: Upload Artifact to github
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/screen_grab.mkv.gpg
+          name: tests_screen_grab

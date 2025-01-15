@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
 
+bool debugMonero = false;
+
 int getSyncingHeight() {
   // final height = monero.MONERO_cw_WalletListener_height(getWlptr());
   final h2 = monero.Wallet_blockChainHeight(wptr!);
@@ -142,7 +144,7 @@ Future<bool> setupNodeSync(
     }
   }
 
-  if (kDebugMode) {
+  if (kDebugMode && debugMonero) {
     monero.Wallet_init3(
       wptr!, argv0: '',
       defaultLogBaseName: 'moneroc',

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/reactions/bip39_wallet_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
@@ -85,6 +87,7 @@ class CommonTestFlows {
     await _confirmPreSeedInfo();
 
     await _confirmWalletDetails();
+    await _commonTestCases.defaultSleepTime();
   }
 
   //* ========== Handles flow from welcome to restoring wallet from seeds ===============
@@ -168,8 +171,8 @@ class CommonTestFlows {
     await _walletListPageRobot.navigateToRestoreWalletOptionsPage();
     await _commonTestCases.defaultSleepTime();
 
-    await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
-    await _commonTestCases.defaultSleepTime();
+    if (!Platform.isLinux) await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    if (!Platform.isLinux) await _commonTestCases.defaultSleepTime();
 
     await _selectWalletTypeForWallet(walletType);
     await _commonTestCases.defaultSleepTime();
@@ -180,6 +183,7 @@ class CommonTestFlows {
 
   //* ========== Handles setting up pin code for wallet on first install ===============
   Future<void> setupPinCodeForWallet(List<int> pin) async {
+    if (Platform.isLinux) return;
     // ----------- SetupPinCode Page -------------
     // Confirm initial defaults - Widgets to be displayed etc
     await _setupPinCodeRobot.isSetupPinCodePage();
@@ -212,7 +216,7 @@ class CommonTestFlows {
 
     await _welcomePageRobot.navigateToRestoreWalletPage();
 
-    await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
+    if (!Platform.isLinux) await _restoreOptionsPageRobot.navigateToRestoreFromSeedsOrKeysPage();
 
     await _selectWalletTypeForWallet(walletTypeToRestore);
   }
@@ -234,6 +238,12 @@ class CommonTestFlows {
 
     await _newWalletPageRobot.generateWalletName();
 
+    if (Platform.isLinux) {
+      // manual pin input
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
+    }
+
     await _newWalletPageRobot.onNextButtonPressed();
   }
 
@@ -252,11 +262,15 @@ class CommonTestFlows {
 
     _walletSeedPageRobot.confirmWalletSeedReminderDisplays();
 
-    await _walletSeedPageRobot.onCopySeedsButtonPressed();
+    // await _walletSeedPageRobot.onCopySeedsButtonPressed();
 
-    await _walletSeedPageRobot.onNextButtonPressed();
-
-    await _walletSeedPageRobot.onConfirmButtonOnSeedAlertDialogPressed();
+    await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
+    // Turns out the popup about "Copied to clipboard" prevents
+    //the button from being pressed on the first try, by just
+    //tapping it again we fix it.
+    // await _walletSeedPageRobot.onSeedPageVerifyButtonPressed();
+    
+    await _walletSeedPageRobot.onOpenWalletButtonPressed();
   }
 
   //* Main Restore Actions - On the RestoreFromSeed/Keys Page - Restore from Seeds Action
@@ -275,6 +289,12 @@ class CommonTestFlows {
       // Using a constant value of 2831400 for the blockheight as its the restore blockheight for our testing wallet
       await _restoreFromSeedOrKeysPageRobot
           .enterBlockHeightForWalletRestore(secrets.moneroTestWalletBlockHeight);
+    }
+
+    if (Platform.isLinux) {
+      // manual pin input
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordForWalletRestore(CommonTestConstants.pin.join(""));
+      await _restoreFromSeedOrKeysPageRobot.enterPasswordRepeatForWalletRestore(CommonTestConstants.pin.join(""));
     }
 
     await _restoreFromSeedOrKeysPageRobot.onRestoreWalletButtonPressed();

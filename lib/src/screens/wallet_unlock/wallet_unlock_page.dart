@@ -170,6 +170,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                     SizedBox(height: 24),
                     Form(
                       child: TextFormField(
+                        key: ValueKey('enter_wallet_password'),
                         onChanged: (value) => null,
                         controller: _passwordController,
                         textAlign: TextAlign.center,
@@ -205,6 +206,7 @@ class WalletUnlockPageState extends AuthPageState<WalletUnlockPage> {
                 ),
               ),
               Padding(
+                key: ValueKey('unlock'),
                 padding: EdgeInsets.only(bottom: 24),
                 child: Observer(
                   builder: (_) => LoadingPrimaryButton(

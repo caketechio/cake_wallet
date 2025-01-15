@@ -16,7 +16,4 @@ cd mwebd
 git reset --hard 555349415f76a42ec5c76152b64c4ab9aabc448f
 gomobile bind -target=android -androidapi 21 .
 mkdir -p ../../../cw_mweb/android/libs/
-mv ./mwebd.aar $_
-# cleanup:
-cd ..
-rm -rf mwebd
+cp ./mwebd.aar $_

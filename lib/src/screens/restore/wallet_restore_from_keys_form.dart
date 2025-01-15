@@ -148,12 +148,14 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
             ),
             if (widget.displayWalletPassword)
               ...[Container(
+                  key: ValueKey('password'),
                   padding: EdgeInsets.only(top: 20.0),
                   child: BaseTextFormField(
                     controller: passwordTextEditingController,
                     hintText: S.of(context).password,
                     obscureText: true)),
                 Container(
+                  key: ValueKey('repeat_wallet_password'),
                   padding: EdgeInsets.only(top: 20.0),
                   child: BaseTextFormField(
                     controller: repeatedPasswordTextEditingController,

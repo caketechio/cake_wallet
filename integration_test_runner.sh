@@ -1,4 +1,5 @@
 #!/bin/bash
+export DESKTOP_FORCE_MOBILE="Y"
 
 declare -a targets
 declare -a passed_tests
@@ -12,6 +13,10 @@ done < <(find integration_test/test_suites -name "*.dart" -type f -print0)
 # Run each test and collect results
 for target in "${targets[@]}"
 do
+    if [[ "x$REMOVE_DATA_DIRECTORY" == "xY" ]];
+    then
+        rm -rf ~/.local/share/com.example.cake_wallet ~/Documents/cake_wallet
+    fi
     echo "Running test: $target"
     if flutter drive \
       --driver=test_driver/integration_test.dart \

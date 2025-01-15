@@ -1,9 +1,5 @@
 #!/bin/bash
 
-
-. ./config.sh
-
-
 set -x -e
 
 cd "$(dirname "$0")"
@@ -15,7 +11,15 @@ NPROC="-j$(nproc)"
 for COIN in monero wownero;
 do
     pushd ../monero_c
-        ./build_single.sh ${COIN} $(gcc -dumpmachine) $NPROC
+        for target in x86_64-linux-gnu
+        do
+            if [[ -f "release/${COIN}/${target}_libwallet2_api_c.so" ]];
+            then
+                echo "file exist, not building monero_c for ${COIN}/$target.";
+            else
+                ./build_single.sh ${COIN} $target $NPROC
+                unxz -f ../monero_c/release/${COIN}/${target}_libwallet2_api_c.so.xz
+            fi
+        done
     popd
-    unxz -f ../monero_c/release/${COIN}/$(gcc -dumpmachine)_libwallet2_api_c.so.xz
 done

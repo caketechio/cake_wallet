@@ -46,8 +46,11 @@ static void my_application_activate(GApplication* application) {
   } else {
     gtk_window_set_title(window, "Cake Wallet");
   }
-
-  gtk_window_set_default_size(window, 1280, 720);
+  if (getenv("DESKTOP_FORCE_MOBILE")) {
+    gtk_window_set_default_size(window, 720, 1280);
+  } else {
+    gtk_window_set_default_size(window, 1280, 720);
+  }
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
