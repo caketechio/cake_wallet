@@ -307,13 +307,14 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final response = await http.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final req = await getHttpClient()
+        .getUrl(uri,)
+        .timeout(Duration(seconds: 15));
+      final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
-    } catch (_) {
+    } catch (err) {
+      printV("Failed to request ethereum server: $err");
       return false;
     }
   }

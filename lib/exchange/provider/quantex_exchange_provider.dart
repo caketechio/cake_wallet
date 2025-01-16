@@ -10,6 +10,7 @@ import 'package:cake_wallet/exchange/trade_not_found_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
@@ -66,9 +67,10 @@ class QuantexExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       final uri = Uri.https(apiAuthority, getCoins);
-      final response = await get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
 
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
 
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');

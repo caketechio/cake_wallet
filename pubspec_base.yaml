@@ -102,10 +102,7 @@ dependencies:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy:
-    git:
-      url: https://github.com/cake-tech/socks_dart.git
-      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
+  socks5_proxy: any
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
@@ -164,6 +161,10 @@ dependency_overrides:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+  socks5_proxy:
+    git:
+      url: https://github.com/cake-tech/socks_dart.git
+      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

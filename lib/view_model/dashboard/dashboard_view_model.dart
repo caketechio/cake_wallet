@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/wownero/wownero.dart' as wow;
 import 'package:cake_wallet/nano/nano.dart';
@@ -829,21 +830,21 @@ abstract class DashboardViewModelBase with Store {
           {'key': secrets.fiatApiKey},
         );
 
-        final res = await http.get(uri);
-
+        final res = await ProxyWrapper().get(clearnetUri: uri);
+        final responseString = await res.transform(utf8.decoder).join();
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          throw res.body;
+          throw responseString;
         }
 
         final oldSha = sharedPreferences.getString(PreferencesKey.serviceStatusShaKey);
 
-        final hash = await Cryptography.instance.sha256().hash(utf8.encode(res.body));
+        final hash = await Cryptography.instance.sha256().hash(utf8.encode(responseString));
         final currentSha = bytesToHex(hash.bytes);
 
         final hasUpdates = oldSha != currentSha;
 
         return ServicesResponse.fromJson(
-          json.decode(res.body) as Map<String, dynamic>,
+          json.decode(responseString) as Map<String, dynamic>,
           hasUpdates,
           currentSha,
         );

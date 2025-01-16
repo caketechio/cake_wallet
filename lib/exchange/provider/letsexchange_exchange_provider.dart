@@ -10,6 +10,7 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart' as http;
 
@@ -217,12 +218,13 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     };
 
     final url = Uri.https(_baseUrl, '$_getTransactionPath/$id');
-    final response = await http.get(url, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200) {
-      throw Exception('LetsExchange fetch trade failed: ${response.body}');
+      throw Exception('LetsExchange fetch trade failed: ${responseString}');
     }
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final from = responseJSON['coin_from'] as String;
     final to = responseJSON['coin_to'] as String;
     final payoutAddress = responseJSON['withdrawal'] as String;

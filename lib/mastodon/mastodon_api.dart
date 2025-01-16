@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart' as http;
 import 'package:cake_wallet/mastodon/mastodon_user.dart';
@@ -20,11 +21,12 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode != 200) return null;
 
-      final Map<String, dynamic> responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final Map<String, dynamic> responseJSON = json.decode(responseString) as Map<String, dynamic>;
 
       return MastodonUser.fromJson(responseJSON);
     } catch (e) {
@@ -47,13 +49,14 @@ class MastodonAPI {
         queryParameters: queryParams,
       );
 
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode != 200) {
         throw Exception('Unexpected HTTP status: ${response.statusCode}');
       }
 
-      final List<dynamic> responseJSON = json.decode(response.body) as List<dynamic>;
+      final List<dynamic> responseJSON = json.decode(responseString) as List<dynamic>;
 
       return responseJSON.map((json) => PinnedPost.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {

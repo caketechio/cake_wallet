@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -59,10 +60,10 @@ class OnRamperBuyProvider extends BuyProvider {
 
     try {
       final response =
-          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
-
+          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
         final List<dynamic> message = data['message'] as List<dynamic>;
         return message
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
@@ -82,10 +83,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
     try {
       final response =
-          await http.get(url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+          await ProxyWrapper().get(clearnetUri: url, headers: {'Authorization': _apiKey, 'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+        final Map<String, dynamic> data = jsonDecode(responseString) as Map<String, dynamic>;
 
         final List<dynamic> onramps = data['message'] as List<dynamic>;
 
@@ -147,10 +149,10 @@ class OnRamperBuyProvider extends BuyProvider {
     final headers = {'Authorization': _apiKey, 'accept': 'application/json'};
 
     try {
-      final response = await http.get(url, headers: headers);
-
+      final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
+        final data = jsonDecode(responseString) as List<dynamic>;
         if (data.isEmpty) return null;
 
         List<Quote> validQuotes = [];

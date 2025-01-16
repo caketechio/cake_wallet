@@ -8,6 +8,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:http/http.dart';
@@ -95,12 +96,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     };
 
     final uri = await _getUri(coinPath, params);
-    final response = await get(uri, headers: {'API-Key': apiKey});
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as List<dynamic>;
+    final responseJSON = json.decode(responseString) as List<dynamic>;
 
     if (responseJSON.isEmpty) throw Exception('No data');
 
@@ -135,9 +137,10 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       };
 
       final uri = await _getUri(newRatePath, params);
-      final response = await get(uri, headers: {'API-Key': apiKey});
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+      final responseString = await response.transform(utf8.decoder).join();
 
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';
@@ -202,10 +205,11 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     params['provider'] = firstAvailableProvider;
 
     final uri = await _getUri(createTradePath, params);
-    final response = await get(uri, headers: {'API-Key': apiKey});
-
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey});
+    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode == 400) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final responseJSON = json.decode(responseString) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
       throw Exception('${error}\n$message');
@@ -214,7 +218,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (response.statusCode != 200)
       throw Exception('Unexpected http status: ${response.statusCode}');
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final id = responseJSON['trade_id'] as String;
     final inputAddress = responseJSON['address_provider'] as String;
     final refundAddress = responseJSON['refund_address'] as String;
@@ -249,11 +253,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> findTradeById({required String id}) async {
     final uri = await _getUri(tradePath, {'id': id});
-    return get(uri, headers: {'API-Key': apiKey}).then((response) {
+    return ProxyWrapper().get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {
       if (response.statusCode != 200)
         throw Exception('Unexpected http status: ${response.statusCode}');
+      final responseString = await response.transform(utf8.decoder).join();
 
-      final responseListJson = json.decode(response.body) as List;
+      final responseListJson = json.decode(responseString) as List;
       final responseJSON = responseListJson.first;
       final id = responseJSON['trade_id'] as String;
       final payoutAddress = responseJSON['address_user'] as String;
@@ -331,7 +336,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     if (useTorOnly) return uri;
 
     try {
-      await get(uri);
+      await ProxyWrapper().get(clearnetUri: uri);
 
       return uri;
     } catch (e) {

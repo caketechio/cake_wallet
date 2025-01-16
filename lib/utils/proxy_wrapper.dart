@@ -1,51 +1,34 @@
 import 'dart:io';
 
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/settings/tor_connection.dart';
-import 'package:cake_wallet/view_model/settings/tor_view_model.dart';
 import 'package:socks5_proxy/socks.dart';
+import 'package:tor/tor.dart';
 
 class ProxyWrapper {
   ProxyWrapper({
     this.settingsStore,
-    this.torViewModel,
   });
 
   SettingsStore? settingsStore;
-  TorViewModel? torViewModel;
 
-  HttpClient? _torClient;
 
-  int getPort() {
-    TorConnectionMode mode = settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
-    if (mode == TorConnectionMode.disabled) {
-      return -1;
-    }
-    return torViewModel?.torInstance.port ?? -1;
-  }
+  int getPort() => Tor.instance.port;
 
-  bool started = false;
+  HttpClient getProxyHttpClient({int? portOverride}) {
+    final torClient = HttpClient();
 
-  Future<HttpClient> getProxyHttpClient({int? portOverride}) async {
-    if (portOverride == -1 || portOverride == null) {
-      portOverride = torViewModel?.torInstance.port ?? -1;
-    }
-
-    if (!started) {
-      started = true;
-      _torClient = HttpClient();
-
+    if (Tor.instance.started) {
       // Assign connection factory.
-      SocksTCPClient.assignToHttpClient(_torClient!, [
+      SocksTCPClient.assignToHttpClient(torClient, [
         ProxySettings(
           InternetAddress.loopbackIPv4,
-          portOverride,
+          portOverride ?? getPort(),
           password: null,
         ),
       ]);
     }
 
-    return _torClient!;
+    return torClient;
   }
 
   Future<HttpClientResponse> makeGet({
@@ -79,29 +62,16 @@ class ProxyWrapper {
   Future<HttpClientResponse> get({
     Map<String, String>? headers,
     int? portOverride,
-    TorConnectionMode? torConnectionMode,
-    TorConnectionStatus? torConnectionStatus,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
-    late bool torEnabled;
-    torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
-    torConnectionStatus ??= torViewModel?.torConnectionStatus ?? TorConnectionStatus.disconnected;
+    bool torEnabled = Tor.instance.started;
 
-    if (torConnectionMode == TorConnectionMode.torOnly ||
-        torConnectionMode == TorConnectionMode.enabled) {
+    if (Tor.instance.started) {
       torEnabled = true;
     } else {
       torEnabled = false;
-    }
-
-    if (torEnabled) {
-      torConnectionMode = TorConnectionMode.torOnly;
-    }
-
-    if (torEnabled && torConnectionStatus == TorConnectionStatus.connecting) {
-      throw Exception("Tor is still connecting");
     }
 
     // if tor is enabled, try to connect to the onion url first:
@@ -131,7 +101,7 @@ class ProxyWrapper {
       }
     }
 
-    if (clearnetUri != null && torConnectionMode != TorConnectionMode.torOnly) {
+    if (clearnetUri != null) {
       try {
         return HttpOverrides.runZoned(
           () async {
@@ -155,32 +125,11 @@ class ProxyWrapper {
   Future<HttpClientResponse> post({
     Map<String, String>? headers,
     int? portOverride,
-    TorConnectionMode? torConnectionMode,
-    TorConnectionStatus? torConnectionStatus,
     Uri? clearnetUri,
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
-    late bool torEnabled;
-    torConnectionMode ??= settingsStore?.torConnectionMode ?? TorConnectionMode.disabled;
-    torConnectionStatus ??= torViewModel?.torConnectionStatus ?? TorConnectionStatus.disconnected;
-
-    if (torConnectionMode == TorConnectionMode.torOnly ||
-        torConnectionMode == TorConnectionMode.enabled) {
-      torEnabled = true;
-    } else {
-      torEnabled = false;
-    }
-
-    if (torEnabled) {
-      torConnectionMode = TorConnectionMode.torOnly;
-    }
-
-    if (torEnabled && torConnectionStatus == TorConnectionStatus.connecting) {
-      throw Exception("Tor is still connecting");
-    }
-
-    // if tor is enabled, try to connect to the onion url first:
+    bool torEnabled = Tor.instance.started;
 
     if (torEnabled) {
       try {
@@ -208,7 +157,7 @@ class ProxyWrapper {
       }
     }
 
-    if (clearnetUri != null && torConnectionMode != TorConnectionMode.torOnly) {
+    if (clearnetUri != null) {
       try {
         return HttpOverrides.runZoned(
           () async {

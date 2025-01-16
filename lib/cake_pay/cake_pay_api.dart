@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/cake_pay/cake_pay_order.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/cake_pay_vendor.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:http/http.dart' as http;
@@ -145,7 +146,8 @@ class CakePayApi {
       'X-CSRFToken': CSRFToken,
     };
 
-    final response = await http.get(uri, headers: headers);
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
 
     printV('Response: ${response.statusCode}');
 
@@ -153,7 +155,7 @@ class CakePayApi {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+    final bodyJson = json.decode(responseString) as Map<String, dynamic>;
 
     throw Exception('You just bot a gift card with id: ${bodyJson['order_id']}');
   }
@@ -187,13 +189,13 @@ class CakePayApi {
       'Authorization': 'Api-Key $apiKey',
     };
 
-    final response = await http.get(uri, headers: headers);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
     if (response.statusCode != 200) {
       throw Exception('Unexpected http status: ${response.statusCode}');
     }
 
-    final bodyJson = json.decode(response.body) as List;
+    final bodyJson = json.decode(responseString) as List;
     return bodyJson
         .map<String>((country) => country['name'] as String)
         .map((name) => Country.fromCakePayName(name))
@@ -234,14 +236,15 @@ class CakePayApi {
       'Authorization': 'Api-Key $apiKey',
     };
 
-    var response = await http.get(uri, headers: headers);
+    var response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200) {
       throw Exception(
-          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${response.body}');
+          'Failed to fetch vendors: statusCode - ${response.statusCode}, queryParams -$queryParams, response - ${responseString}');
     }
 
-    final bodyJson = json.decode(utf8.decode(response.bodyBytes));
+    final bodyJson = json.decode(responseString);
 
     if (bodyJson is List<dynamic> && bodyJson.isEmpty) {
       return [];

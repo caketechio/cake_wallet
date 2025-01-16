@@ -15,6 +15,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -110,9 +111,10 @@ class MoonPayProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await get(url, headers: {'accept': 'application/json'});
+      final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        return jsonDecode(response.body) as Map<String, dynamic>;
+        return jsonDecode(responseString) as Map<String, dynamic>;
       } else {
         printV('MoonPay does not support fiat: $fiatCurrency');
         return {};
@@ -180,10 +182,10 @@ class MoonPayProvider extends BuyProvider {
     final path = '$_currenciesPath/$formattedCryptoCurrency$quotePath';
     final url = Uri.https(_baseUrl, path, params);
     try {
-      final response = await get(url);
-
+      final response = await ProxyWrapper().get(clearnetUri: url);
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final data = jsonDecode(responseString) as Map<String, dynamic>;
 
         // Check if the response is for the correct fiat currency
         if (isBuyAction) {
@@ -300,13 +302,14 @@ class MoonPayProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final url = _apiUrl + _transactionsSuffix + '/$id' + '?apiKey=' + _apiKey;
     final uri = Uri.parse(url);
-    final response = await get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transaction $id is not found!');
     }
 
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final status = responseJSON['status'] as String;
     final state = TradeState.deserialize(raw: status);
     final createdAtRaw = responseJSON['createdAt'] as String;
