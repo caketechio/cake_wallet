@@ -102,7 +102,10 @@ dependencies:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy: ^1.0.4
+  socks5_proxy:
+    git:
+      url: https://github.com/cake-tech/socks_dart.git
+      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9

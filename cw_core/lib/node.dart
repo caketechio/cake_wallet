@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -179,7 +180,7 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'};
 
     try {
-      final authenticatingClient = HttpClient();
+      final authenticatingClient = getHttpClient();
 
       authenticatingClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
