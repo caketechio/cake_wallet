@@ -293,6 +293,7 @@ class BackupService {
     final lookupsUnstoppableDomains = data[PreferencesKey.lookupsUnstoppableDomains] as bool?;
     final lookupsOpenAlias = data[PreferencesKey.lookupsOpenAlias] as bool?;
     final lookupsENS = data[PreferencesKey.lookupsENS] as bool?;
+    final lookupsWellKnown = data[PreferencesKey.lookupsWellKnown] as bool?;
     final syncAll = data[PreferencesKey.syncAllKey] as bool?;
     final builtinTor = data[PreferencesKey.builtinTorKey] as bool?;
     final syncMode = data[PreferencesKey.syncModeKey] as int?;
@@ -404,6 +405,9 @@ class BackupService {
       await _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, lookupsOpenAlias);
 
     if (lookupsENS != null) await _sharedPreferences.setBool(PreferencesKey.lookupsENS, lookupsENS);
+
+    if (lookupsWellKnown != null)
+      await _sharedPreferences.setBool(PreferencesKey.lookupsWellKnown, lookupsWellKnown);
 
     if (syncAll != null) await _sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
 
@@ -546,6 +550,8 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
+      PreferencesKey.lookupsWellKnown:
+          _sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.builtinTorKey: _sharedPreferences.getBool(PreferencesKey.builtinTorKey),

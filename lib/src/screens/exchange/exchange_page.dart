@@ -231,6 +231,8 @@ class ExchangePage extends BasePage {
                           key: ValueKey('exchange_page_exchange_button_key'),
                           text: S.of(context).exchange,
                           onPressed: () {
+                            FocusScope.of(context).unfocus();
+
                             if (_formKey.currentState != null &&
                                 _formKey.currentState!.validate()) {
                               if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr) &&

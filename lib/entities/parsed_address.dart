@@ -12,7 +12,8 @@ enum ParseFrom {
   contact,
   mastodon,
   nostr,
-  thorChain
+  thorChain,
+  wellKnown
 }
 
 class ParsedAddress {
@@ -139,6 +140,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.thorChain,
+    );
+  }
+
+  factory ParsedAddress.fetchWellKnownAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.wellKnown,
     );
   }
 
