@@ -126,7 +126,7 @@ cw_shared_external/ios/External/
 cw_haven/ios/External/
 cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
-
+cw_zano/ios/External/
 lib/bitcoin/bitcoin.dart
 lib/monero/monero.dart
 lib/haven/haven.dart
@@ -137,6 +137,7 @@ lib/polygon/polygon.dart
 lib/solana/solana.dart
 lib/tron/tron.dart
 lib/wownero/wownero.dart
+lib/zano/zano.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
@@ -179,3 +180,5 @@ scripts/monero_c
 # iOS generated framework bin
 ios/MoneroWallet.framework/MoneroWallet
 ios/WowneroWallet.framework/WowneroWallet
+ios/ZanoWallet.framework/ZanoWallet
+*_libwallet2_api_c.dylib

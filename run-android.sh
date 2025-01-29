@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 # Get the current git branch
 get_current_branch() {
     if git rev-parse --git-dir > /dev/null 2>&1; then

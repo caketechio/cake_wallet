@@ -16,22 +16,25 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       ExchangeProviderDescription(title: 'MorphToken', raw: 2, image: 'assets/images/morph.png');
   static const sideShift =
       ExchangeProviderDescription(title: 'SideShift', raw: 3, image: 'assets/images/sideshift.png');
-  static const simpleSwap = ExchangeProviderDescription(
-      title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
+  static const simpleSwap = 
+      ExchangeProviderDescription(title: 'SimpleSwap', raw: 4, image: 'assets/images/simpleSwap.png');
   static const trocador =
       ExchangeProviderDescription(title: 'Trocador', raw: 5, image: 'assets/images/trocador.png');
   static const exolix =
       ExchangeProviderDescription(title: 'Exolix', raw: 6, image: 'assets/images/exolix.png');
-  static const all = ExchangeProviderDescription(title: 'All trades', raw: 7, image: '');
+  static const all = 
+      ExchangeProviderDescription(title: 'All trades', raw: 7, image: '');
   static const thorChain =
       ExchangeProviderDescription(title: 'ThorChain', raw: 8, image: 'assets/images/thorchain.png');
   static const quantex =
       ExchangeProviderDescription(title: 'Quantex', raw: 9, image: 'assets/images/quantex.png');
   static const letsExchange =
-  ExchangeProviderDescription(title: 'LetsExchange', raw: 10, image: 'assets/images/letsexchange_icon.svg');
+      ExchangeProviderDescription(title: 'LetsExchange', raw: 10, image: 'assets/images/letsexchange_icon.svg');
   static const stealthEx =
-  ExchangeProviderDescription(title: 'StealthEx', raw: 11, image: 'assets/images/stealthex.png');
-
+      ExchangeProviderDescription(title: 'StealthEx', raw: 11, image: 'assets/images/stealthex.png');
+  static const chainflip =
+      ExchangeProviderDescription(title: 'Chainflip', raw: 12, image: 'assets/images/chainflip.png');
+  
   static ExchangeProviderDescription deserialize({required int raw}) {
     switch (raw) {
       case 0:
@@ -58,6 +61,8 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
         return letsExchange;
       case 11:
         return stealthEx;
+      case 12:
+        return chainflip;
       default:
         throw Exception('Unexpected token: $raw for ExchangeProviderDescription deserialize');
     }

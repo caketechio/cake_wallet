@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 set -x -e
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
@@ -32,7 +32,7 @@ case $APP_IOS_TYPE in
 		CONFIG_ARGS="--monero"
 		;;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero"
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano"
 		if [ "$CW_WITH_HAVEN" = true ];then
 		    CONFIG_ARGS="$CONFIG_ARGS --haven"
 		fi

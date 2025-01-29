@@ -50,6 +50,7 @@ import 'package:cake_wallet/src/screens/new_wallet/advanced_privacy_settings_pag
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/wallet_group_description_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/wallet_group_existing_seed_description_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -144,7 +145,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
   switch (settings.name) {
     case Routes.welcome:
-      return MaterialPageRoute<void>(builder: (_) => CreatePinWelcomePage());
+      return MaterialPageRoute<void>(
+          builder: (_) => CreatePinWelcomePage(SettingsStoreBase.walletPasswordDirectInput));
 
     case Routes.welcomeWallet:
       if (SettingsStoreBase.walletPasswordDirectInput) {
@@ -585,6 +587,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.preSeedPage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as int));
+
+    case Routes.walletGroupExistingSeedDescriptionPage:
+      return MaterialPageRoute<void>(
+          builder: (_) => WalletGroupExistingSeedDescriptionPage(
+              seedPhraseWordsLength: settings.arguments as int));
 
     case Routes.transactionSuccessPage:
       return MaterialPageRoute<void>(

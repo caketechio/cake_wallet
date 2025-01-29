@@ -30,8 +30,11 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.trx;
     case WalletType.wownero:
       return CryptoCurrency.wow;
+    case WalletType.zano:
+      return CryptoCurrency.zano;
     case WalletType.none:
       throw Exception(
+          
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
 }

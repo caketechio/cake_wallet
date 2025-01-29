@@ -173,7 +173,7 @@ class CryptoBalanceWidget extends StatelessWidget {
                       frozenFiatBalance: balance.fiatFrozenBalance,
                       currency: balance.asset,
                       hasAdditionalBalance:
-                          dashboardViewModel.balanceViewModel.hasAdditionalBalance,
+                          dashboardViewModel.balanceViewModel.hasAdditionalBalance(balance.asset),
                       hasSecondAdditionalBalance:
                           dashboardViewModel.balanceViewModel.hasSecondAdditionalBalance,
                       hasSecondAvailableBalance:

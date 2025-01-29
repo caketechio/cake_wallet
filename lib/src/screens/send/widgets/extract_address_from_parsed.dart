@@ -66,6 +66,11 @@ Future<String> extractAddressFromParsed(
       content = S.of(context).extracted_address_content('${parsedAddress.name} (ThorChain)');
       address = parsedAddress.addresses.first;
       break;
+    case ParseFrom.zanoAlias:
+      title = S.of(context).address_detected;
+      content = S.of(context).extracted_address_content('${parsedAddress.name} (Zano Alias)');
+      address = parsedAddress.addresses.first;
+      break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
         title = S.of(context).yat_error;

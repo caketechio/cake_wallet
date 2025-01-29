@@ -206,7 +206,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       extraId: extraId,
       createdAt: DateTime.now(),
       amount: amount,
-      receiveAmount:receiveAmount ?? request.toAmount,
+      receiveAmount: receiveAmount ?? request.toAmount,
       state: TradeState.created,
       payoutAddress: payoutAddress,
       isSendAll: isSendAll,

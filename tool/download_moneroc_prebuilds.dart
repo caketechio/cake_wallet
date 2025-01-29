@@ -23,7 +23,7 @@ final List<String> triplets = [
   // "host-apple-darwin", // not available on CI (yet)
   // "x86_64-host-apple-darwin", // not available on CI (yet)
   "aarch64-host-apple-darwin", // apple silicon macbooks (local builds)
-  "host-apple-ios",
+  "aarch64-apple-ios",
 ];
 
 Future<void> main() async {

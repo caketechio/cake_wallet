@@ -1,5 +1,13 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
+import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/bitcoin_cash/bitcoin_cash.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -65,11 +73,16 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
       case WalletType.nano:
+      case WalletType.banano:
         return seedSettingsViewModel.nanoSeedType == NanoSeedType.bip39
             ? advancedPrivacySettingsViewModel.seedPhraseLength.value
             : 24;
-      default:
+      case WalletType.none:
         return 24;
+      case WalletType.haven:
+        return 25;
+      case WalletType.zano:
+        return 26;
     }
   }
 
@@ -152,9 +165,14 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.wownero:
         return wownero!.createWowneroNewWalletCredentials(
           name: name,
-          password: walletPassword,
           language: options!.first as String,
           isPolyseed: options.last as bool,
+          password: walletPassword,
+        );
+      case WalletType.zano:
+        return zano!.createZanoNewWalletCredentials(
+          name: name,
+          password: walletPassword,
         );
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');

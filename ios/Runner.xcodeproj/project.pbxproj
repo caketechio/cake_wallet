@@ -28,6 +28,7 @@
 		A3D5E17CC53DF13FA740DEFA /* RedeemSwap.swift in Resources */ = {isa = PBXBuildFile; fileRef = 9D2F2C9F2555316C95EE7EA3 /* RedeemSwap.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		B6C6E59403ACDE44724C12F4 /* ServiceConfig.swift in Resources */ = {isa = PBXBuildFile; fileRef = B3D5E78267F5F18D882FDC3B /* ServiceConfig.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		CE291CFE2C15DB9A00B9F709 /* WowneroWallet.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CE291CFD2C15DB9A00B9F709 /* WowneroWallet.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CEA883682D43BE4500278CD3 /* ZanoWallet.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = CEB6D62E2D43BB78002C6DBC /* ZanoWallet.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CEAFE4A02C53926F009FF3AD /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C58D93382C00FAC6004BCF69 /* libresolv.tbd */; };
 		CFEFC24F82F78FE747DF1D22 /* LnurlPayInfo.swift in Resources */ = {isa = PBXBuildFile; fileRef = 58C22CBD8C22B9D6023D59F8 /* LnurlPayInfo.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		D0D7A0D4E13F31C4E02E235B /* ReceivePayment.swift in Resources */ = {isa = PBXBuildFile; fileRef = 91C524F800843E0A3F17E004 /* ReceivePayment.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
@@ -44,6 +45,7 @@
 			files = (
 				CE291CFE2C15DB9A00B9F709 /* WowneroWallet.framework in CopyFiles */,
 				0C50DFB92BF3CB56002B0EB3 /* MoneroWallet.framework in CopyFiles */,
+				CEA883682D43BE4500278CD3 /* ZanoWallet.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +88,7 @@
 		C58D93382C00FAC6004BCF69 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
 		CE291CFD2C15DB9A00B9F709 /* WowneroWallet.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WowneroWallet.framework; sourceTree = "<group>"; };
 		CEAFE49D2C539250009FF3AD /* Mwebd.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = Mwebd.xcframework; sourceTree = "<group>"; };
+		CEB6D62E2D43BB78002C6DBC /* ZanoWallet.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZanoWallet.framework; sourceTree = "<group>"; };
 		D139E30AEB36740C21C00A9E /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		D7CD6B6020744E8FA471915D /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DCEA540E3586164FB47AD13E /* LnurlPayInvoice.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPayInvoice.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPayInvoice.swift"; sourceTree = "<group>"; };
@@ -161,6 +164,7 @@
 			children = (
 				CE291CFD2C15DB9A00B9F709 /* WowneroWallet.framework */,
 				0C50DFB82BF3CB56002B0EB3 /* MoneroWallet.framework */,
+				CEB6D62E2D43BB78002C6DBC /* ZanoWallet.framework */,
 				0C44A7182518EF4A00B570ED /* CakeWallet */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -495,6 +499,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -641,6 +646,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -679,6 +685,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;

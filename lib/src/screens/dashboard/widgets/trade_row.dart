@@ -13,6 +13,7 @@ class TradeRow extends StatelessWidget {
     required this.createdAtFormattedDate,
     this.onTap,
     this.formattedAmount,
+    this.formattedReceiveAmount,
     super.key,
   });
 
@@ -22,10 +23,12 @@ class TradeRow extends StatelessWidget {
   final CryptoCurrency to;
   final String? createdAtFormattedDate;
   final String? formattedAmount;
+  final String? formattedReceiveAmount;
 
   @override
   Widget build(BuildContext context) {
     final amountCrypto = from.toString();
+    final receiveAmountCrypto = to.toString();
 
     return InkWell(
         onTap: onTap,
@@ -61,12 +64,21 @@ class TradeRow extends StatelessWidget {
                         : Container()
                   ]),
                   SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
-                    if (createdAtFormattedDate != null)
-                      Text(createdAtFormattedDate!,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                      children: <Widget>[
+                        createdAtFormattedDate != null
+                          ? Text(createdAtFormattedDate!,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                          : Container(),
+                        formattedReceiveAmount != null
+                          ? Text(formattedReceiveAmount! + ' ' + receiveAmountCrypto,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Theme.of(context).extension<CakeTextTheme>()!.dateSectionRowColor))
+                          : Container(),
                   ])
                 ],
               ))

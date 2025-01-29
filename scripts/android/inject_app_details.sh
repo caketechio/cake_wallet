@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 if [ -z "$APP_ANDROID_TYPE" ]; then
         echo "Please set APP_ANDROID_TYPE"
         exit 1

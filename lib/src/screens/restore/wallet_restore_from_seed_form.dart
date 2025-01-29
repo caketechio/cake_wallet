@@ -58,7 +58,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         repeatedPasswordTextEditingController = displayWalletPassword
             ? TextEditingController()
             : null,
-        seedTypeController = TextEditingController();
+      seedTypeController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
@@ -75,7 +75,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
 
   @override
   void initState() {
-    _setSeedType(widget.seedSettingsViewModel.moneroSeedType);
+    // _setSeedType(widget.seedTypeViewModel.moneroSeedType);
+    _setSeedType(MoneroSeedType.defaultSeedType);
     _setLanguageLabel(language);
 
     if (passwordTextEditingController != null) {
@@ -99,7 +100,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   }
 
   @override
-  void dispose() {
+  void dispose() {    
     moneroSeedTypeReaction();
 
     if (passwordListener != null) {
@@ -200,9 +201,9 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           items: _getItems(),
                           selectedAtIndex: isPolyseed
                               ? 1
-                              : seedTypeController.value.text.contains("14")
-                              ? 2
-                              : 0,
+                              : seedTypeController.value.text.contains("14") && widget.type == WalletType.wownero
+                                  ? 2
+                                  : 0,
                           mainAxisAlignment: MainAxisAlignment.start,
                           onItemSelected: _changeSeedType,
                           isSeparated: false,

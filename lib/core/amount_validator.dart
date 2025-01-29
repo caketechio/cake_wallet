@@ -76,6 +76,8 @@ class DecimalAmountValidator extends TextValidator {
         return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
       case CryptoCurrency.btc:
         return '^([0-9]+([.\,][0-9]{1,8})?|[.\,][0-9]{1,8})\$';
+      case CryptoCurrency.zano:
+        return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,18})\$';
       default:
         return '^([0-9]+([.\,][0-9]{1,12})?|[.\,][0-9]{1,12})\$';
     }

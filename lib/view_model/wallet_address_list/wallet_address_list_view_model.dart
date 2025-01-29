@@ -17,6 +17,7 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart';
@@ -205,6 +206,23 @@ class WowneroURI extends PaymentURI {
   }
 }
 
+class ZanoURI extends PaymentURI {
+  ZanoURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'zano:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+
 abstract class WalletAddressListViewModelBase
     extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
@@ -298,11 +316,12 @@ abstract class WalletAddressListViewModelBase
         return TronURI(amount: amount, address: address.address);
       case WalletType.wownero:
         return WowneroURI(amount: amount, address: address.address);
+      case WalletType.zano:
+         return ZanoURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }
-
   @computed
   ObservableList<ListItem> get items => ObservableList<ListItem>()
     ..addAll(_baseItems)
@@ -477,6 +496,12 @@ abstract class WalletAddressListViewModelBase
       (addressList[i] as WalletAddressListItem).isManual = wallet
           .walletAddresses.manualAddresses
           .contains((addressList[i] as WalletAddressListItem).address);
+    }
+
+    if (wallet.type == WalletType.zano) {
+      final primaryAddress = zano!.getAddress(wallet);
+
+      addressList.add(WalletAddressListItem(isPrimary: true, name: null, address: primaryAddress));
     }
 
     if (searchText.isNotEmpty) {

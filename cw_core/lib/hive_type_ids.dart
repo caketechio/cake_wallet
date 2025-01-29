@@ -20,3 +20,4 @@ const TRON_TOKEN_TYPE_ID            = 18;
 const HARDWARE_WALLET_TYPE_TYPE_ID  = 19;
 const MWEB_UTXO_TYPE_ID             = 20;
 const HAVEN_SEED_STORE_TYPE_ID      = 21;
+const ZANO_ASSET_TYPE_ID            = 22;

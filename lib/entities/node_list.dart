@@ -200,6 +200,23 @@ Future<List<Node>> loadDefaultWowneroNodes() async {
   return nodes;
 }
 
+Future<List<Node>> loadDefaultZanoNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/zano_node_list.yml');
+  final loadedNodes = loadYaml(nodesRaw) as YamlList;
+  final nodes = <Node>[];
+
+  for (final raw in loadedNodes) {
+    if (raw is Map) {
+      final node = Node.fromMap(Map<String, Object>.from(raw));
+
+      node.type = WalletType.zano;
+      nodes.add(node);
+    }
+  }
+
+  return nodes;
+}
+
 Future<void> resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
@@ -211,6 +228,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
   final polygonNodes = await loadDefaultPolygonNodes();
   final solanaNodes = await loadDefaultSolanaNodes();
   final tronNodes = await loadDefaultTronNodes();
+  final zanoNodes = await loadDefaultZanoNodes();
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -220,7 +238,7 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       bitcoinCashElectrumServerList +
       nanoNodes +
       polygonNodes +
-      solanaNodes + tronNodes;
+      solanaNodes + tronNodes + zanoNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

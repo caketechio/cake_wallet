@@ -274,6 +274,7 @@ class WalletRestorePage extends BasePage {
     final seedWords = seedPhrase.split(' ');
 
     if (seedWords.length == 14 && walletRestoreViewModel.type == WalletType.wownero) return true;
+    if (seedWords.length == 26 && walletRestoreViewModel.type == WalletType.zano) return true;
 
     if ((walletRestoreViewModel.type == WalletType.monero ||
             walletRestoreViewModel.type == WalletType.wownero ||

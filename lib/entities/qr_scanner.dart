@@ -23,7 +23,7 @@ Future<String> presentQRScanner(BuildContext context) async {
       ),
     );
     isQrScannerShown = false;
-    return result??'';
+    return result!;
   } catch (e) {
     isQrScannerShown = false;
     rethrow;
@@ -95,9 +95,7 @@ class _BarcodeScannerSimpleState extends State<BarcodeScannerSimple> {
         setState(() {
           popped = true;
         });
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pop(_barcode?.rawValue ?? "");
-        });
+        Navigator.of(context).pop(_barcode!.rawValue ?? _barcode!.rawBytes);
       }
     }
   }

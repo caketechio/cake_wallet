@@ -207,6 +207,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.7"
+  decimal:
+    dependency: "direct main"
+    description:
+      name: decimal
+      sha256: "24a261d5d5c87e86c7651c417a5dbdf8bcd7080dd592533910e8d0505a279f21"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.3"
   encrypt:
     dependency: "direct main"
     description:
@@ -577,6 +585,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: cb808fb6f1a839e6fc5f7d8cb3b0a10e1db48b3be102de73938c627f0b636336
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   shelf:
     dependency: transitive
     description:

@@ -18,6 +18,9 @@ class TradeListItem extends ActionListItem {
   String get tradeFormattedAmount =>
       displayMode == BalanceDisplayMode.hiddenBalance ? '---' : trade.amountFormatted();
 
+  String get tradeFormattedReceiveAmount =>
+      displayMode == BalanceDisplayMode.hiddenBalance ? '---' : trade.receiveAmountFormatted();
+  
   @override
   DateTime get date => trade.createdAt!;
 }

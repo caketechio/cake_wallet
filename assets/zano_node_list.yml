@@ -1,0 +1,7 @@
+-
+  uri: 37.27.100.59:10500
+  useSSL: false
+-
+  uri: zano.cakewallet.com:11211
+  is_default: true
+  useSSL: false

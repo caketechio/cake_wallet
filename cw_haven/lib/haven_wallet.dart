@@ -78,7 +78,8 @@ abstract class HavenWalletBase
       privateSpendKey: haven_wallet.getSecretSpendKey(),
       privateViewKey: haven_wallet.getSecretViewKey(),
       publicSpendKey: haven_wallet.getPublicSpendKey(),
-      publicViewKey: haven_wallet.getPublicViewKey());
+      publicViewKey: haven_wallet.getPublicViewKey(),
+      passphrase: "");
 
   haven_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;

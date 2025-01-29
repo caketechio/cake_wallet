@@ -109,8 +109,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     final coinJson = responseJSON.first as Map<String, dynamic>;
 
     return Limits(
-      min: coinJson['minimum'] as double,
-      max: coinJson['maximum'] as double,
+      min: coinJson['minimum'] as double?,
+      // TODO: remove hardcoded value and call `api/new_rate` when Trocador adds min and max to it
+      max: from == CryptoCurrency.zano ? 2600 : coinJson['maximum'] as double?,
     );
   }
 
@@ -141,6 +142,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       final responseString = await response.transform(utf8.decoder).join();
 
       final responseJSON = json.decode(responseString) as Map<String, dynamic>;
+
+      if (responseJSON['error'] != null) throw Exception(responseJSON['error']);
+
       final fromAmount = double.parse(responseJSON['amount_from'].toString());
       final toAmount = double.parse(responseJSON['amount_to'].toString());
       final rateId = responseJSON['trade_id'] as String? ?? '';

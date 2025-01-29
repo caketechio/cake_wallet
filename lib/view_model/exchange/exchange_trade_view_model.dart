@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
@@ -56,8 +57,12 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
+        break;
       case ExchangeProviderDescription.thorChain:
         _provider = ThorChainExchangeProvider(tradesStore: trades);
+        break;
+      case ExchangeProviderDescription.chainflip:
+        _provider = ChainflipExchangeProvider(tradesStore: trades);
         break;
     }
 

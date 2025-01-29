@@ -91,7 +91,10 @@ class LoadingPrimaryButton extends StatelessWidget {
           width: double.infinity,
           height: 52.0,
           child: TextButton(
-            onPressed: (isLoading || isDisabled) ? null : onPressed,
+            onPressed: (isLoading || isDisabled) ? null : () {
+              FocusScope.of(context).unfocus();
+              onPressed.call();
+            },
             style: ButtonStyle(
                 backgroundColor:
                     MaterialStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),

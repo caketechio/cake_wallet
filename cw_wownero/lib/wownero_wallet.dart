@@ -117,6 +117,9 @@ abstract class WowneroWalletBase
 
   String get password => _password;
 
+  @override
+  String get passphrase => wownero_wallet.getPassphrase();
+
   String _password;
 
   @override
@@ -125,7 +128,8 @@ abstract class WowneroWalletBase
       privateSpendKey: wownero_wallet.getSecretSpendKey(),
       privateViewKey: wownero_wallet.getSecretViewKey(),
       publicSpendKey: wownero_wallet.getPublicSpendKey(),
-      publicViewKey: wownero_wallet.getPublicViewKey());
+      publicViewKey: wownero_wallet.getPublicViewKey(),
+      passphrase: wownero_wallet.getPassphrase());
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;
@@ -557,7 +561,7 @@ abstract class WowneroWalletBase
   @override
   Future<Map<String, WowneroTransactionInfo>> fetchTransactions() async {
     transaction_history.refreshTransactions();
-    return _getAllTransactionsOfAccount(walletAddresses.account?.id)
+    return (await _getAllTransactionsOfAccount(walletAddresses.account?.id))
         .fold<Map<String, WowneroTransactionInfo>>(<String, WowneroTransactionInfo>{},
             (Map<String, WowneroTransactionInfo> acc, WowneroTransactionInfo tx) {
       acc[tx.id] = tx;
@@ -586,9 +590,9 @@ abstract class WowneroWalletBase
   String getSubaddressLabel(int accountIndex, int addressIndex) =>
       wownero_wallet.getSubaddressLabel(accountIndex, addressIndex);
 
-  List<WowneroTransactionInfo> _getAllTransactionsOfAccount(int? accountIndex) =>
-      transaction_history
-          .getAllTransactions()
+  Future<List<WowneroTransactionInfo>> _getAllTransactionsOfAccount(int? accountIndex) async =>
+      (await transaction_history
+          .getAllTransactions())
           .map(
             (row) => WowneroTransactionInfo(
               row.hash,

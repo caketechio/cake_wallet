@@ -1,6 +1,6 @@
 name: Cake Wallet Android
 
-on: [push]
+on: [pull_request]
 
 defaults:
   run:
@@ -34,10 +34,19 @@ jobs:
       - name: Fix github actions messing up $HOME...
         run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: configure git
         run: |
+          git config --global --add safe.directory '*'
           git config --global user.email "ci@cakewallet.com"
           git config --global user.name "CakeWallet CI"
+      - name: Get the full commit message
+        run: |
+          FULL_MESSAGE="$(git log -1 --pretty=%B)"
+          echo "message<<EOF" >> $GITHUB_ENV
+          echo "$FULL_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Add secrets
         run: |
           touch lib/.secrets.g.dart
@@ -160,6 +169,10 @@ jobs:
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
+          # end of test secrets
+          echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
+
       - name: prepare monero_c and cache
         run: |
           export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
@@ -270,14 +283,14 @@ jobs:
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
         
       - name: Upload artifact to slack
-        if: ${{ !contains(github.event.head_commit.message, 'skip slack') }}
+        if: ${{ !contains(env.message, 'skip slack') }}
         continue-on-error: true
         uses: adrey/slack-file-upload-action@1.0.5
         with:
           token: ${{ secrets.SLACK_APP_TOKEN }}
           path: ${{ env.APK_FILE }}
           channel: ${{ secrets.SLACK_APK_CHANNEL }}
-          initial_comment: ${{ github.event.head_commit.message }}
+          initial_comment: ${{ env.message }}
 
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/

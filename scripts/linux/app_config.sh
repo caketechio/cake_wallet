@@ -1,5 +1,5 @@
 #!/bin/bash
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 CAKEWALLET="cakewallet"
 DIR=`pwd`
 

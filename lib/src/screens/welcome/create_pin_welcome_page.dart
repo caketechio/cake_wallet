@@ -12,6 +12,10 @@ import 'package:cake_wallet/themes/extensions/new_wallet_theme.dart';
 import 'package:cake_wallet/themes/extensions/wallet_list_theme.dart';
 
 class CreatePinWelcomePage extends BasePage {
+  CreatePinWelcomePage(this.isWalletPasswordDirectInput);
+
+  final bool isWalletPasswordDirectInput;
+
   static const aspectRatioImage = 1.25;
   final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
   final welcomeImageDark = Image.asset('assets/images/welcome.png');
@@ -124,7 +128,7 @@ class CreatePinWelcomePage extends BasePage {
             key: ValueKey('create_pin_welcome_page_create_a_pin_button_key'),
             onPressed: () => Navigator.pushNamed(context, Routes.welcomeWallet),
             image: newWalletImage,
-            text: S.current.set_a_pin,
+            text: isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
             color: Theme.of(context)
                 .extension<WalletListTheme>()!
                 .createNewWalletButtonBackgroundColor,

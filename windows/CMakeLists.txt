@@ -87,8 +87,6 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x8
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/x86_64-w64-mingw32_libwallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.dll"
   COMPONENT Runtime)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libpolyseed.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libpolyseed.dll"
-  COMPONENT Runtime)
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libssp-0.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libssp-0.dll"
   COMPONENT Runtime)

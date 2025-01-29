@@ -11,6 +11,8 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
+import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_monero/api/account_list.dart';
 import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/api/wallet_manager.dart';
@@ -42,10 +44,15 @@ class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   MoneroRestoreWalletFromSeedCredentials(
-      {required String name, required this.mnemonic, int height = 0, String? password})
+      {required String name,
+      required this.mnemonic,
+      required this.passphrase,
+      int height = 0,
+      String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
+  final String passphrase;
 }
 
 class MoneroWalletLoadingException implements Exception {
@@ -94,12 +101,14 @@ class MoneroWalletService extends WalletService<
         final polyseed = Polyseed.create();
         final lang = PolyseedLang.getByEnglishName(credentials.language);
 
+        if (credentials.passphrase != null) polyseed.crypt(credentials.passphrase!);
+
         final heightOverride =
         getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
 
         return _restoreFromPolyseed(
             path, credentials.password!, polyseed, credentials.walletInfo!, lang,
-            overrideHeight: heightOverride);
+            overrideHeight: heightOverride, passphrase: credentials.passphrase);
       }
 
       await monero_wallet_manager.createWallet(
@@ -292,6 +301,7 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password!,
+          passphrase: credentials.passphrase,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height!);
       final wallet = MoneroWallet(
@@ -318,7 +328,8 @@ class MoneroWalletService extends WalletService<
           Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
 
       return _restoreFromPolyseed(
-          path, credentials.password!, polyseed, credentials.walletInfo!, lang);
+          path, credentials.password!, polyseed, credentials.walletInfo!, lang,
+          passphrase: credentials.passphrase);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
       printV('MoneroWalletsManager Error: $e');
@@ -326,9 +337,35 @@ class MoneroWalletService extends WalletService<
     }
   }
 
-  Future<MoneroWallet> _restoreFromPolyseed(String path, String password, Polyseed polyseed,
-      WalletInfo walletInfo, PolyseedLang lang,
-      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO, int? overrideHeight}) async {
+  Future<MoneroWallet> _restoreFromPolyseed(
+      String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
+      {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
+      int? overrideHeight,
+      String? passphrase}) async {
+    
+    if (polyseed.isEncrypted == false &&
+        (passphrase??'') != "") {
+      // Fallback to the different passphrase offset method, when a passphrase
+      // was provided but the polyseed is not encrypted.
+      monero_wallet_manager.restoreWalletFromPolyseedWithOffset(
+        path: path,
+        password: password,
+        seed: polyseed.encode(lang, coin),
+        seedOffset: passphrase??'',
+        language: "English");
+      
+      final wallet = MoneroWallet(
+        walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource,
+        password: password,
+      );
+      await wallet.init();
+
+      return wallet;
+    }
+
+    if (polyseed.isEncrypted) polyseed.crypt(passphrase ?? '');
+
     final height = overrideHeight ??
         getMoneroHeigthByDate(date: DateTime.fromMillisecondsSinceEpoch(polyseed.birthday * 1000));
     final spendKey = polyseed.generateKey(coin, 32).toHexString();

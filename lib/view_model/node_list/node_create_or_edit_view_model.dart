@@ -89,6 +89,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
+      case WalletType.zano:
         return false;
     }
   }
@@ -223,23 +224,22 @@ abstract class NodeCreateOrEditViewModelBase with Store {
         throw Exception('Unexpected scan QR code value: value is empty');
       }
 
+      if (!code.contains('://')) code = 'tcp://$code';
+
       final uri = Uri.tryParse(code);
-
-      if (uri == null) {
-        throw Exception('Unexpected scan QR code value: Value is invalid');
+      if (uri == null || uri.host.isEmpty) {
+        throw Exception('Invalid QR code: Unable to parse or missing host.');
       }
 
-      final userInfo = uri.userInfo.split(':');
-
-      if (userInfo.length < 2) {
-        throw Exception('Unexpected scan QR code value: Value is invalid');
-      }
-
-      final rpcUser = userInfo[0];
-      final rpcPassword = userInfo[1];
+      final userInfo = uri.userInfo;
       final ipAddress = uri.host;
-      final port = uri.port.toString();
+      final port = uri.hasPort ? uri.port.toString() : '';
       final path = uri.path;
+      final queryParams = uri.queryParameters; // Currently not used
+      final rpcUser = userInfo.split(':').first;
+      final rpcPassword = userInfo.split(':').length > 1 ? userInfo.split(':')[1] : '';
+
+      await Future.delayed(Duration(milliseconds: 345));
 
       setAddress(ipAddress);
       setPath(path);

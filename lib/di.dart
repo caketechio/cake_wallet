@@ -244,6 +244,7 @@ import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -1086,6 +1087,8 @@ Future<void> setup({
         return tron!.createTronWalletService(_walletInfoSource, SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.wownero:
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+      case WalletType.zano:
+        return zano!.createZanoWalletService(_walletInfoSource);
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

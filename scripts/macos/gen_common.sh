@@ -1,5 +1,5 @@
 #!/bin/sh
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/universal_sed.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 gen_podspec() {
 	ARCH=$1
 	CW_PLUGIN_DIR="`pwd`/../../cw_monero/macos"

@@ -89,6 +89,9 @@
                 <data android:scheme="wownero" />
                 <data android:scheme="wownero-wallet" />
                 <data android:scheme="wownero_wallet" />
+                <data android:scheme="zano" />
+                <data android:scheme="zano-wallet" />
+                <data android:scheme="zano_wallet" />
             </intent-filter>
             <!-- nano-gpt link scheme -->
             <intent-filter android:autoVerify="true">

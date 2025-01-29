@@ -115,5 +115,6 @@ class Routes {
   static const urqrAnimatedPage = '/urqr/animated_page';
   static const walletGroupsDisplayPage = '/wallet_groups_display_page';
   static const walletGroupDescription = '/wallet_group_description';
+  static const walletGroupExistingSeedDescriptionPage = '/wallet_group_existing_seed_description_page';
   static const walletSeedVerificationPage = '/wallet_seed_verification_page';
 }

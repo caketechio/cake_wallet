@@ -13,7 +13,8 @@ enum ParseFrom {
   mastodon,
   nostr,
   thorChain,
-  wellKnown
+  wellKnown,
+  zanoAlias,
 }
 
 class ParsedAddress {
@@ -140,6 +141,14 @@ class ParsedAddress {
       addresses: [address],
       name: name,
       parseFrom: ParseFrom.thorChain,
+    );
+  }
+
+  factory ParsedAddress.zanoAddress({required String address, required String name}) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.zanoAlias,
     );
   }
 

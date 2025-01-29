@@ -9,6 +9,7 @@ import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_mweb/cw_mweb.dart';
@@ -148,10 +149,12 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   @action
   @override
   Future<BitcoinAddressRecord> getChangeAddress(
-      {List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
+      {List<BitcoinUnspent>? inputs,
+      List<BitcoinOutput>? outputs,
+      UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     // use regular change address on peg in, otherwise use mweb for change address:
 
-    if (!mwebEnabled || isPegIn) {
+    if (!mwebEnabled || coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return super.getChangeAddress();
     }
 
@@ -178,19 +181,17 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       });
 
       bool isPegIn = !comesFromMweb && outputsToMweb;
+      bool isNonMweb = !comesFromMweb && !outputsToMweb;
 
-      if (isPegIn && mwebEnabled) {
-        return super.getChangeAddress();
-      }
-
-      // use regular change address if it's not an mweb tx:
-      if (!comesFromMweb && !outputsToMweb) {
+      // use regular change address if it's not an mweb tx or if it's a peg in:
+      if (isPegIn || isNonMweb) {
         return super.getChangeAddress();
       }
     }
 
     if (mwebEnabled) {
       await ensureMwebAddressUpToIndexExists(1);
+      updateChangeAddresses();
       return BitcoinAddressRecord(
         mwebAddrs[0],
         index: 0,

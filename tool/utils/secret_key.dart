@@ -75,6 +75,7 @@ class SecretKey {
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),
+    SecretKey('chainflipApiKey', () => ''),
   ];
 
   static final evmChainsSecrets = [

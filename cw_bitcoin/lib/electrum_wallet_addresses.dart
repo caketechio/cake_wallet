@@ -4,6 +4,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -47,7 +48,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
-
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
@@ -187,13 +187,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return;
     }
     try {
-    final addressRecord = _addresses.firstWhere(
-      (addressRecord) => addressRecord.address == addr,
-    );
+      final addressRecord = _addresses.firstWhere(
+        (addressRecord) => addressRecord.address == addr,
+      );
 
-    previousAddressRecord = addressRecord;
-    receiveAddresses.remove(addressRecord);
-    receiveAddresses.insert(0, addressRecord);
+      previousAddressRecord = addressRecord;
+      receiveAddresses.remove(addressRecord);
+      receiveAddresses.insert(0, addressRecord);
     } catch (e) {
       printV("ElectrumWalletAddressBase: set address ($addr): $e");
     }
@@ -274,7 +274,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  Future<BitcoinAddressRecord> getChangeAddress({List<BitcoinUnspent>? inputs, List<BitcoinOutput>? outputs, bool isPegIn = false}) async {
+  Future<BitcoinAddressRecord> getChangeAddress(
+      {List<BitcoinUnspent>? inputs,
+      List<BitcoinOutput>? outputs,
+      UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {

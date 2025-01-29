@@ -168,6 +168,7 @@ class Trade extends HiveObject {
   }
 
   String amountFormatted() => formatAmount(amount);
+  String receiveAmountFormatted() => formatAmount(receiveAmount ?? '');
 }
 
 class TradeAdapter extends TypeAdapter<Trade> {

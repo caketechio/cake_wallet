@@ -4,12 +4,13 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/themes/extensions/cake_text_theme.dart';
+import 'package:cake_wallet/themes/extensions/theme_type_images.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import '../../../themes/extensions/cake_text_theme.dart';
 
 class WalletGroupsDisplayPage extends BasePage {
   WalletGroupsDisplayPage(this.walletGroupsDisplayViewModel);
@@ -165,10 +166,7 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.asset(
-          _getThemedWalletGroupImage(currentTheme.type),
-          scale: 1.8,
-        ),
+        Image.asset(currentTheme.type.walletGroupImage, scale: 1.8),
         SizedBox(height: 32),
         Text.rich(
           TextSpan(
@@ -193,20 +191,5 @@ class WalletGroupEmptyStateWidget extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _getThemedWalletGroupImage(ThemeType theme) {
-    final lightImage = 'assets/images/wallet_group_light.png';
-    final darkImage = 'assets/images/wallet_group_dark.png';
-    final brightImage = 'assets/images/wallet_group_bright.png';
-
-    switch (theme) {
-      case ThemeType.bright:
-        return brightImage;
-      case ThemeType.light:
-        return lightImage;
-      default:
-        return darkImage;
-    }
   }
 }

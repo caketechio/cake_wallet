@@ -215,7 +215,7 @@ Future<void> initializeAppConfigs() async {
     secureStorage: secureStorage,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 46,
+    initialMigrationVersion: 47,
   );
 }
 

@@ -242,10 +242,11 @@ class CWMonero extends Monero {
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
           {required String name,
           required String password,
+          required String passphrase,
           required int height,
           required String mnemonic}) =>
       MoneroRestoreWalletFromSeedCredentials(
-          name: name, password: password, height: height, mnemonic: mnemonic);
+          name: name, password: password, passphrase: passphrase, height: height, mnemonic: mnemonic);
 
   @override
   WalletCredentials createMoneroNewWalletCredentials({
@@ -265,7 +266,8 @@ class CWMonero extends Monero {
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
-      'publicViewKey': keys.publicViewKey
+      'publicViewKey': keys.publicViewKey,
+      'passphrase': keys.passphrase
     };
   }
 

@@ -1,6 +1,6 @@
 name: Cake Wallet Linux
 
-on: [push]
+on: [pull_request]
 
 defaults:
   run:
@@ -30,10 +30,19 @@ jobs:
       - name: Fix github actions messing up $HOME...
         run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: configure git
         run: |
+          git config --global --add safe.directory '*'
           git config --global user.email "ci@cakewallet.com"
           git config --global user.name "CakeWallet CI"
+      - name: Get the full commit message
+        run: |
+          FULL_MESSAGE="$(git log -1 --pretty=%B)"
+          echo "message<<EOF" >> $GITHUB_ENV
+          echo "$FULL_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
       - name: Add secrets
         run: |
           touch lib/.secrets.g.dart
@@ -155,7 +164,11 @@ jobs:
           echo "const tronTestWalletReceiveAddress =  '${{ secrets.TRON_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const nanoTestWalletReceiveAddress = '${{ secrets.NANO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
           echo "const wowneroTestWalletReceiveAddress = '${{ secrets.WOWNERO_TEST_WALLET_RECEIVE_ADDRESS }}';" >> lib/.secrets.g.dart
-          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart  
+          echo "const moneroTestWalletBlockHeight =  '${{ secrets.MONERO_TEST_WALLET_BLOCK_HEIGHT }}';" >> lib/.secrets.g.dart
+          # end of test secrets
+          echo "const chainflipApiKey = '${{ secrets.CHAINFLIP_API_KEY }}';" >> lib/.secrets.g.dart
+          echo "const chainflipAffiliateFee = '${{ secrets.CHAINFLIP_AFFILIATE_FEE }}';" >> lib/.secrets.g.dart
+
       - name: prepare monero_c and cache
         run: |
           export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
@@ -227,7 +240,7 @@ jobs:
           name: cakewallet_linux
 
       - name: Prepare virtual desktop
-        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        if: ${{ contains(env.message, 'run tests') }}
         run: |
             nohup Xvfb :99 -screen 0 720x1280x16 &
             echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
@@ -243,28 +256,28 @@ jobs:
       #   isn't much in those wallets anyway, we still wouldn't like to leak it to anyone who is able to access github.
 
       - name: Test [confirm_seeds_flow_test]
-        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        if: ${{ contains(env.message, 'run tests') }}
         timeout-minutes: 20
         run: |
           xmessage -timeout 30 "confirm_seeds_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
       - name: Test [create_wallet_flow_test]
-        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        if: ${{ contains(env.message, 'run tests') }}
         timeout-minutes: 20
         run: |
           xmessage -timeout 30 "create_wallet_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
       - name: Test [exchange_flow_test]
-        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        if: ${{ contains(env.message, 'run tests') }}
         timeout-minutes: 20
         run: |
           xmessage -timeout 30 "exchange_flow_test" &
           rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
           exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
       - name: Test [restore_wallet_through_seeds_flow_test]
-        if: ${{ contains(github.event.head_commit.message, 'run tests') }}
+        if: ${{ contains(env.message, 'run tests') }}
         timeout-minutes: 20
         run: |
           xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &

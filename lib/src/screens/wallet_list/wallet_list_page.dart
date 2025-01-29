@@ -131,6 +131,7 @@ class WalletListBodyState extends State<WalletListBody> {
   final solanaIcon = Image.asset('assets/images/sol_icon.png', height: 24, width: 24);
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
+  final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void>? _progressBar;
@@ -399,6 +400,41 @@ class WalletListBodyState extends State<WalletListBody> {
         ],
       ),
     );
+  }
+
+  Image _imageFor({required WalletType type, bool? isTestnet}) {
+    switch (type) {
+      case WalletType.bitcoin:
+        if (isTestnet == true) {
+          return tBitcoinIcon;
+        }
+        return bitcoinIcon;
+      case WalletType.monero:
+        return moneroIcon;
+      case WalletType.litecoin:
+        return litecoinIcon;
+      case WalletType.haven:
+        return havenIcon;
+      case WalletType.ethereum:
+        return ethereumIcon;
+      case WalletType.bitcoinCash:
+        return bitcoinCashIcon;
+      case WalletType.nano:
+      case WalletType.banano:
+        return nanoIcon;
+      case WalletType.polygon:
+        return polygonIcon;
+      case WalletType.solana:
+        return solanaIcon;
+      case WalletType.tron:
+        return tronIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
+      case WalletType.zano:
+        return zanoIcon;
+      case WalletType.none:
+        return nonWalletTypeIcon;
+    }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {

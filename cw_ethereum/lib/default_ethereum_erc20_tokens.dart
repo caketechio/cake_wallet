@@ -290,6 +290,13 @@ class DefaultEthereumErc20Tokens {
       decimal: 6,
       enabled: false,
     ),
+    Erc20Token(
+      name: "Chainflip",
+      symbol: "FLIP",
+      contractAddress: "0x826180541412D574cf1336d22c0C0a287822678A",
+      decimal: 18,
+      enabled: false,
+    ),
   ];
 
   List<Erc20Token> get initialErc20Tokens => _defaultTokens.map((token) {

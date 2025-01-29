@@ -10,6 +10,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
@@ -112,6 +113,9 @@ abstract class OutputBase with Store {
           case WalletType.wownero:
             _amount = wownero!.formatterWowneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.zano:
+            _amount = zano!.formatterParseAmount(amount: _cryptoAmount, currency: cryptoCurrencyHandler());
+            break;
           default:
             break;
         }
@@ -179,6 +183,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.polygon) {
         return polygon!.formatterPolygonAmountToDouble(amount: BigInt.from(fee));
+      }
+
+      if (_wallet.type == WalletType.zano) {
+        return zano!.formatterIntAmountToDouble(amount: fee, currency: cryptoCurrencyHandler(), forFee: true);
       }
     } catch (e) {
       printV(e.toString());
@@ -307,6 +315,9 @@ abstract class OutputBase with Store {
         break;
       case WalletType.wownero:
         maximumFractionDigits = 11;
+        break;
+      case WalletType.zano:
+        maximumFractionDigits = 12;
         break;
       default:
         break;

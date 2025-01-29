@@ -118,7 +118,6 @@ class TransactionsPage extends StatelessWidget {
                                       dashboardViewModel.balanceViewModel.isFiatDisabled
                                           ? ''
                                           : item.formattedFiatAmount,
-                                  isPending: transaction.isPending,
                                   title:
                                       item.formattedTitle + item.formattedStatus + transactionType,
                                   tags: tags,
@@ -160,7 +159,8 @@ class TransactionsPage extends StatelessWidget {
                                   createdAtFormattedDate: trade.createdAt != null
                                       ? DateFormat('HH:mm').format(trade.createdAt!)
                                       : null,
-                                  formattedAmount: item.tradeFormattedAmount,
+                                  formattedAmount: item.tradeFormattedAmount, 
+                                  formattedReceiveAmount: item.tradeFormattedReceiveAmount
                                 ),
                               );
                             }

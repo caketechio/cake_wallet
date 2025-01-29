@@ -8,6 +8,7 @@ import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:monero/monero.dart' as monero;
 import 'package:mutex/mutex.dart';
+import 'package:polyseed/polyseed.dart';
 
 bool debugMonero = false;
 
@@ -36,19 +37,34 @@ String getSeed() {
   // monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
   final cakepolyseed =
       monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.seed");
+  final cakepassphrase = getPassphrase();
+
+  final weirdPolyseed = monero.Wallet_getPolyseed(wptr!, passphrase: cakepassphrase);
+  if (weirdPolyseed != "") return weirdPolyseed;
+
   if (cakepolyseed != "") {
+    if (cakepassphrase != "") {
+      try {
+        final lang = PolyseedLang.getByPhrase(cakepassphrase);
+        final coin = PolyseedCoin.POLYSEED_MONERO;
+        final ps = Polyseed.decode(cakepolyseed, lang, coin);
+        final passphrase = getPassphrase();
+        if (ps.isEncrypted || passphrase == "") return ps.encode(lang, coin);
+        ps.crypt(getPassphrase());
+        return ps.encode(lang, coin);
+      } catch (e) {
+        printV(e);
+      }
+    }
     return cakepolyseed;
   }
-  final polyseed = monero.Wallet_getPolyseed(wptr!, passphrase: '');
-  if (polyseed != "") {
-    return polyseed;
-  }
-  final legacy = getSeedLegacy("English");
+  final legacy = getSeedLegacy(null);
   return legacy;
 }
 
 String getSeedLegacy(String? language) {
-  var legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+  final cakepassphrase = getPassphrase();
+  var legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   switch (language) {
     case "Chinese (Traditional)": language = "Chinese (simplified)"; break;
     case "Chinese (Simplified)": language = "Chinese (simplified)"; break;
@@ -58,7 +74,7 @@ String getSeedLegacy(String? language) {
   }
   if (monero.Wallet_status(wptr!) != 0) {
     monero.Wallet_setSeedLanguage(wptr!, language: language ?? "English");
-    legacy = monero.Wallet_seed(wptr!, seedOffset: '');
+    legacy = monero.Wallet_seed(wptr!, seedOffset: cakepassphrase);
   }
   if (monero.Wallet_status(wptr!) != 0) {
     final err = monero.Wallet_errorString(wptr!);
@@ -68,6 +84,10 @@ String getSeedLegacy(String? language) {
     return err;
   }
   return legacy;
+}
+
+String getPassphrase() {
+  return monero.Wallet_getCacheAttribute(wptr!, key: "cakewallet.passphrase");
 }
 
 Map<int, Map<int, Map<int, String>>> addressCache = {};

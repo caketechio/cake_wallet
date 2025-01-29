@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/themes/extensions/transaction_trade_theme.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/home_settings_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -242,7 +244,21 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                 },
                               );
                             } else {
-                              await actionCall();
+                              try {
+                                await actionCall();
+                              } catch (e) {
+                                showPopUp<void>(
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithOneAction(
+                                      alertTitle: "Unable to add token",
+                                      alertContent: "$e",
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () => Navigator.of(context).pop(),
+                                    );
+                                  },
+                                );
+                              }
                               if (mounted) {
                                 Navigator.pop(context);
                               }
@@ -269,11 +285,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
       final token = await widget.homeSettingsViewModel.getToken(_contractAddressController.text);
 
       if (token != null) {
-        if (_tokenNameController.text.isEmpty) _tokenNameController.text = token.name;
-        if (_tokenSymbolController.text.isEmpty) _tokenSymbolController.text = token.title;
+        final isZano = widget.homeSettingsViewModel.walletType == WalletType.zano;
+        if (_tokenNameController.text.isEmpty || isZano) _tokenNameController.text = token.name;
+        if (_tokenSymbolController.text.isEmpty || isZano) _tokenSymbolController.text = token.title;
         if (_tokenIconPathController.text.isEmpty)
           _tokenIconPathController.text = token.iconPath ?? '';
-        if (_tokenDecimalController.text.isEmpty)
+        if (_tokenDecimalController.text.isEmpty || isZano)
           _tokenDecimalController.text = token.decimals.toString();
       }
     }
@@ -305,7 +322,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
             placeholder: S.of(context).token_contract_address,
             options: [AddressTextFieldOption.paste],
             buttonColor: Theme.of(context).hintColor,
-            validator: AddressValidator(type: widget.homeSettingsViewModel.nativeToken),
+            validator: widget.homeSettingsViewModel.walletType == WalletType.zano ? null : AddressValidator(type: widget.homeSettingsViewModel.nativeToken).call,
             onPushPasteButton: (_) {
               _pasteText();
             },

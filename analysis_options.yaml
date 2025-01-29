@@ -22,6 +22,7 @@ analyzer:
     lib/solana/cw_solana.dart,
     lib/tron/cw_tron.dart,
     lib/wownero/cw_wownero.dart,
+    lib/zano/cw_zano.dart,
     ]
   language:
     strict-casts: true

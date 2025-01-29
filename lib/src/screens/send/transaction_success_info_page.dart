@@ -27,6 +27,7 @@ class TransactionSuccessPage extends InfoPage {
   Key? get buttonKey => ValueKey('transaction_success_info_page_button_key');
 
   @override
-  void Function(BuildContext) get onPressed =>
-      (BuildContext context) => Navigator.of(context).pop();
+  void Function(BuildContext) get onPressed => (BuildContext context) {
+        if (context.mounted) Navigator.of(context).pop();
+      };
 }
