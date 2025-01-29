@@ -631,6 +631,12 @@ class CWBitcoin extends Bitcoin {
     return litecoinWallet.mwebEnabled;
   }
 
+  @override
+  dynamic getStatusRequest(Object wallet) {
+    final litecoinWallet = wallet as LitecoinWallet;
+    return litecoinWallet.getStatusRequest();
+  }
+  
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs) {
     final pendingTx = pendingTransaction as PendingBitcoinTransaction;
 

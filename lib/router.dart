@@ -72,6 +72,7 @@ import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/send/transaction_success_info_page.dart';
+import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/desktop_settings/desktop_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
@@ -812,6 +813,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
         fullscreenDialog: true,
         builder: (_) => getIt.get<SeedVerificationPage>(),
       );
+
+    case Routes.backgroundSync:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<BackgroundSyncPage>());
 
     default:
       return MaterialPageRoute<void>(

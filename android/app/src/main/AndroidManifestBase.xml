@@ -101,6 +101,10 @@
                 <data android:scheme="nano-gpt" />
             </intent-filter>
         </activity>
+        <service
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:foregroundServiceType="dataSync"
+        />
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2" />

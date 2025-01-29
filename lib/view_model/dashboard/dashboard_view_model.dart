@@ -750,6 +750,30 @@ abstract class DashboardViewModelBase with Store {
   bool get syncAll => settingsStore.currentSyncAll;
 
   @action
+  void setBackgroundSyncEnabled(bool value) => settingsStore.backgroundSyncEnabled = value;
+
+  @computed
+  bool get backgroundSyncEnabled => settingsStore.backgroundSyncEnabled;
+
+  @action
+  void setShowSyncNotification(bool value) => settingsStore.showSyncNotification = value;
+
+  @computed
+  bool get showSyncNotification => settingsStore.showSyncNotification;
+
+  @action
+  void setBackgroundSyncOnBattery(bool value) => settingsStore.backgroundSyncOnBattery = value;
+
+  @computed
+  bool get backgroundSyncOnBattery => settingsStore.backgroundSyncOnBattery;
+
+  @action
+  void setBackgroundSyncOnData(bool value) => settingsStore.backgroundSyncOnData = value;
+
+  @computed
+  bool get backgroundSyncOnData => settingsStore.backgroundSyncOnData;
+
+  @action
   void setSyncAll(bool value) => settingsStore.currentSyncAll = value;
 
   Future<List<String>> checkForHavenWallets() async {

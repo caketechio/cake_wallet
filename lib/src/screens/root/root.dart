@@ -2,7 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/background_tasks.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -44,13 +48,17 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       : _isInactiveController = StreamController<bool>.broadcast(),
         _isInactive = false,
         _requestAuth = true,
-        _postFrameCallback = false;
+        _postFrameCallback = false,
+        _previousState = AppLifecycleState.resumed;
 
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
   bool _requestAuth;
+  AppLifecycleState _previousState;
+  bool wasInBackground = false;
+  Timer? _stateTimer;
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
@@ -126,14 +134,19 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    final syncingWalletTypes = [WalletType.litecoin, WalletType.monero, WalletType.bitcoin];
     switch (state) {
       case AppLifecycleState.paused:
         if (isQrScannerShown) {
-          return;
+          break;
         }
 
         if (!_isInactive && widget.authenticationStore.state == AuthenticationState.allowed) {
           setState(() => _setInactive(true));
+        }
+
+        if (FeatureFlag.isBackgroundSyncEnabled && syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
+          widget.appStore.wallet?.stopSync();
         }
 
         break;
@@ -149,6 +162,43 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       default:
         break;
     }
+
+    // background service handling:
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // restart the background service if it was running before:
+        getIt.get<BackgroundTasks>().serviceForeground();
+        _stateTimer?.cancel();
+        if (!wasInBackground) {
+          return;
+        }
+        wasInBackground = false;
+        if (syncingWalletTypes.contains(widget.appStore.wallet?.type)) {
+          // wait a few seconds before starting the sync make sure the background service is fully exited:
+          Future.delayed(const Duration(seconds: 3), () {
+            widget.appStore.wallet?.startSync();
+          });
+        }
+        break;
+      case AppLifecycleState.paused:
+        // TODO: experimental: maybe should uncomment this:
+        // getIt.get<BackgroundTasks>().serviceBackground(false, showNotifications);
+        getIt.get<BackgroundTasks>().serviceReady();
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+      default:
+        // anything other than resumed update the notification to say we're in the "ready" state:
+        // if we enter any state other than resumed start a timer for 30 seconds
+        // after which we'll consider the app to be in the background
+        _stateTimer?.cancel();
+        // TODO: bump this to > 30 seconds when testing is done:
+        _stateTimer = Timer(const Duration(seconds: 10), () async {
+          wasInBackground = true;
+          getIt.get<BackgroundTasks>().serviceBackground();
+        });
+        break;
+    }
+    _previousState = state;
   }
 
   @override

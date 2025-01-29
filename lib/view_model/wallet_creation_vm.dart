@@ -112,7 +112,7 @@ abstract class WalletCreationVMBase with Store {
       walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       await _appStore.changeCurrentWallet(wallet);
-      getIt.get<BackgroundTasks>().registerSyncTask();
+      getIt.get<BackgroundTasks>().registerBackgroundService();
       _appStore.authenticationStore.allowedCreate();
       state = ExecutedSuccessfullyState();
     } catch (e, s) {

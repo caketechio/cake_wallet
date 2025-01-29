@@ -20,6 +20,7 @@ import workmanager
         }
 
         WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.monero_sync_task")
+        WorkmanagerPlugin.registerTask(withIdentifier: "com.fotolockr.cakewallet.mweb_sync_task")
 
         makeSecure()
         

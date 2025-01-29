@@ -1,4 +1,4 @@
-enum SyncType { disabled, unobtrusive, aggressive }
+enum SyncType { minutes, oneHour, threeHours, sixHours, twelveHours }
 
 class SyncMode {
   SyncMode(this.name, this.type, this.frequency);
@@ -8,8 +8,10 @@ class SyncMode {
   final Duration frequency;
 
   static final all = [
-    SyncMode("Disabled", SyncType.disabled, Duration.zero),
-    SyncMode("Unobtrusive", SyncType.unobtrusive, Duration(hours: 12)),
-    SyncMode("Aggressive", SyncType.aggressive, Duration(hours: 3)),
+    SyncMode("15 Minutes", SyncType.minutes, Duration(minutes: 15)),
+    SyncMode("1 Hour", SyncType.oneHour, Duration(hours: 1)),
+    SyncMode("3 Hours", SyncType.threeHours, Duration(hours: 3)),
+    SyncMode("6 Hours", SyncType.sixHours, Duration(hours: 6)),
+    SyncMode("12 Hours", SyncType.twelveHours, Duration(hours: 12)),
   ];
 }

@@ -443,6 +443,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     _utxoStream?.cancel();
     _feeRatesTimer?.cancel();
     await CwMweb.stop();
+    await super.stopSync();
     printV("stopped syncing!");
   }
 
