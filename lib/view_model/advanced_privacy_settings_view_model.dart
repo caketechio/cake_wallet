@@ -78,8 +78,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
         WalletType.ethereum,
         WalletType.polygon,
         WalletType.tron,
-        if (isRestore) WalletType.monero,
-        if (isRestore) WalletType.wownero,
+        WalletType.monero,
+        WalletType.wownero,
         if (isRestore) WalletType.zano,
       ].contains(type);
 

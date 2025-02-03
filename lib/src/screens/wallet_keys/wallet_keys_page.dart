@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -15,6 +17,8 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class WalletKeysPage extends BasePage {
@@ -162,6 +166,8 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
       children: [
         if (isLegacySeedOnly || isLegacySeed) _buildHeightBox(),
         const SizedBox(height: 20),
+        (_buildPassphraseBox() ?? Container()),
+        if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
         Expanded(
           child: SeedPhraseGridWidget(
             list: isLegacySeed
@@ -256,6 +262,64 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
                   ],
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
+
+  Widget? _buildPassphraseBox() {
+    if (widget.walletKeysViewModel.passphrase.isEmpty) return null;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).cardColor,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            S.of(context).passphrase_view_keys,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Observer(builder: (BuildContext context) {
+                  return Text(
+                    (widget.walletKeysViewModel.obscurePassphrase) ?
+                      "*****" :
+                      widget.walletKeysViewModel.passphrase,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).extension<CakeTextTheme>()!.buttonTextColor,
+                    ),
+                  );
+                }),
+                Observer(builder: (BuildContext context) {
+                    return GestureDetector(
+                    onTap: () {
+                      widget.walletKeysViewModel.obscurePassphrase = !widget.walletKeysViewModel.obscurePassphrase;
+                    },
+                    child: Icon(
+                      widget.walletKeysViewModel.obscurePassphrase ? Icons.visibility_off : Icons.visibility,
+                      size: 16,
+                      color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
+                    )
+                  );
+                }),
+              ],
             ),
           ),
         ],

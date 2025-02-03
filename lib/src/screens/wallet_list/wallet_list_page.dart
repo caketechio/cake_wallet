@@ -1,7 +1,6 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -400,41 +399,6 @@ class WalletListBodyState extends State<WalletListBody> {
         ],
       ),
     );
-  }
-
-  Image _imageFor({required WalletType type, bool? isTestnet}) {
-    switch (type) {
-      case WalletType.bitcoin:
-        if (isTestnet == true) {
-          return tBitcoinIcon;
-        }
-        return bitcoinIcon;
-      case WalletType.monero:
-        return moneroIcon;
-      case WalletType.litecoin:
-        return litecoinIcon;
-      case WalletType.haven:
-        return havenIcon;
-      case WalletType.ethereum:
-        return ethereumIcon;
-      case WalletType.bitcoinCash:
-        return bitcoinCashIcon;
-      case WalletType.nano:
-      case WalletType.banano:
-        return nanoIcon;
-      case WalletType.polygon:
-        return polygonIcon;
-      case WalletType.solana:
-        return solanaIcon;
-      case WalletType.tron:
-        return tronIcon;
-      case WalletType.wownero:
-        return wowneroIcon;
-      case WalletType.zano:
-        return zanoIcon;
-      case WalletType.none:
-        return nonWalletTypeIcon;
-    }
   }
 
   Future<void> _loadWallet(WalletListItem wallet) async {

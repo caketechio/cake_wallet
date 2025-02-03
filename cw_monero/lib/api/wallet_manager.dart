@@ -70,6 +70,7 @@ void createWalletSync(
     {required String path,
     required String password,
     required String language,
+    required String passphrase,
     int nettype = 0}) {
   txhistory = null;
   final newWptr = monero.WalletManager_createWallet(wmPtr,
@@ -80,6 +81,7 @@ void createWalletSync(
     throw WalletCreationException(message: monero.Wallet_errorString(newWptr));
   }
   wptr = newWptr;
+  monero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
   monero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
   _lastOpenedWallet = path;
@@ -390,8 +392,9 @@ void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
+  final passphrase = args['passphrase'] as String;
 
-  createWalletSync(path: path, password: password, language: language);
+  createWalletSync(path: path, password: password, language: language, passphrase: passphrase);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -459,11 +462,13 @@ Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
+        required String passphrase,
         int nettype = 0}) async =>
     _createWallet({
       'path': path,
       'password': password,
       'language': language,
+      'passphrase': passphrase,
       'nettype': nettype
     });
 

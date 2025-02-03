@@ -66,6 +66,7 @@ void createWalletSync(
     {required String path,
     required String password,
     required String language,
+    required String passphrase,
     int nettype = 0}) {
   txhistory = null;
   final newWptr = wownero.WalletManager_createWallet(wmPtr,
@@ -76,6 +77,8 @@ void createWalletSync(
     throw WalletCreationException(message: wownero.Wallet_errorString(newWptr));
   }
   wptr = newWptr;
+  wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase);
+
   wownero.Wallet_store(wptr!, path: path);
   openedWalletsByPath[path] = wptr!;
 
@@ -362,8 +365,9 @@ void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
   final language = args['language'] as String;
+  final passphrase = args['passphrase'] as String;
 
-  createWalletSync(path: path, password: password, language: language);
+  createWalletSync(path: path, password: password, language: language, passphrase: passphrase);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -431,11 +435,13 @@ Future<void> createWallet(
         {required String path,
         required String password,
         required String language,
+        required String passphrase,
         int nettype = 0}) async =>
     _createWallet({
       'path': path,
       'password': password,
       'language': language,
+      'passphrase': passphrase,
       'nettype': nettype
     });
 

@@ -100,6 +100,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             name: name,
             language: options!.first as String,
             password: walletPassword,
+            passphrase: passphrase,
             isPolyseed: options.last as bool);
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -168,6 +169,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           language: options!.first as String,
           isPolyseed: options.last as bool,
           password: walletPassword,
+          passphrase: passphrase,
         );
       case WalletType.zano:
         return zano!.createZanoNewWalletCredentials(

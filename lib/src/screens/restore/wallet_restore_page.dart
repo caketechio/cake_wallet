@@ -23,7 +23,51 @@ import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class WalletRestorePage extends BasePage {
-  WalletRestorePage(this.walletRestoreViewModel, this.seedSettingsViewModel)
+  WalletRestorePage(this.walletRestoreViewModel, this.seedSettingsViewModel);
+
+  @override
+  Widget middle(BuildContext context) => Observer(
+      builder: (_) => Text(
+            walletRestoreViewModel.mode == WalletRestoreMode.seed
+                ? S.current.restore_title_from_seed
+                : S.current.restore_title_from_keys,
+            style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Lato',
+                color: titleColor(context)),
+          ));
+
+  final WalletRestoreViewModel walletRestoreViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
+
+  @override
+  Function(BuildContext)? get pushToNextWidget => (context) {
+        FocusScopeNode currentFocus = FocusScope.of(context);
+        if (!currentFocus.hasPrimaryFocus) {
+          currentFocus.focusedChild?.unfocus();
+        }
+      };
+
+  @override
+  Widget body(BuildContext context) {
+    return WalletRestorePageBody(walletRestoreViewModel, seedSettingsViewModel);
+  }
+}
+
+class WalletRestorePageBody extends StatefulWidget {
+  WalletRestorePageBody(this.walletRestoreViewModel, this.seedSettingsViewModel);
+
+  final WalletRestoreViewModel walletRestoreViewModel;
+  final SeedSettingsViewModel seedSettingsViewModel;
+
+  @override
+  State<WalletRestorePageBody> createState() =>
+      _WalletRestorePageBodyState(walletRestoreViewModel, seedSettingsViewModel);
+}
+
+class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
+  _WalletRestorePageBodyState(this.walletRestoreViewModel, this.seedSettingsViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
         walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
         _pages = [],
@@ -54,8 +98,10 @@ class WalletRestorePage extends BasePage {
                 _validateOnChange(isPolyseed: isPolyseed);
               },
               displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
-              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
-              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
+              onPasswordChange: (String password) =>
+                  walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) =>
+                  walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
           break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
@@ -69,8 +115,10 @@ class WalletRestorePage extends BasePage {
               },
               displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
               displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
-              onPasswordChange: (String password) => walletRestoreViewModel.walletPassword = password,
-              onRepeatedPasswordChange: (String repeatedPassword) => walletRestoreViewModel.repeatedWalletPassword = repeatedPassword,
+              onPasswordChange: (String password) =>
+                  walletRestoreViewModel.walletPassword = password,
+              onRepeatedPasswordChange: (String repeatedPassword) =>
+                  walletRestoreViewModel.repeatedWalletPassword = repeatedPassword,
               onHeightOrDateEntered: (value) => walletRestoreViewModel.isButtonEnabled = value));
           break;
         default:
@@ -78,21 +126,6 @@ class WalletRestorePage extends BasePage {
       }
     });
   }
-
-  bool _formProcessing = false;
-
-  @override
-  Widget middle(BuildContext context) => Observer(
-      builder: (_) => Text(
-            walletRestoreViewModel.mode == WalletRestoreMode.seed
-                ? S.current.restore_title_from_seed
-                : S.current.restore_title_from_keys,
-            style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Lato',
-                color: titleColor(context)),
-          ));
 
   final WalletRestoreViewModel walletRestoreViewModel;
   final SeedSettingsViewModel seedSettingsViewModel;
@@ -102,20 +135,16 @@ class WalletRestorePage extends BasePage {
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
 
+  bool _formProcessing = false;
+
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
 
   @override
-  Function(BuildContext)? get pushToNextWidget => (context) {
-        FocusScopeNode currentFocus = FocusScope.of(context);
-        if (!currentFocus.hasPrimaryFocus) {
-          currentFocus.focusedChild?.unfocus();
-        }
-      };
+  void initState() {
+    super.initState();
 
-  @override
-  Widget body(BuildContext context) {
     reaction((_) => walletRestoreViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,7 +178,10 @@ class WalletRestorePage extends BasePage {
           .currentState!.blockchainHeightKey.currentState!.dateController.text = '';
       walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text = '';
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return KeyboardActions(
       config: KeyboardActionsConfig(
         keyboardActionsPlatform: KeyboardActionsPlatform.IOS,

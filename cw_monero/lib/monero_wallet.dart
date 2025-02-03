@@ -136,7 +136,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       passphrase: monero_wallet.getPassphrase());
 
   int? get restoreHeight =>
-      transactionHistory.transactions.values.firstOrNull?.height;
+      transactionHistory.transactions.values.firstOrNull?.height ?? monero.Wallet_getRefreshFromBlockHeight(wptr!);
 
   monero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;

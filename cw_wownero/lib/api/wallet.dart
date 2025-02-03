@@ -44,7 +44,7 @@ String getSeed() {
   if (cakepolyseed != "") {
     if (cakepassphrase != "") {
       try {
-        final lang = PolyseedLang.getByPhrase(cakepassphrase);
+        final lang = PolyseedLang.getByPhrase(cakepolyseed);
         final coin = PolyseedCoin.POLYSEED_WOWNERO;
         final ps = Polyseed.decode(cakepolyseed, lang, coin);
         final passphrase = getPassphrase();

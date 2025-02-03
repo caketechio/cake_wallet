@@ -20,6 +20,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
 import 'package:cw_core/wownero_balance.dart';
+import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
@@ -130,6 +131,10 @@ abstract class WowneroWalletBase
       publicSpendKey: wownero_wallet.getPublicSpendKey(),
       publicViewKey: wownero_wallet.getPublicViewKey(),
       passphrase: wownero_wallet.getPassphrase());
+
+  int? get restoreHeight =>
+      transactionHistory.transactions.values.firstOrNull?.height ?? wownero.Wallet_getRefreshFromBlockHeight(wptr!);
+
 
   wownero_wallet.SyncListener? _listener;
   ReactionDisposer? _onAccountChangeReaction;

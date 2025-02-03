@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_wownero/api/account_list.dart';
 import 'package:cw_wownero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_wownero/api/wallet_manager.dart' as wownero_wallet_manager;
 import 'package:cw_wownero/api/wallet_manager.dart';
@@ -21,11 +22,12 @@ import 'package:monero/wownero.dart' as wownero;
 
 class WowneroNewWalletCredentials extends WalletCredentials {
   WowneroNewWalletCredentials(
-      {required String name, required this.language, required this.isPolyseed, String? password})
+      {required String name, required this.language, required this.isPolyseed, this.passphrase, String? password})
       : super(name: name, password: password);
 
   final String language;
   final bool isPolyseed;
+  final String? passphrase;
 }
 
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
@@ -95,7 +97,7 @@ class WowneroWalletService extends WalletService<
       }
 
       await wownero_wallet_manager.createWallet(
-          path: path, password: credentials.password!, language: credentials.language);
+          path: path, password: credentials.password!, language: credentials.language, passphrase: credentials.passphrase??'');
       final wallet = WowneroWallet(
           walletInfo: credentials.walletInfo!, unspentCoinsInfo: unspentCoinsInfoSource, password: credentials.password!);
       await wallet.init();
@@ -344,6 +346,9 @@ class WowneroWalletService extends WalletService<
         language: lang.nameEnglish,
         restoreHeight: height,
         spendKey: spendKey);
+
+    wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.seed", value: seed);
+    wownero.Wallet_setCacheAttribute(wptr!, key: "cakewallet.passphrase", value: passphrase??'');
 
     final wallet = WowneroWallet(walletInfo: walletInfo, unspentCoinsInfo: unspentCoinsInfoSource, password: password);
     await wallet.init();

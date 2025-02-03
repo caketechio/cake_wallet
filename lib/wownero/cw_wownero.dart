@@ -233,9 +233,10 @@ class CWWownero extends Wownero {
           {required String name,
           required String language,
           required bool isPolyseed,
-          String? password}) =>
+          String? password,
+          String? passphrase}) =>
       WowneroNewWalletCredentials(
-          name: name, password: password, language: language, isPolyseed: isPolyseed);
+          name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {
@@ -248,6 +249,12 @@ class CWWownero extends Wownero {
       'publicViewKey': keys.publicViewKey,
       'passphrase': keys.passphrase
     };
+  }
+
+  @override
+  int? getRestoreHeight(Object wallet) {
+    final wowneroWallet = wallet as WowneroWallet;
+    return wowneroWallet.restoreHeight;
   }
 
   @override

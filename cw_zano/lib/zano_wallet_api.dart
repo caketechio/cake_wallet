@@ -259,7 +259,7 @@ mixin ZanoWalletApi {
       final code = map!['error']!['code'] ?? '';
       final message = map['error']!['message'] ?? '';
       if (code == Consts.errorWrongSeed) {
-        throw RestoreFromSeedsException('Error restoring wallet, wrong seed');
+        throw RestoreFromSeedsException('Error restoring wallet\nPlease check the seed words are correct. Additionally, if you created this wallet with a passphrase please add it under the Advanced Settings page.');
       } else if (code == Consts.errorAlreadyExists) {
         throw RestoreFromSeedsException('Error restoring wallet, already exists');
       }

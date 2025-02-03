@@ -1,3 +1,5 @@
+import 'package:cw_core/exceptions.dart';
+
 class ZanoWalletException implements Exception {
   final String message;
 
@@ -6,7 +8,7 @@ class ZanoWalletException implements Exception {
   String toString() => '${this.runtimeType} (message: $message)';
 }
 
-class RestoreFromSeedsException extends ZanoWalletException {
+class RestoreFromSeedsException extends RestoreFromSeedException {
   RestoreFromSeedsException(String message) : super(message);
 }
 

@@ -253,9 +253,10 @@ class CWMonero extends Monero {
     required String name,
     required String language,
     required bool isPolyseed,
+    required String? passphrase,
     String? password}) =>
       MoneroNewWalletCredentials(
-        name: name, password: password, language: language, isPolyseed: isPolyseed);
+        name: name, password: password, language: language, isPolyseed: isPolyseed, passphrase: passphrase);
 
   @override
   Map<String, String> getKeys(Object wallet) {

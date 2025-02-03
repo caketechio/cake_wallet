@@ -86,7 +86,19 @@ abstract class WalletKeysViewModelBase with Store {
     if (_wallet.type == WalletType.monero) {
       return monero!.getRestoreHeight(_wallet)?.toString() ?? '';
     }
+    if (_wallet.type == WalletType.wownero) {
+      return wownero!.getRestoreHeight(_wallet)?.toString() ?? '';
+    }
     return '';
+  }
+
+
+
+  @observable
+  bool obscurePassphrase = true;
+  
+  String get passphrase {
+    return _wallet.passphrase ?? '';
   }
 
   /// The Regex split the words based on any whitespace character.
@@ -309,6 +321,12 @@ abstract class WalletKeysViewModelBase with Store {
   }
 
   Future<String?> get restoreHeight async {
+    if (_wallet.type == WalletType.monero) {
+      return monero!.getRestoreHeight(_wallet)?.toString();
+    }
+    if (_wallet.type == WalletType.wownero) {
+      return wownero!.getRestoreHeight(_wallet)?.toString();
+    }
     if (_restoreHeightByTransactions != 0)
       return getRoundedRestoreHeight(_restoreHeightByTransactions);
     if (_restoreHeight != 0) return _restoreHeight.toString();

@@ -263,7 +263,7 @@ Future<void> defaultSettingsMigration(
         case 41:
           _changeExchangeProviderAvailability(
             sharedPreferences,
-            providerName: "Quantex",
+            providerName: "SwapTrade",
             enabled: false,
           );
           await _addSethNode(nodes, sharedPreferences);

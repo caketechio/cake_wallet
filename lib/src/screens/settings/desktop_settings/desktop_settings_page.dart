@@ -4,7 +4,6 @@ import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/themes/extensions/menu_theme.dart';
@@ -35,6 +34,7 @@ class _DesktopSettingsPageState extends State<DesktopSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        color: Theme.of(context).colorScheme.background,
         height: MediaQuery.of(context).size.height,
         child: Row(
           children: [

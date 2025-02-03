@@ -56,3 +56,13 @@ class CreateAssociatedTokenAccountException implements Exception {
 class SignSPLTokenTransactionRentException implements Exception {}
 
 class NoAssociatedTokenAccountException implements Exception {}
+
+
+/// ==============================================================================
+/// ==============================================================================
+
+class RestoreFromSeedException implements Exception {
+  final String message;
+
+  RestoreFromSeedException(this.message);
+}
