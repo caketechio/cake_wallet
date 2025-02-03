@@ -6,6 +6,7 @@ import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { connected, disconnected, connecting, failed }
@@ -105,7 +106,6 @@ class ElectrumClient {
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
-
     socket!.listen(
       (Uint8List event) {
         try {

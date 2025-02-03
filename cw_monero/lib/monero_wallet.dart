@@ -16,6 +16,7 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -39,6 +40,7 @@ import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
+import 'package:tor/tor.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -187,6 +189,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    String socksProxy = node.socksProxyAddress ?? '';
+    printV("bootstrapped: ${CakeTor.instance.bootstrapped}");
+    printV("     enabled: ${CakeTor.instance.enabled}");
+    printV("        port: ${CakeTor.instance.port}");
+    printV("     started: ${CakeTor.instance.started}");
+    if (CakeTor.instance.enabled) {
+      socksProxy = "127.0.0.1:${CakeTor.instance.port}";
+    }
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
@@ -196,7 +206,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           useSSL: node.isSSL,
           isLightWallet: false,
           // FIXME: hardcoded value
-          socksProxyAddress: node.socksProxyAddress);
+          socksProxyAddress: socksProxy);
 
       monero_wallet.setTrustedDaemon(node.trusted);
       syncStatus = ConnectedSyncStatus();

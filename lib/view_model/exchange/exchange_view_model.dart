@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/create_trade_result.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -946,15 +947,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     );
 
     try {
-      final response = await httpClient.get(
-        uri,
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
+      final responseString = await response.transform(utf8.decoder).join();
 
-      final decodedResponse = jsonDecode(response.body)[0] as Map<String, dynamic>;
+      final decodedResponse = jsonDecode(responseString)[0] as Map<String, dynamic>;
 
       final name = decodedResponse['name'] as String?;
 

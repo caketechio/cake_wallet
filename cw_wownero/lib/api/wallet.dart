@@ -110,7 +110,16 @@ int getUnlockedBalance({int accountIndex = 0}) =>
 
 int getCurrentHeight() => wownero.Wallet_blockChainHeight(wptr!);
 
-int getNodeHeightSync() => wownero.Wallet_daemonBlockChainHeight(wptr!);
+int cachedNodeHeight = 0;
+int getNodeHeightSync() {
+  (() async {
+    final wptrAddress = wptr!.address;
+    cachedNodeHeight = await Isolate.run(() async {
+      return wownero.Wallet_daemonBlockChainHeight(Pointer.fromAddress(wptrAddress));
+    });
+  })();
+  return cachedNodeHeight;
+}
 
 bool isConnectedSync() => wownero.Wallet_connected(wptr!) != 0;
 
@@ -154,7 +163,7 @@ Future<bool> setupNodeSync(
 }
 
 void startRefreshSync() {
-  wownero.Wallet_refreshAsync(wptr!);
+  // wownero.Wallet_refreshAsync(wptr!);
   wownero.Wallet_startRefresh(wptr!);
 }
 

@@ -62,6 +62,7 @@ class PreferencesKey {
   static const moneroWalletPasswordUpdateV1Base = 'monero_wallet_update_v1';
   static const syncModeKey = 'sync_mode';
   static const syncAllKey = 'sync_all';
+  static const builtinTorKey = 'builtin_tor';
   static const lastPopupDate = 'last_popup_date';
   static const lastAppReviewDate = 'last_app_review_date';
   static const sortBalanceBy = 'sort_balance_by';

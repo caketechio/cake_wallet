@@ -9,6 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -123,10 +124,12 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/fiat');
 
     try {
-      final response = await http.get(url, headers: {'accept': 'application/json'});
-
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
+        headers: {'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
+        final data = jsonDecode(responseString) as List<dynamic>;
         for (final item in data) {
           if (item['name'] == fiatCurrency) return item as Map<String, dynamic>;
         }
@@ -146,10 +149,10 @@ class DFXBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, '/v1/asset', {'blockchains': blockchain});
 
     try {
-      final response = await http.get(url, headers: {'accept': 'application/json'});
-
+      final response = await ProxyWrapper().get(clearnetUri: url, headers: {'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        final responseData = jsonDecode(responseString);
 
         if (responseData is List && responseData.isNotEmpty) {
           return responseData.first as Map<String, dynamic>;

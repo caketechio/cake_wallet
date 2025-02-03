@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_evm/evm_chain_transaction_model.dart';
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
 import 'package:cw_evm/evm_erc20_balance.dart';
@@ -12,13 +13,15 @@ import 'package:cw_evm/pending_evm_chain_transaction.dart';
 import 'package:cw_evm/.secrets.g.dart' as secrets;
 import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart' as hex;
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:web3dart/web3dart.dart';
+import 'package:http/io_client.dart' as ioc;
 
 import 'contract/erc20.dart';
 
 abstract class EVMChainClient {
-  final httpClient = Client();
+  final httpClient = getHttpClient();
+  late final http.Client client = ioc.IOClient(httpClient);
   Web3Client? _client;
 
   //! To be overridden by all child classes
@@ -47,7 +50,7 @@ abstract class EVMChainClient {
       }
 
       _client =
-          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), httpClient);
+          Web3Client(isModifiedNodeUri ? rpcUri!.toString() : node.uri.toString(), client);
 
       return true;
     } catch (e) {
@@ -287,7 +290,7 @@ abstract class EVMChainClient {
         },
       );
 
-      final response = await httpClient.get(
+      final response = await client.get(
         uri,
         headers: {
           "Accept": "application/json",

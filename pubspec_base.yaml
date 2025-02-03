@@ -102,7 +102,7 @@ dependencies:
 #    git:
 #      url: https://github.com/cake-tech/tor.git
 #      ref: main
-  socks5_proxy: ^1.0.4
+  socks5_proxy: any
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
@@ -112,6 +112,10 @@ dependencies:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   hashlib: ^1.19.2
+  tor:
+    git:
+      url: https://github.com/Foundation-Devices/tor/
+      ref: d01450765029a4af436be1f6bf1a2d4400dea222
 
 dev_dependencies:
   flutter_test:
@@ -149,10 +153,18 @@ dependency_overrides:
       url: https://github.com/cake-tech/bitcoin_base
       ref: cake-update-v9
   ffi: 2.1.0
+  tor:
+    git:
+      url: https://github.com/MrCyjaneK/tor/
+      ref: ec1119ef85045524e48654782b69086a798c8e5e
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
+  socks5_proxy:
+    git:
+      url: https://github.com/cake-tech/socks_dart.git
+      ref: d304fcfcc97cb7212bcd347aeb5d96792c128ff3
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

@@ -119,7 +119,6 @@ import 'package:cake_wallet/src/screens/settings/other_settings_page.dart';
 import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
-import 'package:cake_wallet/src/screens/settings/tor_page.dart';
 import 'package:cake_wallet/src/screens/settings/trocador_providers_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -1411,7 +1410,6 @@ Future<void> setup({
       () => WalletConnectConnectionsView(web3walletService: getIt.get<Web3WalletService>()));
 
   getIt.registerFactory(() => NFTViewModel(appStore, getIt.get<BottomSheetService>()));
-  getIt.registerFactory<TorPage>(() => TorPage(getIt.get<AppStore>()));
 
   getIt.registerFactory(() => SignViewModel(getIt.get<AppStore>().wallet!));
 

@@ -29,6 +29,7 @@ dependencies:
       path: impls/monero.dart
   mutex: ^3.1.0
   ledger_flutter_plus: ^1.4.1
+  tor: any
 
 dev_dependencies:
   flutter_test:

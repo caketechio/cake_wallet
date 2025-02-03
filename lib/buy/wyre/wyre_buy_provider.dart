@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
@@ -113,13 +114,13 @@ class WyreBuyProvider extends BuyProvider {
   Future<Order> findOrderById(String id) async {
     final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
     final orderUri = Uri.parse(orderUrl);
-    final orderResponse = await get(orderUri);
-
+    final orderResponse = await ProxyWrapper().get(clearnetUri: orderUri);
+    final responseString = await orderResponse.transform(utf8.decoder).join();
     if (orderResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Order $id is not found!');
     }
 
-    final orderResponseJSON = json.decode(orderResponse.body) as Map<String, dynamic>;
+    final orderResponseJSON = json.decode(responseString) as Map<String, dynamic>;
     final transferId = orderResponseJSON['transferId'] as String;
     final from = orderResponseJSON['sourceCurrency'] as String;
     final to = orderResponseJSON['destCurrency'] as String;
@@ -130,13 +131,13 @@ class WyreBuyProvider extends BuyProvider {
 
     final transferUrl = baseApiUrl + _transferSuffix + transferId + _trackSuffix;
     final transferUri = Uri.parse(transferUrl);
-    final transferResponse = await get(transferUri);
-
+    final transferResponse = await ProxyWrapper().get(clearnetUri: transferUri);
+    final transferResponseString = await transferResponse.transform(utf8.decoder).join();
     if (transferResponse.statusCode != 200) {
       throw BuyException(title: providerDescription, content: 'Transfer $transferId is not found!');
     }
 
-    final transferResponseJSON = json.decode(transferResponse.body) as Map<String, dynamic>;
+    final transferResponseJSON = json.decode(transferResponseString) as Map<String, dynamic>;
     final amount = transferResponseJSON['destAmount'] as double;
 
     return Order(

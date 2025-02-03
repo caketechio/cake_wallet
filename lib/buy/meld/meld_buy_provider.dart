@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -60,8 +61,8 @@ class MeldBuyProvider extends BuyProvider {
     final url = Uri.https(_baseUrl, path, params);
 
     try {
-      final response = await http.get(
-        url,
+      final response = await ProxyWrapper().get(
+        clearnetUri: url,
         headers: {
           'Authorization': _isProduction ? '' : _testApiKey,
           'Meld-Version': '2023-12-19',
@@ -69,9 +70,10 @@ class MeldBuyProvider extends BuyProvider {
           'content-type': 'application/json',
         },
       );
+      final responseString = await response.transform(utf8.decoder).join();
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
+        final data = jsonDecode(responseString) as List<dynamic>;
         final paymentMethods =
             data.map((e) => PaymentMethod.fromMeldJson(e as Map<String, dynamic>)).toList();
         return paymentMethods;

@@ -115,10 +115,14 @@ class ConnectionSyncPage extends BasePage {
             ),
           ],
           if (FeatureFlag.isInAppTorEnabled)
-            SettingsCellWithArrow(
-              title: S.current.tor_connection,
-              handler: (context) => Navigator.of(context).pushNamed(Routes.torPage),
-            ),
+            Observer(builder: (context) {
+              return SettingsSwitcherCell(
+                title: S.current.enable_builtin_tor,
+                value: dashboardViewModel.builtinTor,
+                onValueChange: (_, bool value) => dashboardViewModel.setBuiltinTor(value, context),
+                // onTap: (c) => Navigator.of(c).pushNamed(Routes.torPage),
+              );
+            }),
         ],
       ),
     );

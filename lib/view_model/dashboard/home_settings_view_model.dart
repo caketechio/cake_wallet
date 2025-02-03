@@ -12,6 +12,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -200,15 +201,15 @@ abstract class HomeSettingsViewModelBase with Store {
     );
 
     try {
-      final response = await http.get(
-        uri,
+      final response = await ProxyWrapper().get(
+        clearnetUri: uri,
         headers: {
           "Accept": "application/json",
           "X-API-Key": secrets.moralisApiKey,
         },
       );
-
-      final decodedResponse = jsonDecode(response.body);
+      final responseString = await response.transform(utf8.decoder).join();
+      final decodedResponse = jsonDecode(responseString);
 
       final tokenInfo = Erc20TokenInfoMoralis.fromJson(decodedResponse[0] as Map<String, dynamic>);
 
@@ -268,12 +269,12 @@ abstract class HomeSettingsViewModelBase with Store {
     );
 
     try {
-      final response = await http.get(uri);
-
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
+      final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
 
       if (decodedResponse['status'] != '1') {
-        log('${response.body}\n');
+        log('${responseString}\n');
         log('${decodedResponse['result']}\n');
         return true;
       }
@@ -309,12 +310,13 @@ abstract class HomeSettingsViewModelBase with Store {
     );
 
     try {
-      final response = await http.get(uri);
+      final response = await ProxyWrapper().get(clearnetUri: uri);
+      final responseString = await response.transform(utf8.decoder).join();
 
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
+      final decodedResponse = jsonDecode(responseString) as Map<String, dynamic>;
 
       if (decodedResponse['status'] == '0') {
-        printV('${response.body}\n');
+        printV('${responseString}\n');
         printV('${decodedResponse['result']}\n');
         return true;
       }

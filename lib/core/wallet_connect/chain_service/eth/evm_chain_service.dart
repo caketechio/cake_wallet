@@ -15,9 +15,11 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/connection_widget
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/modals/web3_request_modal.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/string_parsing.dart';
 import 'package:convert/convert.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:eth_sig_util/util/utils.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as ioc;
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 import 'package:web3dart/web3dart.dart';
 import '../chain_service.dart';
@@ -50,7 +52,7 @@ class EvmChainServiceImpl implements ChainService {
   }) : ethClient = web3Client ??
             Web3Client(
               appStore.settingsStore.getCurrentNode(appStore.wallet!.type).uri.toString(),
-              http.Client(),
+              ioc.IOClient(getHttpClient()),
             ) {
     for (final String event in getEvents()) {
       wallet.registerEventEmitter(chainId: getChainId(), event: event);

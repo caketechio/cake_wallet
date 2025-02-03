@@ -4,19 +4,20 @@ import 'dart:math' as math;
 
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as ioc;
 import 'package:solana/dto.dart';
 import 'package:solana/encoder.dart';
 import 'package:solana/solana.dart';
 import '.secrets.g.dart' as secrets;
 
 class SolanaWalletClient {
-  final httpClient = http.Client();
   SolanaClient? _client;
 
   bool connect(Node node) {
@@ -636,7 +637,9 @@ class SolanaWalletClient {
 
   Future<String?> getIconImageFromTokenUri(String uri) async {
     try {
-      final response = await httpClient.get(Uri.parse(uri));
+      final httpClient = getHttpClient();
+      final http.Client client = ioc.IOClient(httpClient);
+      final response = await client.get(Uri.parse(uri));
 
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 

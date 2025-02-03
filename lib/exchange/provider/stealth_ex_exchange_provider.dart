@@ -10,6 +10,7 @@ import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:http/http.dart' as http;
 
@@ -202,12 +203,13 @@ class StealthExExchangeProvider extends ExchangeProvider {
     final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
 
     final uri = Uri.parse('$_baseUrl$_exchangesPath/$id');
-    final response = await http.get(uri, headers: headers);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+    final responseString = await response.transform(utf8.decoder).join();
+    
     if (response.statusCode != 200) {
-      throw Exception('StealthEx fetch trade failed: ${response.body}');
+      throw Exception('StealthEx fetch trade failed: ${responseString}');
     }
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final responseJSON = json.decode(responseString) as Map<String, dynamic>;
     final deposit = responseJSON['deposit'] as Map<String, dynamic>;
     final withdrawal = responseJSON['withdrawal'] as Map<String, dynamic>;
 

@@ -7,6 +7,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/utils/currency_pairs_utils.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:hive/hive.dart';
@@ -164,7 +165,8 @@ class ThorChainExchangeProvider extends ExchangeProvider {
     if (id.isEmpty) throw Exception('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');
-    final response = await http.get(uri);
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
 
     if (response.statusCode == 404) {
       throw Exception('Trade not found for id: $formattedId');
@@ -172,7 +174,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
-    final responseJSON = json.decode(response.body);
+    final responseJSON = json.decode(responseString);
     final Map<String, dynamic> stagesJson = responseJSON['stages'] as Map<String, dynamic>;
 
     final inboundObservedStarted = stagesJson['inbound_observed']?['started'] as bool? ?? true;
@@ -217,13 +219,13 @@ class ThorChainExchangeProvider extends ExchangeProvider {
 
   static Future<Map<String, String>?>? lookupAddressByName(String name) async {
     final uri = Uri.https(_baseURL, '$_nameLookUpPath$name');
-    final response = await http.get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
     if (response.statusCode != 200) {
       return null;
     }
 
-    final body = json.decode(response.body) as Map<String, dynamic>;
+    final body = json.decode(responseString) as Map<String, dynamic>;
     final entries = body['entries'] as List<dynamic>?;
 
     if (entries == null || entries.isEmpty) {
@@ -244,17 +246,17 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   Future<Map<String, dynamic>> _getSwapQuote(Map<String, String> params) async {
     Uri uri = Uri.https(_baseNodeURL, _quotePath, params);
 
-    final response = await http.get(uri);
-
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    final responseString = await response.transform(utf8.decoder).join();
     if (response.statusCode != 200) {
       throw Exception('Unexpected HTTP status: ${response.statusCode}');
     }
 
-    if (response.body.contains('error')) {
-      throw Exception('Unexpected response: ${response.body}');
+    if (responseString.contains('error')) {
+      throw Exception('Unexpected response: ${responseString}');
     }
 
-    return json.decode(response.body) as Map<String, dynamic>;
+    return json.decode(responseString) as Map<String, dynamic>;
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {

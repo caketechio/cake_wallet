@@ -1,6 +1,7 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -9,6 +10,7 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:tor/tor.dart';
 
 part 'node_list_view_model.g.dart';
 
@@ -38,7 +40,7 @@ abstract class NodeListViewModelBase with Store {
 
   String getAlertContent(String uri) =>
       S.current.change_current_node(uri) +
-      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + S.current.orbot_running_alert : ''}';
+      '${uri.endsWith('.onion') || uri.contains('.onion:') ? '\n' + (CakeTor.instance.enabled ? '' : S.current.orbot_running_alert) : ''}';
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;

@@ -16,7 +16,7 @@ class StandardCheckbox extends StatelessWidget {
   final bool gradientBackground;
   final Color? borderColor;
   final Color? iconColor;
-  final Function(bool) onChanged;
+  final Function(bool)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class StandardCheckbox extends StatelessWidget {
         BoxDecoration(border: boxBorder, borderRadius: BorderRadius.all(Radius.circular(8.0)));
 
     return GestureDetector(
-      onTap: () => onChanged(!value),
+      onTap: onChanged == null ? null : () => onChanged!(!value),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,

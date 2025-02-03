@@ -10,6 +10,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -165,8 +166,9 @@ class RobinhoodBuyProvider extends BuyProvider {
         Uri.https('api.robinhood.com', '/catpay/v1/${cryptoCurrency.title}/quote/', queryParams);
 
     try {
-      final response = await http.get(uri, headers: {'accept': 'application/json'});
-      final responseData = jsonDecode(response.body) as Map<String, dynamic>;
+      final response = await ProxyWrapper().get(clearnetUri: uri, headers: {'accept': 'application/json'});
+      final responseString = await response.transform(utf8.decoder).join();
+      final responseData = jsonDecode(responseString) as Map<String, dynamic>;
 
       if (response.statusCode == 200) {
         final paymentType = _getPaymentTypeByString(responseData['paymentMethod'] as String?);

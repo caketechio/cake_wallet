@@ -27,10 +27,7 @@ dependencies:
       version: 1.0.0
   socks5_proxy: ^1.0.4
   unorm_dart: ^0.3.0
-#  tor:
-#    git:
-#      url: https://github.com/cake-tech/tor.git
-#      ref: main
+  tor: any
 
 dev_dependencies:
   flutter_test:

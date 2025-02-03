@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
@@ -234,10 +235,14 @@ int getHavenHeightByDate({required DateTime date}) {
 }
 
 Future<int> getHavenCurrentHeight() async {
-  final response = await http.get(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'));
+  final req = await getHttpClient()
+    .getUrl(Uri.parse('https://explorer.havenprotocol.org/api/networkinfo'))
+    .timeout(Duration(seconds: 15));
+  final response = await req.close();
+  final stringResponse = await response.transform(utf8.decoder).join();
 
   if (response.statusCode == 200) {
-    final info = jsonDecode(response.body);
+    final info = jsonDecode(stringResponse);
     return info['data']['height'] as int;
   } else {
     throw Exception('Failed to load current blockchain height');
@@ -269,13 +274,13 @@ const bitcoinDates = {
 };
 
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
-  final response = await http.get(
-    Uri.parse(
-      "https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
-    ),
-  );
+  final req = await getHttpClient()
+    .getUrl(Uri.parse("https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
+    .timeout(Duration(seconds: 15));
+  final response = await req.close();
+  final stringResponse = await response.transform(utf8.decoder).join();
 
-  return jsonDecode(response.body)['height'] as int;
+  return jsonDecode(stringResponse)['height'] as int;
 }
 
 int getBitcoinHeightByDate({required DateTime date}) {

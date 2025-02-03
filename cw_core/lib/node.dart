@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/keyable.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -7,9 +8,9 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:http/io_client.dart' as ioc;
+import 'package:tor/tor.dart' as tor;
 import 'dart:math' as math;
 import 'package:convert/convert.dart';
-
 import 'package:crypto/crypto.dart';
 
 part 'node.g.dart';
@@ -181,7 +182,8 @@ class Node extends HiveObject with Keyable {
     final body = {'jsonrpc': '2.0', 'id': '0', 'method': "getinfo"};
 
     try {
-      final authenticatingClient = HttpClient();
+      final authenticatingClient = getHttpClient();
+
       authenticatingClient.badCertificateCallback =
           ((X509Certificate cert, String host, int port) => true);
 
@@ -274,15 +276,16 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress /* && !Tor.instance.enabled*/) {
+    if (!isValidProxyAddress && !CakeTor.instance.enabled) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    // if ((proxy?.isEmpty ?? true) && Tor.instance.enabled) {
-    //   proxy = "${InternetAddress.loopbackIPv4.address}:${Tor.instance.port}";
-    // }
+    if ((proxy?.isEmpty ?? true) && CakeTor.instance.enabled) {
+      proxy = "${InternetAddress.loopbackIPv4.address}:${CakeTor.instance.port}";
+    }
+    printV("proxy: $proxy");
     if (proxy == null) {
       return false;
     }
@@ -345,13 +348,14 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestEthereumServer() async {
     try {
-      final response = await http.get(
-        uri,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final req = await getHttpClient()
+        .getUrl(uri,)
+        .timeout(Duration(seconds: 15));
+      final response = await req.close();
 
       return response.statusCode >= 200 && response.statusCode < 300;
-    } catch (_) {
+    } catch (err) {
+      printV("Failed to request ethereum server: $err");
       return false;
     }
   }
