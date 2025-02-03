@@ -40,7 +40,7 @@ class PolygonClient extends EVMChainClient {
   Future<List<EVMChainTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
-      final response = await httpClient.get(Uri.https("api.polygonscan.com", "/api", {
+      final response = await client.get(Uri.https("api.polygonscan.com", "/api", {
         "module": "account",
         "action": contractAddress != null ? "tokentx" : "txlist",
         if (contractAddress != null) "contractaddress": contractAddress,
@@ -67,7 +67,7 @@ class PolygonClient extends EVMChainClient {
   @override
   Future<List<EVMChainTransactionModel>> fetchInternalTransactions(String address) async {
     try {
-      final response = await httpClient.get(Uri.https("api.polygonscan.io", "/api", {
+      final response = await client.get(Uri.https("api.polygonscan.io", "/api", {
         "module": "account",
         "action": "txlistinternal",
         "address": address,
