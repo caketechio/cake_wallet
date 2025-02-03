@@ -156,7 +156,7 @@ dependency_overrides:
   tor:
     git:
       url: https://github.com/MrCyjaneK/tor/
-      ref: 7cbedbade71a66b2226aca087665c600369f3e31
+      ref: ec1119ef85045524e48654782b69086a798c8e5e
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus

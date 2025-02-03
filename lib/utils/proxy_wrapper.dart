@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/utils/http_client.dart';
 import 'package:socks5_proxy/socks.dart';
 import 'package:tor/tor.dart';
 
@@ -12,12 +13,12 @@ class ProxyWrapper {
   SettingsStore? settingsStore;
 
 
-  int getPort() => Tor.instance.port;
+  int getPort() => CakeTor.instance.port;
 
   HttpClient getProxyHttpClient({int? portOverride}) {
     final torClient = HttpClient();
 
-    if (Tor.instance.started) {
+    if (CakeTor.instance.started) {
       // Assign connection factory.
       SocksTCPClient.assignToHttpClient(torClient, [
         ProxySettings(
@@ -66,9 +67,9 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
-    bool torEnabled = Tor.instance.started;
+    bool torEnabled = CakeTor.instance.started;
 
-    if (Tor.instance.started) {
+    if (CakeTor.instance.started) {
       torEnabled = true;
     } else {
       torEnabled = false;
@@ -129,7 +130,7 @@ class ProxyWrapper {
     Uri? onionUri,
   }) async {
     HttpClient? torClient;
-    bool torEnabled = Tor.instance.started;
+    bool torEnabled = CakeTor.instance.started;
 
     if (torEnabled) {
       try {

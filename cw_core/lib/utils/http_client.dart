@@ -6,14 +6,19 @@ import 'package:tor/tor.dart';
 HttpClient getHttpClient() {
   final client = HttpClient();
 
-  if (Tor.instance.enabled) {
+  if (CakeTor.instance.enabled) {
     SocksTCPClient.assignToHttpClient(client, [
       ProxySettings(InternetAddress.loopbackIPv4,
-          Tor.instance.port,
+          CakeTor.instance.port,
           password: null,
         ),
     ]);
   }
 
   return client;
+}
+
+
+class CakeTor {
+  static final Tor instance = Tor.instance;
 }

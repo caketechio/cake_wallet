@@ -276,14 +276,14 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestNodeWithProxy() async {
-    if (!isValidProxyAddress && !tor.Tor.instance.enabled) {
+    if (!isValidProxyAddress && !CakeTor.instance.enabled) {
       return false;
     }
 
     String? proxy = socksProxyAddress;
 
-    if ((proxy?.isEmpty ?? true) && tor.Tor.instance.enabled) {
-      proxy = "${InternetAddress.loopbackIPv4.address}:${tor.Tor.instance.port}";
+    if ((proxy?.isEmpty ?? true) && CakeTor.instance.enabled) {
+      proxy = "${InternetAddress.loopbackIPv4.address}:${CakeTor.instance.port}";
     }
     printV("proxy: $proxy");
     if (proxy == null) {

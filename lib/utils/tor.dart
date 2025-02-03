@@ -1,3 +1,4 @@
+import 'package:cw_core/utils/http_client.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 import 'package:tor/tor.dart';
@@ -11,7 +12,7 @@ Future<void> ensureTorStopped({required BuildContext? context}) async {
   if (context != null) showFullscreenDialog(context);
   didTorStart = false;
   printV("Stopping tor");
-  await Tor.instance.stop();
+  await CakeTor.instance.stop();
   printV("Tor stopped");
   if (context != null) dismissFullscreenDialog(context);
 }
@@ -26,7 +27,7 @@ Future<void> ensureTorStarted({required BuildContext? context}) async {
   printV("Initializing tor");
   await Tor.init();
   printV("Starting tor");
-  await Tor.instance.start();
+  await CakeTor.instance.start();
   printV("Tor started");
   if (context != null) dismissFullscreenDialog(context);
 }
