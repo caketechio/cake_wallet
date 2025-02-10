@@ -11,6 +11,7 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
@@ -57,6 +58,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.haven:
       case WalletType.ethereum:
       case WalletType.polygon:
+      case WalletType.decred:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoin:
@@ -72,6 +74,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   }
 
   static const moneroSeedMnemonicLength = 25;
+  static const decredSeedMnemonicLength = 15;
 
   late List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
@@ -165,11 +168,18 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.zano:
           return zano!.createZanoRestoreWalletFromSeedCredentials(
-            name: name, 
-            password: password, 
-            height: height, 
+            name: name,
+            password: password,
+            height: height,
             passphrase: passphrase??'',
-            mnemonic: seed);
+            mnemonic: seed,
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromSeedCredentials(
+              name: name,
+              mnemonic: seed,
+              password: password,
+          );
         case WalletType.none:
           break;
       }
@@ -244,6 +254,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             address: address!,
             password: password,
             language: 'English',
+          );
+        case WalletType.decred:
+          return decred!.createDecredRestoreWalletFromPubkeyCredentials(
+            name: name,
+            password: password,
+            pubkey: viewKey!,
           );
         default:
           break;

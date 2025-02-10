@@ -18,6 +18,9 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
     if (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus) {
       return;
     }
+    if (wallet.type == WalletType.decred && wallet.syncStatus is ProcessingSyncStatus) {
+      return;
+    }
 
     try {
       final connectivityResult = await (Connectivity().checkConnectivity());

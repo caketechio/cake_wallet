@@ -274,7 +274,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                 ],
               );
             }),
-            if (widget.privacySettingsViewModel.type == WalletType.bitcoin)
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
+                widget.privacySettingsViewModel.type == WalletType.decred)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(
@@ -301,7 +302,9 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
                   widget.nodeViewModel.save();
                 }
-                if (testnetValue == true) {
+                if (testnetValue == true &&
+                    widget.privacySettingsViewModel.type ==
+                        WalletType.bitcoin) {
                   // TODO: add type (mainnet/testnet) to Node class so when switching wallets the node can be switched to a matching type
                   // Currently this is so you can create a working testnet wallet but you need to keep switching back the node if you use multiple wallets at once
                   widget.nodeViewModel.address = publicBitcoinTestnetElectrumAddress;

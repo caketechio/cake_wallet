@@ -12,6 +12,7 @@ import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -222,6 +223,21 @@ class ZanoURI extends PaymentURI {
   }
 }
 
+class DecredURI extends PaymentURI {
+  DecredURI({required String amount, required String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'decred:' + address;
+
+    if (amount.isNotEmpty) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
 
 abstract class WalletAddressListViewModelBase
     extends WalletChangeListenerViewModel with Store {
@@ -318,10 +334,13 @@ abstract class WalletAddressListViewModelBase
         return WowneroURI(amount: amount, address: address.address);
       case WalletType.zano:
          return ZanoURI(amount: amount, address: address.address);
+      case WalletType.decred:
+        return DecredURI(amount: amount, address: address.address);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }
   }
+
   @computed
   ObservableList<ListItem> get items => ObservableList<ListItem>()
     ..addAll(_baseItems)
@@ -484,6 +503,14 @@ abstract class WalletAddressListViewModelBase
           isPrimary: true, name: null, address: primaryAddress));
     }
 
+    if (wallet.type == WalletType.decred) {
+      final addrInfos = decred!.getAddressInfos(wallet);
+      addrInfos.forEach((info) {
+        addressList.add(new WalletAddressListItem(isPrimary: false, address: info.address,
+          name: info.label));
+      });
+    }
+
     for (var i = 0; i < addressList.length; i++) {
       if (!(addressList[i] is WalletAddressListItem)) continue;
       (addressList[i] as WalletAddressListItem).isHidden = wallet
@@ -564,7 +591,8 @@ abstract class WalletAddressListViewModelBase
         WalletType.haven,
         WalletType.bitcoinCash,
         WalletType.bitcoin,
-        WalletType.litecoin
+        WalletType.litecoin,
+        WalletType.decred
       ].contains(wallet.type);
 
   @computed

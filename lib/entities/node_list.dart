@@ -4,111 +4,62 @@ import "package:yaml/yaml.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_type.dart';
 
-Future<List<Node>> loadDefaultNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/node_list.yml');
+Future<List<Node>> loadDefaultNodes(WalletType type) async {
+  String path;
+  switch (type) {
+    case WalletType.monero:
+      path = 'assets/node_list.yml';
+      break;
+    case WalletType.bitcoin:
+      path = 'assets/bitcoin_electrum_server_list.yml';
+      break;
+    case WalletType.litecoin:
+      path = 'assets/litecoin_electrum_server_list.yml';
+      break;
+    case WalletType.haven:
+      path = 'assets/haven_node_list.yml';
+      break;
+    case WalletType.ethereum:
+      path = 'assets/ethereum_server_list.yml';
+      break;
+    case WalletType.nano:
+      path = 'assets/nano_node_list.yml';
+      break;
+    case WalletType.bitcoinCash:
+      path = 'assets/bitcoin_cash_electrum_server_list.yml';
+      break;
+    case WalletType.polygon:
+      path = 'assets/polygon_node_list.yml';
+      break;
+    case WalletType.solana:
+      path = 'assets/solana_node_list.yml';
+      break;
+    case WalletType.tron:
+      path = 'assets/tron_node_list.yml';
+      break;
+    case WalletType.wownero:
+      path = 'assets/wownero_node_list.yml';
+      break;
+    case WalletType.zano:
+      path = 'assets/zano_node_list.yml';
+      break;
+    case WalletType.decred:
+      path = 'assets/decred_node_list.yml';
+      break;
+    case WalletType.banano:
+    case WalletType.none:
+      path = '';
+      break;
+  }
+
+  final nodesRaw = await rootBundle.loadString(path);
   final loadedNodes = loadYaml(nodesRaw) as YamlList;
   final nodes = <Node>[];
 
   for (final raw in loadedNodes) {
     if (raw is Map) {
       final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.monero;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadBitcoinElectrumServerList() async {
-  final serverListRaw = await rootBundle.loadString('assets/bitcoin_electrum_server_list.yml');
-  final loadedServerList = loadYaml(serverListRaw) as YamlList;
-  final serverList = <Node>[];
-
-  for (final raw in loadedServerList) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.bitcoin;
-      serverList.add(node);
-    }
-  }
-
-  return serverList;
-}
-
-Future<List<Node>> loadLitecoinElectrumServerList() async {
-  final serverListRaw = await rootBundle.loadString('assets/litecoin_electrum_server_list.yml');
-  final loadedServerList = loadYaml(serverListRaw) as YamlList;
-  final serverList = <Node>[];
-
-  for (final raw in loadedServerList) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.litecoin;
-      serverList.add(node);
-    }
-  }
-
-  return serverList;
-}
-
-Future<List<Node>> loadDefaultHavenNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/haven_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.haven;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadDefaultEthereumNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/ethereum_server_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.ethereum;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadBitcoinCashElectrumServerList() async {
-  final serverListRaw = await rootBundle.loadString('assets/bitcoin_cash_electrum_server_list.yml');
-  final loadedServerList = loadYaml(serverListRaw) as YamlList;
-  final serverList = <Node>[];
-
-  for (final raw in loadedServerList) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.bitcoinCash;
-      serverList.add(node);
-    }
-  }
-
-  return serverList;
-}
-
-Future<List<Node>> loadDefaultNanoNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/nano_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-      node.type = WalletType.nano;
+      node.type = type;
       nodes.add(node);
     }
   }
@@ -132,103 +83,19 @@ Future<List<Node>> loadDefaultNanoPowNodes() async {
   return nodes;
 }
 
-Future<List<Node>> loadDefaultPolygonNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/polygon_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-
-      node.type = WalletType.polygon;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadDefaultSolanaNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/solana_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-
-      node.type = WalletType.solana;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadDefaultTronNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/tron_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-
-      node.type = WalletType.tron;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadDefaultWowneroNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/wownero_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-
-      node.type = WalletType.wownero;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
-Future<List<Node>> loadDefaultZanoNodes() async {
-  final nodesRaw = await rootBundle.loadString('assets/zano_node_list.yml');
-  final loadedNodes = loadYaml(nodesRaw) as YamlList;
-  final nodes = <Node>[];
-
-  for (final raw in loadedNodes) {
-    if (raw is Map) {
-      final node = Node.fromMap(Map<String, Object>.from(raw));
-
-      node.type = WalletType.zano;
-      nodes.add(node);
-    }
-  }
-
-  return nodes;
-}
-
 Future<void> resetToDefault(Box<Node> nodeSource) async {
-  final moneroNodes = await loadDefaultNodes();
-  final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
-  final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
-  final bitcoinCashElectrumServerList = await loadBitcoinCashElectrumServerList();
-  final havenNodes = await loadDefaultHavenNodes();
-  final ethereumNodes = await loadDefaultEthereumNodes();
-  final nanoNodes = await loadDefaultNanoNodes();
-  final polygonNodes = await loadDefaultPolygonNodes();
-  final solanaNodes = await loadDefaultSolanaNodes();
-  final tronNodes = await loadDefaultTronNodes();
-  final zanoNodes = await loadDefaultZanoNodes();
+  final moneroNodes = await loadDefaultNodes(WalletType.monero);
+  final bitcoinElectrumServerList = await loadDefaultNodes(WalletType.bitcoin);
+  final litecoinElectrumServerList = await loadDefaultNodes(WalletType.litecoin);
+  final bitcoinCashElectrumServerList = await loadDefaultNodes(WalletType.bitcoinCash);
+  final havenNodes = await loadDefaultNodes(WalletType.haven);
+  final ethereumNodes = await loadDefaultNodes(WalletType.ethereum);
+  final nanoNodes = await loadDefaultNodes(WalletType.nano);
+  final polygonNodes = await loadDefaultNodes(WalletType.polygon);
+  final solanaNodes = await loadDefaultNodes(WalletType.solana);
+  final tronNodes = await loadDefaultNodes(WalletType.tron);
+  final decredNodes = await loadDefaultNodes(WalletType.decred);
+  final zanoNodes = await loadDefaultNodes(WalletType.zano);
 
   final nodes = moneroNodes +
       bitcoinElectrumServerList +
@@ -238,7 +105,10 @@ Future<void> resetToDefault(Box<Node> nodeSource) async {
       bitcoinCashElectrumServerList +
       nanoNodes +
       polygonNodes +
-      solanaNodes + tronNodes + zanoNodes;
+      solanaNodes +
+      tronNodes +
+      zanoNodes +
+      decredNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

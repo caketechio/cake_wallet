@@ -112,7 +112,7 @@ Then run configuration script for setup app name, app icon and etc:
 
 `$ ./app_config.sh`  
 
-Build the Monero libraries and their dependencies:
+Build the required libraries and their dependencies:
 
 `$ ./build_all.sh`
 
@@ -134,7 +134,7 @@ Next, we must generate key properties based on the secure keystore you generated
 
 **REMINDER:** The *above* command will **not** succeed unless you replaced the `storePassword` and `keyPassword` variables with the correct passwords for your keystore.
 
-Then we need to generate localization files.
+Then we need to generate localization files. If this command fails, add `--force` flag and run it again.
 
 `$ dart run tool/generate_localization.dart`
 

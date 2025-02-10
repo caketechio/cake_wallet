@@ -15,6 +15,8 @@ gen_podspec() {
 gen_project() {
 	ARCH=$1
 	CW_DIR="`pwd`/../../macos/Runner.xcodeproj"
+	BASE_FILENAME="project_base.pbxproj"
+	BASE_FILE_PATH="${CW_DIR}/${BASE_FILENAME}"
 	DEFAULT_FILENAME="project.pbxproj"
 	DEFAULT_FILE_PATH="${CW_DIR}/${DEFAULT_FILENAME}"
 	universal_sed "s/ARCHS =.*/ARCHS = \"${ARCH}\";/g" $DEFAULT_FILE_PATH

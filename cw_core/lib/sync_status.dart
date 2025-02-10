@@ -34,6 +34,16 @@ class SyncingSyncStatus extends SyncStatus {
   }
 }
 
+class ProcessingSyncStatus extends SyncStatus {
+  final String? message;
+
+  ProcessingSyncStatus({this.message});
+
+  @override
+  double progress() => 0.99;
+
+}
+
 class SyncedSyncStatus extends SyncStatus {
   @override
   double progress() => 1.0;

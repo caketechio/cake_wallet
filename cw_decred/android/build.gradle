@@ -1,0 +1,59 @@
+group 'com.cakewallet.cw_decred'
+version '1.0-SNAPSHOT'
+
+buildscript {
+    ext.kotlin_version = '2.0.21'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.7.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 33
+
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.cakewallet.cw_decred'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    sourceSets {
+        main {
+            java.srcDirs += 'src/main/kotlin'
+            jniLibs.srcDirs 'libs' // contains libdcrwallet.so shared libraries
+        }
+    }
+    defaultConfig {
+        minSdkVersion 21
+    }
+    externalNativeBuild {
+        cmake {
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}

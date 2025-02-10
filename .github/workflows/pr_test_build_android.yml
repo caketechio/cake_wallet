@@ -47,6 +47,7 @@ jobs:
           echo "message<<EOF" >> $GITHUB_ENV
           echo "$FULL_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+
       - name: Add secrets
         run: |
           touch lib/.secrets.g.dart
@@ -241,6 +242,13 @@ jobs:
             ./build_mwebd.sh --dont-install
           popd
 
+      - name: Build Decred
+        run: |
+          set -x -e
+          pushd scripts/android
+            ./build_decred.sh
+          popd
+
       - name: Build generated code
         run: |
           ./model_generator.sh async
@@ -281,7 +289,7 @@ jobs:
           set -x
           apk_file=$(ls build/app/outputs/flutter-apk/test-apk/*_slack.apk || exit 1)
           echo "APK_FILE=$apk_file" >> $GITHUB_ENV
-        
+
       - name: Upload artifact to slack
         if: ${{ !contains(env.message, 'skip slack') }}
         continue-on-error: true
@@ -294,7 +302,7 @@ jobs:
 
       - name: cleanup
         run: rm -rf build/app/outputs/flutter-apk/test-apk/
-  
+
       - name: Upload Artifact to github
         uses: actions/upload-artifact@v4
         with:

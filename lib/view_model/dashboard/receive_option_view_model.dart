@@ -14,7 +14,9 @@ abstract class ReceiveOptionViewModelBase with Store {
             (_wallet.type == WalletType.bitcoin ||
              _wallet.type == WalletType.litecoin
                 ? bitcoin!.getSelectedAddressType(_wallet)
-                : ReceivePageOption.mainnet),
+                    : (_wallet.type == WalletType.decred && _wallet.isTestnet)
+                    ? ReceivePageOption.testnet
+                    : ReceivePageOption.mainnet),
         _options = [] {
     final walletType = _wallet.type;
     switch (walletType) {
@@ -32,6 +34,17 @@ abstract class ReceiveOptionViewModelBase with Store {
         break;
       case WalletType.haven:
         _options = [ReceivePageOption.mainnet];
+        break;
+      case WalletType.decred:
+        if (_wallet.isTestnet) {
+          _options = [
+            ReceivePageOption.testnet,
+            ...ReceivePageOptions.where(
+                (element) => element != ReceivePageOption.mainnet)
+          ];
+        } else {
+          _options = ReceivePageOptions;
+        }
         break;
       default:
         _options = ReceivePageOptions;

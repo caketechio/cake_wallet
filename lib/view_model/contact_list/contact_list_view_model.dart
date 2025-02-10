@@ -9,7 +9,6 @@ import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
-import 'package:collection/collection.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -130,10 +129,10 @@ abstract class ContactListViewModelBase with Store {
 
     return element.type == _currency ||
         (element.type.tag != null &&
-            _currency?.tag != null &&
-            element.type.tag == _currency?.tag) ||
-        _currency?.toString() == element.type.tag ||
-        _currency?.tag == element.type.toString();
+            _currency.tag != null &&
+            element.type.tag == _currency.tag) ||
+        _currency.toString() == element.type.tag ||
+        _currency.tag == element.type.toString();
   }
 
   void dispose() => _subscription?.cancel();

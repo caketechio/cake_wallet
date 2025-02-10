@@ -62,12 +62,12 @@ abstract class ContactViewModelBase with Store {
         return;
       }
 
-      if (_contact != null && _contact!.original.isInBox) {
-        _contact?.name = name;
-        _contact?.address = address;
-        _contact?.type = currency!;
-        _contact?.lastChange = now;
-        await _contact?.save();
+      if (_contact != null && _contact.original.isInBox) {
+        _contact.name = name;
+        _contact.address = address;
+        _contact.type = currency!;
+        _contact.lastChange = now;
+        await _contact.save();
       } else {
         await _contacts
             .add(Contact(name: name, address: address, type: currency!, lastChange: now));

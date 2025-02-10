@@ -182,6 +182,7 @@ flutter:
     - assets/tron_node_list.yml
     - assets/wownero_node_list.yml
     - assets/zano_node_list.yml
+    - assets/decred_node_list.yml
     - assets/text/
     - assets/faq/
     - assets/animation/

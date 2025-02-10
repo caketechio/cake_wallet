@@ -25,7 +25,7 @@ void startWalletSyncStatusChangeReaction(
           await updateHavenRate(fiatConversionStore);
         }
       }
-      if (status is SyncingSyncStatus) {
+      if (status is SyncingSyncStatus || status is ProcessingSyncStatus) {
         await WakelockPlus.enable();
       }
       if (status is SyncedSyncStatus || status is FailedSyncStatus) {

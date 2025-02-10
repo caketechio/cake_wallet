@@ -10,6 +10,7 @@ class PreferencesKey {
   static const currentPolygonNodeIdKey = 'current_node_id_matic';
   static const currentNanoNodeIdKey = 'current_node_id_nano';
   static const currentNanoPowNodeIdKey = 'current_node_id_nano_pow';
+  static const currentDecredNodeIdKey = 'current_node_id_decred';
   static const currentBananoNodeIdKey = 'current_node_id_banano';
   static const currentBananoPowNodeIdKey = 'current_node_id_banano_pow';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
@@ -48,6 +49,7 @@ class PreferencesKey {
   static const bitcoinCashTransactionPriority = 'current_fee_priority_bitcoin_cash';
   static const zanoTransactionPriority = 'current_fee_priority_zano';
   static const wowneroTransactionPriority = 'current_fee_priority_wownero';
+  static const decredTransactionPriority = 'current_fee_priority_decred';
   static const customBitcoinFeeRate = 'custom_electrum_fee_rate';
   static const silentPaymentsCardDisplay = 'silentPaymentsCardDisplay';
   static const silentPaymentsAlwaysScan = 'silentPaymentsAlwaysScan';
@@ -81,6 +83,7 @@ class PreferencesKey {
   static const lookupsENS = 'looks_up_ens';
   static const lookupsWellKnown = 'looks_up_well_known';
   static const showCameraConsent = 'show_camera_consent';
+  static const showDecredInfoCard = 'show_decred_info_card';
 
   static String moneroWalletUpdateV1Key(String name) =>
       '${PreferencesKey.moneroWalletPasswordUpdateV1Base}_${name}';

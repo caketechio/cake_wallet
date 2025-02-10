@@ -113,6 +113,11 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
                   walletRestoreViewModel.isButtonEnabled = _isValidSeedKey();
                 }
               },
+              onViewKeyEntered: (bool entered) {
+                if (walletRestoreViewModel.type == WalletType.decred) {
+                  walletRestoreViewModel.isButtonEnabled = entered;
+                }
+              },
               displayPrivateKeyField: walletRestoreViewModel.hasRestoreFromPrivateKey,
               displayWalletPassword: walletRestoreViewModel.hasWalletPassword,
               onPasswordChange: (String password) =>
@@ -317,10 +322,16 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
 
     // bip39:
     final validBip39SeedLengths = [12, 18, 24];
-    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven];
+    final nonBip39WalletTypes = [WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred];
     // if it's a bip39 wallet and the length is not valid return false
     if (!nonBip39WalletTypes.contains(walletRestoreViewModel.type) &&
         !(validBip39SeedLengths.contains(seedWords.length))) {
+      return false;
+    }
+
+    if ((walletRestoreViewModel.type == WalletType.decred) &&
+            seedWords.length !=
+                WalletRestoreViewModelBase.decredSeedMnemonicLength) {
       return false;
     }
 
@@ -363,14 +374,16 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
       } else {
-        credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
-        credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
-        credentials['spendKey'] =
-            walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
-        credentials['height'] =
-            walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
         credentials['name'] =
             walletRestoreFromKeysFormKey.currentState!.nameTextEditingController.text;
+        credentials['viewKey'] = walletRestoreFromKeysFormKey.currentState!.viewKeyController.text;
+        if (walletRestoreViewModel.type != WalletType.decred) {
+          credentials['address'] = walletRestoreFromKeysFormKey.currentState!.addressController.text;
+          credentials['spendKey'] =
+             walletRestoreFromKeysFormKey.currentState!.spendKeyController.text;
+          credentials['height'] =
+              walletRestoreFromKeysFormKey.currentState!.blockchainHeightKey.currentState!.height;
+        }
       }
     }
 

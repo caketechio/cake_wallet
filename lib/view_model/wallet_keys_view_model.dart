@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -155,6 +156,12 @@ abstract class WalletKeysViewModelBase with Store {
             ),
         ]);
         break;
+      case WalletType.decred:
+        final pubkey = decred!.pubkey(_appStore.wallet!);
+        items.addAll([
+          StandartListItem(title: S.current.view_key_public, value: pubkey),
+        ]);
+        break;
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
@@ -248,6 +255,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'wownero-wallet';
       case WalletType.zano:
         return 'zano-wallet';
+      case WalletType.decred:
+        return 'decred-wallet';
       default:
         throw Exception('Unexpected wallet type: ${_wallet.type.toString()}');
     }

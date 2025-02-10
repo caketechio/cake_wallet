@@ -36,7 +36,7 @@ case $APP_MACOS_TYPE in
         $MONERO_COM)
 		CONFIG_ARGS="--monero";;
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero";; #--haven
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --decred";; #--haven
 esac
 
 cp -rf pubspec_description.yaml pubspec.yaml

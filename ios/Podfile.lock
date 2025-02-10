@@ -24,6 +24,7 @@ PODS:
     - Flutter
   - cw_mweb (0.0.1):
     - Flutter
+  - cw_decred (0.0.1):
   - cw_shared_external (0.0.1):
     - cw_shared_external/Boost (= 0.0.1)
     - cw_shared_external/OpenSSL (= 0.0.1)
@@ -139,6 +140,7 @@ DEPENDENCIES:
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_mweb (from `.symlinks/plugins/cw_mweb/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
+  - cw_decred (from `.symlinks/plugins/cw_decred/ios`)
   - device_display_brightness (from `.symlinks/plugins/device_display_brightness/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -185,6 +187,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/cw_mweb/ios"
   cw_shared_external:
     :path: ".symlinks/plugins/cw_shared_external/ios"
+  cw_decred:
+    :path: ".symlinks/plugins/cw_decred/ios"
   device_display_brightness:
     :path: ".symlinks/plugins/device_display_brightness/ios"
   device_info_plus:
@@ -242,6 +246,7 @@ SPEC CHECKSUMS:
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_mweb: 87af74f9659fed0c1a2cbfb44413f1070e79e3ae
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
+  cw_decred: 9c0e1df74745b51a1289ec5e91fb9e24b68fa14a
   device_display_brightness: 1510e72c567a1f6ce6ffe393dcd9afd1426034f7
   device_info_plus: c6fb39579d0f423935b0c9ce7ee2f44b71b9fce6
   devicelocale: 35ba84dc7f45f527c3001535d8c8d104edd5d926

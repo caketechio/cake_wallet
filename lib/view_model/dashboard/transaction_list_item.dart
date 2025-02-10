@@ -1,3 +1,4 @@
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -82,7 +83,9 @@ class TransactionListItem extends ActionListItem with Keyable {
         if (transaction.confirmations <= 0) {
           str = S.current.pending;
         }
-        if ((isPegOut || fromPegOut) && transaction.confirmations >= 0 && transaction.confirmations < 6) {
+        if ((isPegOut || fromPegOut) &&
+            transaction.confirmations >= 0 &&
+            transaction.confirmations < 6) {
           str = " (${transaction.confirmations}/6)";
         }
         if (isPegIn) {
@@ -224,7 +227,13 @@ class TransactionListItem extends ActionListItem with Keyable {
           cryptoAmount: zano!.formatterIntAmountToDouble(amount: transaction.amount, currency: asset, forFee: false),
           price: price);
           break;
-      default:
+      case WalletType.decred:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: decred!.formatterDecredAmountToDouble(amount: transaction.amount),
+            price: price);
+        break;
+      case WalletType.none:
+      case WalletType.banano:
         break;
     }
 

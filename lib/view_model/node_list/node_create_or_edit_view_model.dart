@@ -63,12 +63,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   String socksProxyAddress;
 
   @computed
-  bool get isReady => address.isNotEmpty && port.isNotEmpty;
+  bool get isReady =>
+      (address.isNotEmpty && port.isNotEmpty) ||
+      _walletType == WalletType.decred; // Allow an empty address.
 
   bool get hasAuthCredentials =>
       _walletType == WalletType.monero || _walletType == WalletType.wownero || _walletType == WalletType.haven;
-
-  bool get hasTestnetSupport => _walletType == WalletType.bitcoin;
 
   bool get hasPathSupport {
     switch (_walletType) {
@@ -87,6 +87,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.bitcoinCash:
       case WalletType.bitcoin:
       case WalletType.zano:
+      case WalletType.decred:
         return false;
     }
   }

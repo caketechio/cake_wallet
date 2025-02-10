@@ -32,9 +32,10 @@ CryptoCurrency currencyForWalletType(WalletType type, {bool? isTestnet}) {
       return CryptoCurrency.wow;
     case WalletType.zano:
       return CryptoCurrency.zano;
+    case WalletType.decred:
+      return CryptoCurrency.dcr;
     case WalletType.none:
       throw Exception(
-          
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency currencyForWalletType');
   }
 }
@@ -65,6 +66,10 @@ WalletType? walletTypeForCurrency(CryptoCurrency currency) {
       return WalletType.tron;
     case CryptoCurrency.wow:
       return WalletType.wownero;
+    case CryptoCurrency.zano:
+      return WalletType.zano;
+    case CryptoCurrency.dcr:
+      return WalletType.decred;
     default:
       return null;
   }

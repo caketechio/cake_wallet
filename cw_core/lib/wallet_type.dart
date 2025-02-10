@@ -17,6 +17,7 @@ const walletTypes = [
   WalletType.solana,
   WalletType.tron,
   WalletType.zano,
+  WalletType.decred,
 ];
 
 @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -60,9 +61,11 @@ enum WalletType {
   @HiveField(12)
   wownero,
 
-  @HiveField(13) 
+  @HiveField(13)
   zano,
 
+  @HiveField(14)
+  decred
 }
 
 int serializeToInt(WalletType type) {
@@ -93,6 +96,8 @@ int serializeToInt(WalletType type) {
       return 11;
     case WalletType.zano:
       return 12;
+    case WalletType.decred:
+      return 13;
     case WalletType.none:
       return -1;
   }
@@ -126,6 +131,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.wownero;
     case 12:
       return WalletType.zano;
+    case 13:
+      return WalletType.decred;
     default:
       throw Exception(
           'Unexpected token: $raw for WalletType deserializeFromInt');
@@ -160,6 +167,8 @@ String walletTypeToString(WalletType type) {
       return 'Wownero';
     case WalletType.zano:
       return 'Zano';
+    case WalletType.decred:
+      return 'Decred';
     case WalletType.none:
       return '';
   }
@@ -193,6 +202,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Wownero (WOW)';
     case WalletType.zano:
       return 'Zano (ZANO)';
+    case WalletType.decred:
+      return 'Decred (DCR)';
     case WalletType.none:
       return '';
   }
@@ -229,6 +240,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.wow;
     case WalletType.zano:
       return CryptoCurrency.zano;
+    case WalletType.decred:
+      return CryptoCurrency.dcr;
     case WalletType.none:
       throw Exception(
           'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');

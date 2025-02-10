@@ -3,6 +3,7 @@ PODS:
     - FlutterMacOS
     - ReachabilitySwift
   - cw_mweb (0.0.1):
+  - cw_decred (0.0.1):
     - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
@@ -45,6 +46,7 @@ PODS:
 DEPENDENCIES:
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - cw_mweb (from `Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos`)
+  - cw_decred (from `Flutter/ephemeral/.symlinks/plugins/cw_decred/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - devicelocale (from `Flutter/ephemeral/.symlinks/plugins/devicelocale/macos`)
   - fast_scanner (from `Flutter/ephemeral/.symlinks/plugins/fast_scanner/macos`)
@@ -72,6 +74,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   cw_mweb:
     :path: Flutter/ephemeral/.symlinks/plugins/cw_mweb/macos
+  cw_decred:
+    :path: Flutter/ephemeral/.symlinks/plugins/cw_decred/macos
+  cw_monero:
+    :path: Flutter/ephemeral/.symlinks/plugins/cw_monero/macos
   device_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   devicelocale:
@@ -108,6 +114,8 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   connectivity_plus: 18d3c32514c886e046de60e9c13895109866c747
   cw_mweb: 7440b12ead811dda972a9918442ea2a458e8742c
+  cw_monero: ec03de55a19c4a2b174ea687e0f4202edc716fa4
+  cw_decred: 0c93fbeb31bd97a6ad4ec5680960af0943bfca78
   device_info_plus: 5401765fde0b8d062a2f8eb65510fb17e77cf07f
   devicelocale: 9f0f36ac651cabae2c33f32dcff4f32b61c38225
   fast_scanner: d31bae07e2653403a69dac99fb710c1722b16a97

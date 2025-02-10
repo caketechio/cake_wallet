@@ -28,18 +28,18 @@ universal_sed "s/PRODUCT_BUNDLE_IDENTIFIER = .*;/PRODUCT_BUNDLE_IDENTIFIER = $AP
 CONFIG_ARGS=""
 
 case $APP_IOS_TYPE in
-        $MONERO_COM)
+    $MONERO_COM)
 		CONFIG_ARGS="--monero"
 		;;
+
         $CAKEWALLET)
-		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano"
+		CONFIG_ARGS="--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --wownero --zano --decred"
 		if [ "$CW_WITH_HAVEN" = true ];then
 		    CONFIG_ARGS="$CONFIG_ARGS --haven"
 		fi
 		;;
+
 	$HAVEN)
-
-
 		CONFIG_ARGS="--haven"
 		;;
 esac

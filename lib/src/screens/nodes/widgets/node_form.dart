@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,6 +16,7 @@ class NodeForm extends StatelessWidget {
     required this.nodeViewModel,
     required this.formKey,
     this.editingNode,
+    this.type,
   })  : _addressController = TextEditingController(text: editingNode?.uri.host.toString()),
         _pathController = TextEditingController(text: editingNode?.path.toString()),
         _portController = TextEditingController(text: editingNode?.uri.port.toString()),
@@ -76,6 +78,7 @@ class NodeForm extends StatelessWidget {
   final NodeCreateOrEditViewModel nodeViewModel;
   final GlobalKey<FormState> formKey;
   final Node? editingNode;
+  final WalletType? type;
 
   final TextEditingController _addressController;
   final TextEditingController _pathController;
@@ -96,7 +99,7 @@ class NodeForm extends StatelessWidget {
                 child: BaseTextFormField(
                   controller: _addressController,
                   hintText: S.of(context).node_address,
-                  validator: NodeAddressValidator(),
+                  validator: type == WalletType.decred ? NodeAddressValidatorDecredBlankException() : NodeAddressValidator(),
                 ),
               )
             ],

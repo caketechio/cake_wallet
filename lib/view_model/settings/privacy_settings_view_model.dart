@@ -44,7 +44,8 @@ abstract class PrivacySettingsViewModelBase with Store {
       _wallet.type == WalletType.wownero ||
       _wallet.type == WalletType.bitcoin ||
       _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.bitcoinCash;
+      _wallet.type == WalletType.bitcoinCash ||
+      _wallet.type == WalletType.decred;
 
   bool get isMoneroWallet => _wallet.type == WalletType.monero;
 

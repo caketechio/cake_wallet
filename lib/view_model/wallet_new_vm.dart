@@ -21,6 +21,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -83,6 +84,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return 25;
       case WalletType.zano:
         return 26;
+      case WalletType.decred:
+        return 15;
     }
   }
 
@@ -176,6 +179,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           name: name,
           password: walletPassword,
         );
+      case WalletType.decred:
+        return decred!.createDecredNewWalletCredentials(name: name);
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
     }

@@ -6,6 +6,7 @@ import 'package:cake_wallet/ethereum/ethereum.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/nano/nano.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -281,6 +282,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.monero ||
       wallet.type == WalletType.wownero ||
+      wallet.type == WalletType.decred ||
       wallet.type == WalletType.bitcoinCash;
 
   @computed
@@ -582,6 +584,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.zano:
         return zano!.createZanoTransactionCredentials(
             outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
+      case WalletType.decred:
+        return decred!.createDecredTransactionCredentials(outputs, priority!);
       default:
         throw Exception('Unexpected wallet type: ${wallet.type}');
     }

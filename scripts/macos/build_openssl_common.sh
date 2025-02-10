@@ -13,7 +13,9 @@ build_openssl_init_common() {
 	# Use 1.1.1s because of https://github.com/openssl/openssl/issues/18720
 	OPENSSL_VERSION="1.1.1s"
 
-	echo "============================ OpenSSL ============================"
+	echo "
+	============================ OPENSSL ============================
+	"
 
 	cd $EXTERNAL_MACOS_SOURCE_DIR
 	curl -O https://www.openssl.org/source/openssl-$OPENSSL_VERSION.tar.gz

@@ -92,6 +92,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     });
   }
 
+  @override
+  bool get hasRescan => true;
+
   static Future<BitcoinWallet> create({
     required String mnemonic,
     required String password,

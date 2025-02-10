@@ -63,5 +63,9 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_attempting_scan;
   }
 
+  if (syncStatus is ProcessingSyncStatus) {
+    return syncStatus.message ?? S.current.processing;
+  }
+
   return '';
 }

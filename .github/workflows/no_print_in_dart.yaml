@@ -1,8 +1,6 @@
 name: No print statements in dart files
 
-on:
-  pull_request:
-    branches: [main]
+on: [pull_request]
 
 jobs:
   PR_test_build:

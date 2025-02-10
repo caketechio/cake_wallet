@@ -66,11 +66,11 @@ Please pick what app you want to build: cakewallet or monero.com.
 
 Then run configuration script for setup app name, app icon and etc:
 
-`$ ./app_config.sh`  
+`$ ./app_config.sh`
 
-Build the Monero libraries and their dependencies:
+Build the required libraries and their dependencies:
 
-`$ ./build_monero_all.sh`
+`$ ./build_all.sh`
 
 It is now time to change back to the base directory of the Cake Wallet source code:
 
@@ -84,9 +84,15 @@ Your Cake Wallet binary will be built with cryptographic salts, which are used f
 
 `$ dart run tool/generate_new_secrets.dart`
 
-Then we need to generate localization files and mobx models.
+If the command above fails, add `--force` flag and run it again.
 
-`$ ./configure_cake_wallet.sh ios`
+Then we need to generate localization files. If this command fails, add `--force` flag and run it again.
+
+`$ flutter packages pub run tool/generate_localization.dart`
+
+Finally build mobx models for the app:
+
+`$ ./model_generator.sh`
 
 ### 8. Build!
 

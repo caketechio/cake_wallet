@@ -32,6 +32,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: configure git
         run: |
           git config --global --add safe.directory '*'

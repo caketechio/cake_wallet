@@ -116,6 +116,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
   @override
+  bool get hasRescan => true;
+
+  @override
   String get seed => monero_wallet.getSeed();
   String seedLegacy(String? language) => monero_wallet.getSeedLegacy(language);
 

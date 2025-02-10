@@ -61,6 +61,7 @@ import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/polygon/polygon.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -987,7 +988,8 @@ Future<void> setup({
       (Node? editingNode, bool? isSelected) => NodeCreateOrEditPage(
           nodeCreateOrEditViewModel: getIt.get<NodeCreateOrEditViewModel>(param2: false),
           editingNode: editingNode,
-          isSelected: isSelected));
+          isSelected: isSelected,
+          type: getIt.get<AppStore>().wallet!.type));
 
   getIt.registerFactoryParam<PowNodeCreateOrEditPage, Node?, bool?>(
       (Node? editingNode, bool? isSelected) => PowNodeCreateOrEditPage(
@@ -1090,6 +1092,8 @@ Future<void> setup({
         return wownero!.createWowneroWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.zano:
         return zano!.createZanoWalletService(_walletInfoSource);
+      case WalletType.decred:
+        return decred!.createDecredWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.none:
         throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
     }

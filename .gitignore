@@ -9,6 +9,7 @@
 .history
 .svn/
 .fvm/
+.fvmrc
 
 # IntelliJ related
 *.iml
@@ -138,6 +139,7 @@ lib/solana/solana.dart
 lib/tron/tron.dart
 lib/wownero/wownero.dart
 lib/zano/zano.dart
+lib/decred/decred.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
@@ -171,6 +173,7 @@ macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png
 macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
 macos/Runner/Configs/AppInfo.xcconfig
+macos/Runner.xcodeproj/project.pbxproj
 
 
 integration_test/playground.dart

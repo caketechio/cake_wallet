@@ -35,6 +35,10 @@ BOOST_B2_LINKFLAGS_X86_64="-arch x86_64"
 BOOST_B2_BUILD_DIR_X86_64=macos-x86_64
 
 build_boost_init_common() {
+	echo "
+	============================ BOOST ============================
+	"
+
 	CXXFLAGS=$1
 	CFLAGS=$2
 	LINKFLAGS=$3
@@ -157,8 +161,8 @@ build_boost_compile_universal() {
 build_boost_install_common() {
 	ARCH=$1
 	LIB_DIR=""
-	mkdir $EXTERNAL_MACOS_LIB_DIR
-	mkdir $EXTERNAL_MACOS_INCLUDE_DIR
+	mkdir -p $EXTERNAL_MACOS_LIB_DIR
+	mkdir -p $EXTERNAL_MACOS_INCLUDE_DIR
 
 	case $ARCH in
 		arm64) LIB_DIR="${BOOST_B2_BUILD_DIR_ARM_64}/stage/lib";;

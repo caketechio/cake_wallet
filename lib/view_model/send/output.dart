@@ -1,3 +1,4 @@
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
@@ -100,6 +101,9 @@ abstract class OutputBase with Store {
           case WalletType.litecoin:
           case WalletType.bitcoinCash:
             _amount = bitcoin!.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            break;
+          case WalletType.decred:
+            _amount = decred!.formatterStringDoubleToDecredAmount(_cryptoAmount);
             break;
           case WalletType.haven:
             _amount = haven!.formatterMoneroParseAmount(amount: _cryptoAmount);

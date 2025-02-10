@@ -47,6 +47,7 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
   final tronIcon = Image.asset('assets/images/trx_icon.png', height: 24, width: 24);
   final wowneroIcon = Image.asset('assets/images/wownero_icon.png', height: 24, width: 24);
   final zanoIcon = Image.asset('assets/images/zano_icon.png', height: 24, width: 24);
+  final decredIcon = Image.asset('assets/images/decred_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon = Image.asset('assets/images/close.png', height: 24, width: 24);
 
   Image _newWalletImage(BuildContext context) => Image.asset(
@@ -181,6 +182,8 @@ class _DesktopWalletSelectionDropDownState extends State<DesktopWalletSelectionD
         return tronIcon;
       case WalletType.zano:
         return zanoIcon;
+      case WalletType.decred:
+        return decredIcon;
       default:
         return nonWalletTypeIcon;
     }
