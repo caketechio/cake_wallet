@@ -49,8 +49,9 @@ class DecredWalletService extends WalletService<
       password: credentials.password!,
       network: isTestnet == true ? testnet : mainnet,
     );
-    credentials.walletInfo!.derivationPath =
-        isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    final di = DerivationInfo(
+        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
+    credentials.walletInfo!.derivationInfo = di;
     final wallet =
         DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
@@ -61,8 +62,8 @@ class DecredWalletService extends WalletService<
   Future<DecredWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
-    final network = walletInfo.derivationPath == seedRestorePathTestnet ||
-            walletInfo.derivationPath == pubkeyRestorePathTestnet
+    final network = walletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
+            walletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
 
@@ -93,8 +94,8 @@ class DecredWalletService extends WalletService<
   Future<void> rename(String currentName, String password, String newName) async {
     final currentWalletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(currentName, getType()))!;
-    final network = currentWalletInfo.derivationPath == seedRestorePathTestnet ||
-            currentWalletInfo.derivationPath == pubkeyRestorePathTestnet
+    final network = currentWalletInfo.derivationInfo?.derivationPath == seedRestorePathTestnet ||
+            currentWalletInfo.derivationInfo?.derivationPath == pubkeyRestorePathTestnet
         ? testnet
         : mainnet;
     final currentWallet = DecredWallet(currentWalletInfo, password, this.unspentCoinsInfoSource);
@@ -120,8 +121,9 @@ class DecredWalletService extends WalletService<
         password: credentials.password!,
         mnemonic: credentials.mnemonic,
         network: isTestnet == true ? testnet : mainnet);
-    credentials.walletInfo!.derivationPath =
-        isTestnet == true ? seedRestorePathTestnet : seedRestorePath;
+    final di = DerivationInfo(
+        derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
+    credentials.walletInfo!.derivationInfo = di;
     final wallet =
         DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
@@ -139,8 +141,9 @@ class DecredWalletService extends WalletService<
       credentials.pubkey,
       isTestnet == true ? testnet : mainnet,
     );
-    credentials.walletInfo!.derivationPath =
-        isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath;
+    final di = DerivationInfo(
+        derivationPath: isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath);
+    credentials.walletInfo!.derivationInfo = di;
     final wallet =
         DecredWallet(credentials.walletInfo!, credentials.password!, this.unspentCoinsInfoSource);
     await wallet.init();
