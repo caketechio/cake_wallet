@@ -32,3 +32,4 @@ Runner/GeneratedPluginRegistrant.*
 !default.perspectivev3
 
 Mwebd.xcframework
+*Wallet.xcframework

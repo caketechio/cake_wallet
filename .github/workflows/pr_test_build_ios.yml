@@ -1,4 +1,4 @@
-name: Cake Wallet Linux
+name: Cake Wallet iOS
 
 on: [pull_request]
 
@@ -6,43 +6,21 @@ defaults:
   run:
     shell: bash
 jobs:
-  PR_test_build:
-    runs-on: linux-amd64
-    container:
-      image: ghcr.io/cake-tech/cake_wallet:main-linux
-      env:
-        STORE_PASS: test@cake_wallet
-        KEY_PASS: test@cake_wallet
-        MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
-        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
-        DESKTOP_FORCE_MOBILE: Y
-      volumes:
-        - /opt/cw_cache_linux/root/.cache:/root/.cache
-        - /opt/cw_cache_linux/root/.ccache:/root/.ccache
-        - /opt/cw_cache_linux/root/.pub-cache/:/root/.pub-cache
-        - /opt/cw_cache_linux/root/go/pkg:/root/go/pkg
-        - /opt/cw_cache_linux/opt/generic_cache:/opt/generic_cache
-    strategy:
-      matrix:
-        api-level: [29]
+  PR_test_build_ios:
+    runs-on: macos-15-amd64 
+    env:
+      MONEROC_CACHE_DIR_ROOT: /opt/generic_cache
+      BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      FLUTTER_VERSION: "3.24.0"
 
     steps:
-      - name: Fix github actions messing up $HOME...
-        run: 'echo HOME=/root | sudo tee -a $GITHUB_ENV'
+      - name: Install flutter
+        run: fvm global ${{ env.FLUTTER_VERSION }}
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
       - name: configure git
         run: |
-          git config --global --add safe.directory '*'
           git config --global user.email "ci@cakewallet.com"
           git config --global user.name "CakeWallet CI"
-      - name: Get the full commit message
-        run: |
-          FULL_MESSAGE="$(git log -1 --pretty=%B)"
-          echo "message<<EOF" >> $GITHUB_ENV
-          echo "$FULL_MESSAGE" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
       - name: Add secrets
         run: |
           touch lib/.secrets.g.dart
@@ -131,8 +109,8 @@ jobs:
           echo "const cakePayApiKey = '${{ secrets.CAKE_PAY_API_KEY }}';" >> lib/.secrets.g.dart
           echo "const authorization = '${{ secrets.CAKE_PAY_AUTHORIZATION }}';" >> lib/.secrets.g.dart
           echo "const CSRFToken = '${{ secrets.CSRF_TOKEN }}';" >> lib/.secrets.g.dart
-          echo "const swapTradeExchangeMarkup = '${{ secrets.SWAPTRADE_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
           echo "const quantexExchangeMarkup = '${{ secrets.QUANTEX_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
+          echo "const swapTradeExchangeMarkup = '${{ secrets.SWAPTRADE_EXCHANGE_MARKUP }}';" >> lib/.secrets.g.dart
           echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
           echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
@@ -143,7 +121,7 @@ jobs:
           echo "const letsExchangeAffiliateId = '${{ secrets.LETS_EXCHANGE_AFFILIATE_ID }}';" >> lib/.secrets.g.dart
           echo "const stealthExBearerToken = '${{ secrets.STEALTH_EX_BEARER_TOKEN }}';" >> lib/.secrets.g.dart
           echo "const stealthExAdditionalFeePercent = '${{ secrets.STEALTH_EX_ADDITIONAL_FEE_PERCENT }}';" >> lib/.secrets.g.dart
-          # tests
+          # for tests
           echo "const moneroTestWalletSeeds ='${{ secrets.MONERO_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const moneroLegacyTestWalletSeeds = '${{ secrets.MONERO_LEGACY_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
           echo "const bitcoinTestWalletSeeds = '${{ secrets.BITCOIN_TEST_WALLET_SEEDS }}';" >> lib/.secrets.g.dart
@@ -173,7 +151,7 @@ jobs:
       - name: prepare monero_c and cache
         run: |
           export MONEROC_HASH=$(cat scripts/prepare_moneroc.sh | grep 'git checkout' | xargs | awk '{ print $3 }')
-          echo MONEROC_HASH=$MONEROC_HASH >> /etc/environment
+          echo MONEROC_HASH=$MONEROC_HASH >> $GITHUB_ENV
           mkdir -p "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
           pushd scripts
             ln -s "$MONEROC_CACHE_DIR_ROOT/moneroc-$MONEROC_HASH/monero_c"
@@ -198,23 +176,32 @@ jobs:
             ln -sf "$MONEROC_CACHE_DIR_ROOT/_cache/wownero/contrib/depends/sources" "$PWD/wownero/contrib/depends/sources"
           popd
 
-      - name: Execute Build and Setup Commands
-        run: |
-          pushd scripts/linux
-            source ./app_env.sh cakewallet
-            ./app_config.sh
-          popd
-
       - name: Build monero_c
         run: |
-          pushd scripts/linux/
+          pushd scripts/ios/
             source ./app_env.sh cakewallet
             ./build_monero_all.sh
+          popd
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/ios
+            source ./app_env.sh cakewallet
+            ./app_config.sh
           popd
 
       - name: Install Flutter dependencies
         run: |
           flutter pub get
+
+      - name: Build mwebd
+        run: |
+          set -x -e
+          export MWEBD_HASH=$(cat scripts/ios/build_mwebd.sh | grep 'git reset --hard' | xargs | awk '{ print $4 }')
+          pushd scripts/ios
+            gomobile init
+            ./build_mwebd.sh --dont-install
+          popd
 
       - name: Build generated code
         run: |
@@ -224,90 +211,34 @@ jobs:
         run: |
           dart run tool/generate_localization.dart
 
-      - name: Build linux
+      - name: Build (and prepare .ipa)
         run: |
-          flutter build linux --release
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos/
+          mkdir Payload
+          mv Runner.app Payload
+          zip Payload.zip Payload -r
+          mv Payload.zip monero_com-${BRANCH_NAME}.ipa
 
-      - name: Compress release
+      - name: Find ipa file
+        id: find_apk
         run: |
-          pushd build/linux/x64/release
-          zip -r cakewallet_linux.zip bundle
-          popd
-
-      - name: Upload Artifact to github
-        uses: actions/upload-artifact@v4
-        with:
-          path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
-          name: cakewallet_linux
-
-      - name: Prepare virtual desktop
-        if: ${{ contains(env.message, 'run tests') }}
-        run: |
-            nohup Xvfb :99 -screen 0 720x1280x16 &
-            echo DISPLAY=:99 | sudo tee -a $GITHUB_ENV
-            dbus-daemon --system --fork
-            nohup NetworkManager &
-            nohup ffmpeg -framerate 60 -video_size 720x1280 -f x11grab -i :99 -c:v libx264 -c:a aac /opt/screen_grab.mkv &
-
-      # Note for people adding tests:
-      # - Tests are ran on Linux, with some things being mocked out.
-      # - Screen recording is being provided for the entire length of the test, you can download it in github articats.
-      # - Screen recordeding is encrypted, look at step "Stop screen recording, encrypt and upload", and add your key if you want
-      #   Reason for encryption is the fact that we restore the wallet from seed, and we don't want to leak that, while there
-      #   isn't much in those wallets anyway, we still wouldn't like to leak it to anyone who is able to access github.
-
-      - name: Test [confirm_seeds_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "confirm_seeds_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/confirm_seeds_flow_test.dart
-      - name: Test [create_wallet_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "create_wallet_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/create_wallet_flow_test.dart
-      - name: Test [exchange_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "exchange_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/exchange_flow_test.dart
-      - name: Test [restore_wallet_through_seeds_flow_test]
-        if: ${{ contains(env.message, 'run tests') }}
-        timeout-minutes: 20
-        run: |
-          xmessage -timeout 30 "restore_wallet_through_seeds_flow_test" &
-          rm -rf ~/.local/share/com.example.cake_wallet/ ~/Documents/cake_wallet/ ~/cake_wallet
-          exec timeout --signal=SIGKILL 900 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/test_suites/restore_wallet_through_seeds_flow_test.dart
-      - name: Stop screen recording, encrypt and upload
-        if: always()
-        run: |
-          if [[ ! -f "/opt/screen_grab.mkv" ]];
-          then
-            exit 0;
-          fi
-          killall ffmpeg
-          sleep 5
-          killall -9 ffmpeg || true
-          sleep 5
-          # Feel free to add your own public key if you wish
-          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 6B3199AD9B3D23B8 # konstantin@cakewallet.com
-          gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 35C8DBAFB8D9ACAC # cyjan@mrcyjanek.net
-          gpg --trust-model always --encrypt --output /opt/screen_grab.mkv.gpg \
-            --recipient 6B3199AD9B3D23B8 \
-            --recipient 35C8DBAFB8D9ACAC \
-            /opt/screen_grab.mkv
-          rm /opt/screen_grab.mkv
-          mv /opt/screen_grab.mkv.gpg ./screen_grab.mkv.gpg
-      - name: Upload Artifact to github
-        if: always()
+          set -x
+          apk_file=$(ls build/ios/iphoneos/monero_com-*.ipa || exit 1)
+          echo "APK_FILE=$apk_file" >> $GITHUB_ENV
+        
+      - name: Upload artifact to slack
+        if: ${{ contains(github.event.head_commit.message, 'send slack ios') }}
         continue-on-error: true
+        uses: adrey/slack-file-upload-action@1.0.5
+        with:
+          token: ${{ secrets.SLACK_APP_TOKEN }}
+          path: ${{ env.APK_FILE }}
+          channel: ${{ secrets.SLACK_APK_CHANNEL }}
+          initial_comment: 'ios build'
+
+      - name: Upload Artifact to github
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ github.workspace }}/screen_grab.mkv.gpg
-          name: tests_screen_grab
+          path: ${{ env.APK_FILE }}
+          name: "ios ipa"
