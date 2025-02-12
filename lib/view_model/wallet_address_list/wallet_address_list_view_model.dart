@@ -1,4 +1,5 @@
 import 'dart:developer' as dev;
+import 'dart:core';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -73,17 +74,21 @@ class HavenURI extends PaymentURI {
 }
 
 class BitcoinURI extends PaymentURI {
-  BitcoinURI({required super.amount, required super.address});
+  BitcoinURI({required super.amount, required super.address, this.pjUri = ''});
+
+  final String pjUri;
 
   @override
   String toString() {
-    var base = 'bitcoin:$address';
+    final qp = <String, String>{};
 
-    if (amount.isNotEmpty) {
-      base += '?amount=${amount.replaceAll(',', '.')}';
+    if (amount.isNotEmpty) qp['amount'] = amount.replaceAll(',', '.');
+    if (pjUri.isNotEmpty) {
+      qp['pjos'] = '0';
+      qp['pj'] = pjUri;
     }
 
-    return base;
+    return Uri(scheme: 'bitcoin', path: address, queryParameters: qp).toString();
   }
 }
 
@@ -297,7 +302,8 @@ abstract class WalletAddressListViewModelBase
       case WalletType.haven:
         return HavenURI(amount: amount, address: address.address);
       case WalletType.bitcoin:
-        return BitcoinURI(amount: amount, address: address.address);
+        final pjEndpoint = bitcoin!.getPayjoinEndpoint(wallet);
+        return BitcoinURI(amount: amount, address: address.address, pjUri: pjEndpoint);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: address.address);
       case WalletType.ethereum:

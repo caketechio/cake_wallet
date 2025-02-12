@@ -1182,6 +1182,7 @@ abstract class ElectrumWalletBase
         isSendAll: estimatedTx.isSendAll,
         hasTaprootInputs: hasTaprootInputs,
         utxos: estimatedTx.utxos,
+        publicKeys: estimatedTx.publicKeys
       )..addListener((transaction) async {
           transactionHistory.addOne(transaction);
           if (estimatedTx.spendsSilentPayment) {
@@ -1958,6 +1959,11 @@ abstract class ElectrumWalletBase
       }
       return null;
     }
+  }
+
+  bool isMine(Script script) {
+    final derivedAddress = addressFromOutputScript(script, network);
+    return addressesSet.contains(derivedAddress);
   }
 
   @override

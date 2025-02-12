@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/ethereum/ethereum.dart';
@@ -32,19 +33,18 @@ abstract class PrivacySettingsViewModelBase with Store {
   @action
   void setAutoGenerateSubaddresses(bool value) {
     _wallet.isEnabledAutoGenerateSubaddress = value;
-    if (value) {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.enabled;
-    } else {
-      _settingsStore.autoGenerateSubaddressStatus = AutoGenerateSubaddressStatus.disabled;
-    }
+    _settingsStore.autoGenerateSubaddressStatus = value
+        ? AutoGenerateSubaddressStatus.enabled
+        : AutoGenerateSubaddressStatus.disabled;
   }
 
-  bool get isAutoGenerateSubaddressesVisible =>
-      _wallet.type == WalletType.monero ||
-      _wallet.type == WalletType.wownero ||
-      _wallet.type == WalletType.bitcoin ||
-      _wallet.type == WalletType.litecoin ||
-      _wallet.type == WalletType.bitcoinCash;
+  bool get isAutoGenerateSubaddressesVisible => [
+        WalletType.monero,
+        WalletType.wownero,
+        WalletType.bitcoin,
+        WalletType.litecoin,
+        WalletType.bitcoinCash
+      ].contains(_wallet.type);
 
   bool get isMoneroWallet => _wallet.type == WalletType.monero;
 
@@ -99,6 +99,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   @computed
   bool get looksUpWellKnown => _settingsStore.lookupsWellKnown;
 
+  @computed
+  bool get usePayjoin => _settingsStore.usePayjoin;
+
   bool get canUseEtherscan => _wallet.type == WalletType.ethereum;
 
   bool get canUsePolygonScan => _wallet.type == WalletType.polygon;
@@ -106,6 +109,8 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get canUseTronGrid => _wallet.type == WalletType.tron;
 
   bool get canUseMempoolFeeAPI => _wallet.type == WalletType.bitcoin;
+
+  bool get canUsePayjoin => _wallet.type == WalletType.bitcoin;
 
   @action
   void setShouldSaveRecipientAddress(bool value) =>
@@ -169,7 +174,12 @@ abstract class PrivacySettingsViewModelBase with Store {
   }
 
   @action
-  void setUseMempoolFeeAPI(bool value) {
-    _settingsStore.useMempoolFeeAPI = value;
+  void setUseMempoolFeeAPI(bool value) =>
+      _settingsStore.useMempoolFeeAPI = value;
+
+  @action
+  void setUsePayjoin(bool value) {
+    _settingsStore.usePayjoin = value;
+    bitcoin!.updatePayjoinState(_wallet, value);
   }
 }

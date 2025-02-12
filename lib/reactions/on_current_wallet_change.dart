@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/update_haven_rate.dart';
@@ -72,6 +73,10 @@ void startCurrentWalletChangeReaction(
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
+      }
+
+      if (wallet.type == WalletType.bitcoin) {
+        bitcoin!.updatePayjoinState(wallet, settingsStore.usePayjoin);
       }
 
       await wallet.connectToNode(node: node);

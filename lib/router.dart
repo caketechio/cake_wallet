@@ -54,6 +54,7 @@ import 'package:cake_wallet/src/screens/new_wallet/wallet_group_existing_seed_de
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/pow_node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
+import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/address_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/anonpay_invoice_page.dart';
@@ -702,6 +703,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final anonInvoiceViewData = settings.arguments as AnonpayInvoiceInfo;
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<AnonpayDetailsPage>(param1: anonInvoiceViewData));
+
+    case Routes.payjoinDetails:
+      final sessionId = settings.arguments as String;
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<PayjoinDetailsPage>(param1: sessionId));
 
     case Routes.desktop_actions:
       return PageRouteBuilder(

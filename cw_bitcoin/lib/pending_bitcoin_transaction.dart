@@ -1,3 +1,4 @@
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -25,6 +26,8 @@ class PendingBitcoinTransaction with PendingTransaction {
     this.hasTaprootInputs = false,
     this.isMweb = false,
     this.utxos = const [],
+    this.publicKeys,
+    this.commitOverride,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
@@ -43,6 +46,8 @@ class PendingBitcoinTransaction with PendingTransaction {
   String? idOverride;
   String? hexOverride;
   List<String>? outputAddresses;
+  final Map<String, PublicKeyWithDerivationPath>? publicKeys;
+  Future<void> Function()? commitOverride;
 
   @override
   String get id => idOverride ?? _tx.txId();
@@ -129,6 +134,10 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
+    if (commitOverride != null) {
+      return commitOverride?.call();
+    }
+
     if (isMweb) {
       await _ltcCommit();
     } else {

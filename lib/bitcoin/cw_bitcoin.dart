@@ -111,26 +111,29 @@ class CWBitcoin extends Bitcoin {
     required TransactionPriority priority,
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+    String? payjoinUri,
   }) {
     final bitcoinFeeRate =
-        priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
+        priority == BitcoinTransactionPriority.custom && feeRate != null
+            ? feeRate
+            : null;
     return BitcoinTransactionCredentials(
-      outputs
-          .map((out) => OutputInfo(
-              fiatAmount: out.fiatAmount,
-              cryptoAmount: out.cryptoAmount,
-              address: out.address,
-              note: out.note,
-              sendAll: out.sendAll,
-              extractedAddress: out.extractedAddress,
-              isParsedAddress: out.isParsedAddress,
-              formattedCryptoAmount: out.formattedCryptoAmount,
-              memo: out.memo))
-          .toList(),
-      priority: priority as BitcoinTransactionPriority,
-      feeRate: bitcoinFeeRate,
-      coinTypeToSpendFrom: coinTypeToSpendFrom,
-    );
+        outputs
+            .map((out) => OutputInfo(
+                fiatAmount: out.fiatAmount,
+                cryptoAmount: out.cryptoAmount,
+                address: out.address,
+                note: out.note,
+                sendAll: out.sendAll,
+                extractedAddress: out.extractedAddress,
+                isParsedAddress: out.isParsedAddress,
+                formattedCryptoAmount: out.formattedCryptoAmount,
+                memo: out.memo))
+            .toList(),
+        priority: priority as BitcoinTransactionPriority,
+        feeRate: bitcoinFeeRate,
+        coinTypeToSpendFrom: coinTypeToSpendFrom,
+        payjoinUri: payjoinUri);
   }
 
   @override
@@ -226,9 +229,14 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<WalletInfo> walletInfoSource,
-      Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect) {
-    return BitcoinWalletService(walletInfoSource, unspentCoinSource, alwaysScan, isDirect);
+  WalletService createBitcoinWalletService(
+      Box<WalletInfo> walletInfoSource,
+      Box<UnspentCoinsInfo> unspentCoinSource,
+      Box<PayjoinSession> payjoinSessionSource,
+      bool alwaysScan,
+      bool isDirect) {
+    return BitcoinWalletService(walletInfoSource, unspentCoinSource,
+        payjoinSessionSource, alwaysScan, isDirect);
   }
 
   WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource,
@@ -553,6 +561,12 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool isPayjoinAvailable(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return wallet.unspentCoins.isNotEmpty;
+  }
+
+  @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
     return (option as BitcoinReceivePageOption).toType();
   }
@@ -706,6 +720,23 @@ class CWBitcoin extends Bitcoin {
       return segwitAddress.address;
     } catch (_) {
       return null;
+    }
+  }
+
+  @override
+  String getPayjoinEndpoint(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+  }
+
+  @override
+  void updatePayjoinState(Object wallet, bool value) {
+    final _wallet = wallet as ElectrumWallet;
+    if (value) {
+      (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+    } else {
+      (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
+      (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     }
   }
 }
