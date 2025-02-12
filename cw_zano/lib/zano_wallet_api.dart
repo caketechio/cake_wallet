@@ -26,6 +26,7 @@ import 'package:ffi/ffi.dart';
 import 'package:json_bigint/json_bigint.dart';
 import 'package:monero/zano.dart' as zano;
 import 'package:monero/src/generated_bindings_zano.g.dart' as zanoapi;
+import 'package:path/path.dart' as p;
 
 mixin ZanoWalletApi {
   static const _maxReopenAttempts = 5;
@@ -66,6 +67,68 @@ mixin ZanoWalletApi {
   Future<bool> setupNode(String nodeUrl) async {
     await _setupNode(hWallet, nodeUrl);
     return true;
+  }
+
+  Future<Directory> getWalletDir() async {
+    final walletInfoResult = await getWalletInfo();
+    return Directory(p.dirname(walletInfoResult.wi.path));
+  }
+
+  Future<File> _getWalletSecretsFile() async {
+    final dir = await getWalletDir();
+    final file = File(p.join(dir.path, "zano-secrets.json.bin"));
+    return file;
+  }
+
+  Future<Map<String, dynamic>> _getSecrets() async {
+    final file = await _getWalletSecretsFile();
+    if (!file.existsSync()) {
+      return {};
+    }
+    final data = file.readAsBytesSync();
+    final b64 = convert.base64.encode(data);
+    final respStr = await invokeMethod("decrypt_data", {"buff": "$b64"});
+    final resp = convert.json.decode(respStr);
+    final dataBytes = convert.base64.decode(resp["result"]["res_buff"] as String);
+    final dataStr = convert.utf8.decode(dataBytes);
+    final dataObject = convert.json.decode(dataStr);
+    return dataObject as Map<String, dynamic>;
+  }
+
+  Future<void> _setSecrets(Map<String, dynamic> data) async {
+    final dataStr = convert.json.encode(data);
+    final b64 = convert.base64.encode(convert.utf8.encode(dataStr));
+    final respStr = await invokeMethod("encrypt_data", {"buff": "$b64"});
+    final resp = convert.json.decode(respStr);
+    final dataBytes = convert.base64.decode(resp["result"]["res_buff"] as String);
+    final file = await _getWalletSecretsFile();
+    file.writeAsBytesSync(dataBytes);
+  }
+
+  Future<String?> _getWalletSecret(String key) async {
+    final secrets = await _getSecrets();
+    return secrets[key] as String?;
+  }
+
+  Future<void> _setWalletSecret(String key, String value) async {
+    final secrets = await _getSecrets();
+    secrets[key] = value;
+    await _setSecrets(secrets); 
+  }
+
+  Future<String?> getPassphrase() async {
+    return await _getWalletSecret("passphrase");
+  }
+
+  Future<void> setPassphrase(String passphrase) {
+    return _setWalletSecret("passphrase", passphrase);
+  }
+
+  Future<String> getSeed() async {
+    final passphrase = await getPassphrase();
+    final respStr = await invokeMethod("get_restore_info", {"seed_password": passphrase??""});
+    final resp = convert.json.decode(respStr);
+    return resp["result"]["seed_phrase"] as String;
   }
 
   Future<GetWalletInfoResult> getWalletInfo() async {
@@ -192,7 +255,7 @@ mixin ZanoWalletApi {
 
   Future<StoreResult?> store() async {
     try {
-      final json = await invokeMethod('store', '{}');
+      final json = await invokeMethod('store', {});
       final map = jsonDecode(json) as Map<String, dynamic>?;
       _checkForErrors(map);
       return StoreResult.fromJson(map!['result'] as Map<String, dynamic>);
@@ -247,12 +310,12 @@ mixin ZanoWalletApi {
     }
     final result = CreateWalletResult.fromJson(map!['result'] as Map<String, dynamic>);
     openWalletCache[path] = result;
-    printV('create_wallet ${result.name} ${result.seed}');
+    printV('create_wallet ${result.name}');
     return result;
   }
 
   Future<CreateWalletResult> restoreWalletFromSeed(String path, String password, String seed, String? passphrase) async {
-    printV('restore_wallet path $path password ${_shorten(password)} seed ${_shorten(seed)}');
+    printV('restore_wallet path $path');
     final json = zano.PlainWallet_restore(seed, path, password, passphrase??'');
     final map = jsonDecode(json) as Map<String, dynamic>?;
     if (map?['error'] != null) {

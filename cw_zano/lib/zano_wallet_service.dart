@@ -14,7 +14,7 @@ import 'package:hive/hive.dart';
 import 'package:monero/zano.dart' as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
-  ZanoNewWalletCredentials({required String name, String? password}) : super(name: name, password: password);
+  ZanoNewWalletCredentials({required String name, String? password, required String? passphrase}) : super(name: name, password: password, passphrase: passphrase);
 }
 
 class ZanoRestoreWalletFromSeedCredentials extends WalletCredentials {

@@ -175,6 +175,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return zano!.createZanoNewWalletCredentials(
           name: name,
           password: walletPassword,
+          passphrase: passphrase,
         );
       case WalletType.none:
         throw Exception('Unexpected type: ${type.toString()}');
