@@ -102,7 +102,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   static const defaultReceiveAddressesCount = 22;
-  static const defaultChangeAddressesCount = 17;
+  static const defaultChangeAddressesCount = 40;
   static const gap = 20;
 
   final ObservableList<BitcoinAddressRecord> _addresses;
@@ -603,6 +603,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       final newAddresses = await _createNewAddresses(addressesCount,
           startIndex: countOfHiddenAddresses, isHidden: true, type: type);
       addAddresses(newAddresses);
+    }
+
+    // // 
+    if (true) {
+      // generate indexes 0 -> -20:
+      final newAddresses = await _createNewAddresses(20, startIndex: 0, isHidden: true, type: type);
+      // print them all out:
+      for (var address in newAddresses) {
+        printV("@@@@@@@@@@@@@@@@@@@@@@@ ${address.address}");
+      }
     }
   }
 
