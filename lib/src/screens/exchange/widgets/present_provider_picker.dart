@@ -20,7 +20,7 @@ class PresentProviderPicker extends StatelessWidget {
         height: 6);
 
     return TextButton(
-        onPressed: () => _presentProviderPicker(context),
+        onPressed: () => presentProviderPicker(context),
         style: ButtonStyle(
           padding: MaterialStateProperty.all(EdgeInsets.zero),
           splashFactory: NoSplash.splashFactory,
@@ -62,7 +62,7 @@ class PresentProviderPicker extends StatelessWidget {
         ));
   }
 
-  void _presentProviderPicker(BuildContext context) async {
+  void presentProviderPicker(BuildContext context) async {
     await showPopUp<void>(
         builder: (BuildContext popUpContext) => CheckBoxPicker(
             items: exchangeViewModel.providerList
