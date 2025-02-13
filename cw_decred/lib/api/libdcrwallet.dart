@@ -26,66 +26,40 @@ void initLibdcrwallet(String logDir) {
 
 /// createWalletAsync calls the libdcrwallet's createWallet function
 /// asynchronously.
-Future<void> createWalletAsync(
-    {required String name,
-    required String dataDir,
-    required String password,
-    required String network,
-    String? mnemonic}) {
-  final args = <String, String>{
-    "name": name,
-    "dataDir": dataDir,
-    "password": password,
-    "network": network,
-    "mnemonic": mnemonic ?? "",
-  };
-  return compute(createWalletSync, args);
+Future<void> createWalletAsync(String config) {
+  return compute(createWalletSync, config);
 }
 
 /// createWalletSync calls the libdcrwallet's createWallet function
 /// synchronously.
-void createWalletSync(Map<String, String> args) {
-  final name = args["name"]!.toCString();
-  final dataDir = args["dataDir"]!.toCString();
-  final password = args["password"]!.toCString();
-  final mnemonic = args["mnemonic"]!.toCString();
-  final network = args["network"]!.toCString();
+void createWalletSync(String config) {
+  final cConfig = config.toCString();
 
   executePayloadFn(
-    fn: () => dcrwalletApi.createWallet(name, dataDir, network, password, mnemonic),
-    ptrsToFree: [name, dataDir, network, password, mnemonic],
+    fn: () => dcrwalletApi.createWallet(cConfig),
+    ptrsToFree: [cConfig],
   );
 }
 
-void createWatchOnlyWallet(String walletName, String datadir, String pubkey, String network) {
-  final cName = walletName.toCString();
-  final cDataDir = datadir.toCString();
-  final cPub = pubkey.toCString();
-  final cNet = network.toCString();
+void createWatchOnlyWallet(String config) {
+  final cConfig = config.toCString();
   executePayloadFn(
-    fn: () => dcrwalletApi.createWatchOnlyWallet(cName, cDataDir, cNet, cPub),
-    ptrsToFree: [cName, cDataDir, cNet, cPub],
+    fn: () => dcrwalletApi.createWatchOnlyWallet(cConfig),
+    ptrsToFree: [cConfig],
   );
 }
 
 /// loadWalletAsync calls the libdcrwallet's loadWallet function asynchronously.
-Future<void> loadWalletAsync({required String name, required String dataDir, required String net}) {
-  final args = <String, String>{
-    "name": name,
-    "dataDir": dataDir,
-    "network": net,
-  };
-  return compute(loadWalletSync, args);
+Future<void> loadWalletAsync(String config) {
+  return compute(loadWalletSync, config);
 }
 
 /// loadWalletSync calls the libdcrwallet's loadWallet function synchronously.
-void loadWalletSync(Map<String, String> args) {
-  final name = args["name"]!.toCString();
-  final dataDir = args["dataDir"]!.toCString();
-  final network = args["network"]!.toCString();
+void loadWalletSync(String config) {
+  final cConfig = config.toCString();
   executePayloadFn(
-    fn: () => dcrwalletApi.loadWallet(name, dataDir, network),
-    ptrsToFree: [name, dataDir, network],
+    fn: () => dcrwalletApi.loadWallet(cConfig),
+    ptrsToFree: [cConfig],
   );
 }
 

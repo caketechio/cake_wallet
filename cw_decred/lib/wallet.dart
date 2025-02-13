@@ -250,11 +250,13 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       libdcrwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
-      libdcrwallet.loadWalletSync({
+      final config = {
         "name": walletInfo.name,
-        "dataDir": walletInfo.dirPath,
-        "network": network,
-      });
+        "datadir": walletInfo.dirPath,
+        "net": network,
+        "unsyncedaddrs": true,
+      };
+      libdcrwallet.loadWalletSync(jsonEncode(config));
     }
     await this._startSync();
     connecting = false;
@@ -445,6 +447,7 @@ abstract class DecredWalletBase
       final fee = (feeDouble * 1e8).toInt().abs();
       final confs = d["confirmations"] ?? 0;
       final sendTime = d["time"] ?? 0;
+      final height = d["height"] ?? 0;
       final txInfo = DecredTransactionInfo(
         id: txid,
         amount: amount,
@@ -452,7 +455,7 @@ abstract class DecredWalletBase
         direction: direction,
         isPending: confs == 0,
         date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: true),
-        height: 0,
+        height: height,
         confirmations: confs,
         to: d["address"] ?? "",
       );

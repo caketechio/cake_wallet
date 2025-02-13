@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
@@ -43,12 +44,14 @@ class DecredWalletService extends WalletService<
 
   @override
   Future<DecredWallet> create(DecredNewWalletCredentials credentials, {bool? isTestnet}) async {
-    await createWalletAsync(
-      name: credentials.walletInfo!.name,
-      dataDir: credentials.walletInfo!.dirPath,
-      password: credentials.password!,
-      network: isTestnet == true ? testnet : mainnet,
-    );
+    final config = {
+      "name": credentials.walletInfo!.name,
+      "datadir": credentials.walletInfo!.dirPath,
+      "pass": credentials.password!,
+      "net": isTestnet == true ? testnet : mainnet,
+      "unsyncedaddrs": true,
+    };
+    await createWalletAsync(jsonEncode(config));
     final di = DerivationInfo(
         derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
     credentials.walletInfo!.derivationInfo = di;
@@ -72,11 +75,13 @@ class DecredWalletService extends WalletService<
       walletInfo.dirPath = await pathForWalletDir(name: name, type: getType());
     }
 
-    await loadWalletAsync(
-      name: walletInfo.name,
-      dataDir: walletInfo.dirPath,
-      net: network,
-    );
+    final config = {
+      "name": walletInfo.name,
+      "datadir": walletInfo.dirPath,
+      "net": network,
+      "unsyncedaddrs": true,
+    };
+    await loadWalletAsync(jsonEncode(config));
     final wallet = DecredWallet(walletInfo, password, this.unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
@@ -115,12 +120,15 @@ class DecredWalletService extends WalletService<
   @override
   Future<DecredWallet> restoreFromSeed(DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
-    await createWalletAsync(
-        name: credentials.walletInfo!.name,
-        dataDir: credentials.walletInfo!.dirPath,
-        password: credentials.password!,
-        mnemonic: credentials.mnemonic,
-        network: isTestnet == true ? testnet : mainnet);
+    final config = {
+      "name": credentials.walletInfo!.name,
+      "datadir": credentials.walletInfo!.dirPath,
+      "pass": credentials.password!,
+      "mnemonic": credentials.mnemonic,
+      "net": isTestnet == true ? testnet : mainnet,
+      "unsyncedaddrs": true,
+    };
+    await createWalletAsync(jsonEncode(config));
     final di = DerivationInfo(
         derivationPath: isTestnet == true ? seedRestorePathTestnet : seedRestorePath);
     credentials.walletInfo!.derivationInfo = di;
@@ -135,12 +143,14 @@ class DecredWalletService extends WalletService<
   @override
   Future<DecredWallet> restoreFromKeys(DecredRestoreWalletFromPubkeyCredentials credentials,
       {bool? isTestnet}) async {
-    createWatchOnlyWallet(
-      credentials.walletInfo!.name,
-      credentials.walletInfo!.dirPath,
-      credentials.pubkey,
-      isTestnet == true ? testnet : mainnet,
-    );
+    final config = {
+      "name": credentials.walletInfo!.name,
+      "datadir": credentials.walletInfo!.dirPath,
+      "pubkey": credentials.pubkey,
+      "net": isTestnet == true ? testnet : mainnet,
+      "unsyncedaddrs": true,
+    };
+    createWatchOnlyWallet(jsonEncode(config));
     final di = DerivationInfo(
         derivationPath: isTestnet == true ? pubkeyRestorePathTestnet : pubkeyRestorePath);
     credentials.walletInfo!.derivationInfo = di;
