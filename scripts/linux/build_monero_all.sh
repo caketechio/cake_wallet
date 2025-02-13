@@ -7,7 +7,7 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero zano;
+for COIN in monero wownero;
 do
     pushd ../monero_c
         for target in x86_64-linux-gnu # aarch64-linux-gnu
