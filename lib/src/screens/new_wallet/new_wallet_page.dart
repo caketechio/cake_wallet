@@ -347,7 +347,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
             ),
           ),
           bottomSectionPadding: EdgeInsets.all(24),
-          bottomSection: Column(
+          bottomSection:
+          SafeArea (
+          child: Column(
             children: [
               Observer(
                 builder: (context) {
@@ -377,6 +379,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               ),
             ],
           )),
+      )
     );
   }
 
