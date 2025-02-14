@@ -16,6 +16,12 @@ Future<String> pathForWalletDir({required String name, required  WalletType type
   return walletDire.path;
 }
 
+Future<bool> walletsDirExists() async {
+  final root = await getAppDir();
+  final walletsDir = Directory('${root.path}/wallets');
+  return walletsDir.existsSync();
+}
+
 Future<String> pathForWallet({required String name, required WalletType type}) async =>
     await pathForWalletDir(name: name, type: type)
         .then((path) => path + '/$name');
