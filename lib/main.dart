@@ -294,7 +294,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
           statusBarColor: statusBarColor,
           statusBarBrightness: statusBarBrightness,
-          statusBarIconBrightness: statusBarIconBrightness));
+          statusBarIconBrightness: statusBarIconBrightness,
+          systemNavigationBarColor: statusBarColor,
+          systemNavigationBarIconBrightness: statusBarIconBrightness));
 
       return Root(
           key: widget.key ?? rootKey,
