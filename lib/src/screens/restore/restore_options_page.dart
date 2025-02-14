@@ -69,6 +69,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     final brightImageColor = Theme.of(context).extension<InfoTheme>()!.textColor;
     final imageColor = widget.themeType == ThemeType.bright ? brightImageColor : mainImageColor;
     final imageLedger = Image.asset('assets/images/hardware_wallet/ledger_nano_x.png', width: 40, color: imageColor);
+    final imageKeystone = Image.asset('assets/images/hardware_wallet/keystone.png', width: 40, color: imageColor);
     final imageSeedKeys = Image.asset('assets/images/restore_wallet_image.png', color: imageColor);
     final imageBackup = Image.asset('assets/images/backup.png', color: imageColor);
 
@@ -112,6 +113,15 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                       description: S.of(context).restore_description_from_hardware_wallet,
                     ),
                   ),
+              Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: OptionTile(
+                      key: ValueKey('restore_options_from_keystone_button_key'),
+                      onPressed: () => _onScanQRCode(context),
+                      image: imageKeystone,
+                      title: S.of(context).restore_title_from_keystone,
+                      description: S.of(context).restore_description_from_keystone),
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 24),
                   child: OptionTile(

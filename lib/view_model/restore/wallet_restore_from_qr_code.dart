@@ -48,6 +48,14 @@ class WalletRestoreFromQRCode {
 
   static bool _containsAssetSpecifier(String code) => _extractWalletType(code) != null;
 
+  static bool _shouldDecrypt(String code) {
+    final codeParsed = json.decode(code);
+    if (codeParsed["source"] == "Keystone" && codeParsed["encrypted"] == true) {
+      return true;
+    }
+    return false;
+  }
+
   static WalletType? _extractWalletType(String code) {
     final sortedKeys = _walletTypeMap.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
 
@@ -109,6 +117,16 @@ class WalletRestoreFromQRCode {
           : throw Exception('Failed to determine valid seed phrase');
     } else {
       walletType = _extractWalletType(code);
+
+      if (walletType == WalletType.monero && _shouldDecrypt(code)) {
+        final possibleDecryptedCode = await Navigator.pushNamed(context, Routes.restoreFromKeystonePrivateMode,
+            arguments: code);
+        if (possibleDecryptedCode == null) {
+          throw Exception('Failed to decrypt the keystone');
+        }
+        code = possibleDecryptedCode as String;
+      }
+
       final index = code.indexOf(':');
       final query = code.substring(index + 1).replaceAll('?', '&');
       formattedUri = '$walletType:?$query';

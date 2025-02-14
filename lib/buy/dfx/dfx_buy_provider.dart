@@ -291,7 +291,7 @@ class DFXBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-    if (wallet.isHardwareWallet) {
+    if (wallet.isLedger) {
       if (!ledgerVM!.isConnected) {
         await Navigator.of(context).pushNamed(Routes.connectDevices,
             arguments: ConnectDevicePageParams(

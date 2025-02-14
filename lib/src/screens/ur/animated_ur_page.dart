@@ -16,6 +16,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -43,13 +44,25 @@ class AnimatedURPage extends BasePage {
     return first.split('/')[0];
   }
 
+  bool get isKeystone =>
+      animatedURmodel.wallet.walletInfo.hardwareWalletType ==
+      HardwareWalletType.keystone;
+
   @override
   Widget body(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (isKeystone)
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: Image.asset('assets/images/keystone_scan_title.png',
+                width: 160, height: 36),
+          ),
         Padding(
-          padding: const EdgeInsets.only(top: 64.0),
+          padding: isKeystone
+              ? const EdgeInsets.symmetric(horizontal: 16.0)
+              : const EdgeInsets.symmetric(horizontal: 64.0),
           child: URQR(
             frames: urQr.trim().split("\n"),
           ),

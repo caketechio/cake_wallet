@@ -74,7 +74,8 @@ abstract class WalletRestorationFromQRVMBase extends WalletCreationVM with Store
                 address: restoreWallet.address ?? '',
                 viewKey: restoreWallet.viewKey ?? '',
                 spendKey: restoreWallet.spendKey ?? '',
-                height: restoreWallet.height ?? 0);
+                height: restoreWallet.height ?? 0,
+                hardwareWalletType: restoreWallet.source == "Keystone" ? HardwareWalletType.keystone : null);
           case WalletType.wownero:
             return wownero!.createWowneroRestoreWalletFromKeysCredentials(
                 name: name,

@@ -215,7 +215,8 @@ class CWMonero extends Monero {
           required String address,
           required String password,
           required String language,
-          required int height}) =>
+          required int height,
+          HardwareWalletType? hardwareWalletType}) =>
       MoneroRestoreWalletFromKeysCredentials(
           name: name,
           spendKey: spendKey,
@@ -223,7 +224,8 @@ class CWMonero extends Monero {
           address: address,
           password: password,
           language: language,
-          height: height);
+          height: height,
+          hardwareWalletType: hardwareWalletType);
 
   @override
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({

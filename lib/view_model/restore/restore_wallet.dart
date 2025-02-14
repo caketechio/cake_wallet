@@ -17,7 +17,8 @@ class RestoredWallet {
       this.txDescription,
       this.recipientName,
       this.height,
-      this.privateKey});
+      this.privateKey,
+      this.source});
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
@@ -32,6 +33,7 @@ class RestoredWallet {
   final String? recipientName;
   final int? height;
   final String? privateKey;
+  final String? source;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     try {
@@ -40,6 +42,7 @@ class RestoredWallet {
         json['address'] = codeParsed["primaryAddress"];
         json['view_key'] = codeParsed["privateViewKey"];
         json['height'] = codeParsed["restoreHeight"].toString();
+        json['source'] = codeParsed["source"] ?? '';
       }
     } catch (e) {
       // fine, we don't care, it is only for monero anyway
@@ -53,6 +56,7 @@ class RestoredWallet {
       viewKey: json['view_key'] as String?,
       height: height != null ? int.tryParse(height)??0 : 0,
       privateKey: json['private_key'] as String?,
+      source: json['source'] as String?,
     );
   }
 

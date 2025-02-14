@@ -403,7 +403,8 @@ abstract class Monero {
     required String address,
     required String password,
     required String language,
-    required int height});
+    required int height,
+    HardwareWalletType? hardwareWalletType});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials({required String name, required String password, required String passphrase, required int height, required String mnemonic});
   WalletCredentials createMoneroRestoreWalletFromHardwareCredentials({required String name, required String password, required int height, required ledger.LedgerConnection ledgerConnection});
   WalletCredentials createMoneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, required String? passphrase, String? password});
