@@ -50,6 +50,9 @@ class WalletRestorePage extends BasePage {
       };
 
   @override
+  Function(BuildContext)? get popWidget => (context) => seedSettingsViewModel.setPassphrase(null);
+
+  @override
   Widget body(BuildContext context) {
     return WalletRestorePageBody(walletRestoreViewModel, seedSettingsViewModel);
   }
@@ -69,15 +72,16 @@ class WalletRestorePageBody extends StatefulWidget {
 class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
   _WalletRestorePageBodyState(this.walletRestoreViewModel, this.seedSettingsViewModel)
       : walletRestoreFromSeedFormKey = GlobalKey<WalletRestoreFromSeedFormState>(),
-        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFromState>(),
+        walletRestoreFromKeysFormKey = GlobalKey<WalletRestoreFromKeysFormState>(),
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
-        _controller = PageController(initialPage: 0) {
+        _controller = PageController(initialPage: walletRestoreViewModel.restoredWallet?.restoreMode == WalletRestoreMode.keys ? 1 : 0) {
     walletRestoreViewModel.availableModes.forEach((mode) {
       switch (mode) {
         case WalletRestoreMode.seed:
           _pages.add(WalletRestoreFromSeedForm(
               seedSettingsViewModel: seedSettingsViewModel,
+              restoredWallet: walletRestoreViewModel.restoredWallet,
               displayBlockHeightSelector:
                   walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
               displayLanguageSelector: walletRestoreViewModel.hasSeedLanguageSelector,
@@ -104,8 +108,9 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
                   walletRestoreViewModel.repeatedWalletPassword = repeatedPassword));
           break;
         case WalletRestoreMode.keys:
-          _pages.add(WalletRestoreFromKeysFrom(
+          _pages.add(WalletRestoreFromKeysForm(
               key: walletRestoreFromKeysFormKey,
+              restoredWallet: walletRestoreViewModel.restoredWallet,
               walletRestoreViewModel: walletRestoreViewModel,
               onPrivateKeyChange: (String seed) {
                 if (walletRestoreViewModel.type == WalletType.nano ||
@@ -132,7 +137,7 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
   final PageController _controller;
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
-  final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final GlobalKey<WalletRestoreFromKeysFormState> walletRestoreFromKeysFormKey;
   final FocusNode _blockHeightFocusNode;
 
   bool _formProcessing = false;

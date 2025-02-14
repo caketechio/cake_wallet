@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
+import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -30,7 +31,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase with _$WalletRestoreVi
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource, SeedSettingsViewModel seedSettingsViewModel,
-      {required WalletType type})
+      {required WalletType type, this.restoredWallet})
       : hasSeedLanguageSelector =
             type == WalletType.monero || type == WalletType.haven || type == WalletType.wownero,
         hasBlockchainHeightLanguageSelector =
@@ -42,7 +43,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             type == WalletType.solana ||
             type == WalletType.tron,
         isButtonEnabled = false,
-        mode = WalletRestoreMode.seed,
+        mode = restoredWallet?.restoreMode ?? WalletRestoreMode.seed,
         super(appStore, walletInfoSource, walletCreationService, seedSettingsViewModel,
             type: type, isRecovery: true) {
     switch (type) {
@@ -69,6 +70,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     }
     isButtonEnabled = !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     walletCreationService.changeWalletType(type: type);
+    if (restoredWallet != null) {
+      if(restoredWallet!.restoreMode == WalletRestoreMode.seed) {
+        seedSettingsViewModel.setPassphrase(restoredWallet!.passphrase);
+      }
+    }
   }
 
   static const moneroSeedMnemonicLength = 25;
@@ -77,6 +83,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
   final bool hasRestoreFromPrivateKey;
+  final RestoredWallet? restoredWallet;
 
   @observable
   WalletRestoreMode mode;

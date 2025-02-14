@@ -1,18 +1,14 @@
 import 'dart:io';
 
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/option_tile.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/restore/restore_from_qr_vm.dart';
 import 'package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/hardware/device_connection_type.dart';
@@ -131,10 +127,8 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
     );
   }
 
-  void _onWalletCreateFailure(BuildContext context, String error) {
-    setState(() {
-      isRestoring = false;
-    });
+  void _showQRScanError(BuildContext context, String error) {
+    setState(() => isRestoring = false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       showPopUp<void>(
@@ -151,28 +145,23 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
 
   Future<void> _onScanQRCode(BuildContext context) async {
     final isCameraPermissionGranted =
-        await PermissionHandler.checkPermission(Permission.camera, context);
+    await PermissionHandler.checkPermission(Permission.camera, context);
 
     if (!isCameraPermissionGranted) return;
-      try {
-        if (isRestoring) {
-          return;
-        }
-        setState(() {
-          isRestoring = true;
-        });
-        final restoreWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+    try {
+      if (isRestoring) return;
 
-        final restoreFromQRViewModel =
-            getIt.get<WalletRestorationFromQRVM>(param1: restoreWallet.type);
+      setState(() => isRestoring = true);
 
-        await restoreFromQRViewModel.create(restoreWallet: restoreWallet);
-        if (restoreFromQRViewModel.state is FailureState) {
-          _onWalletCreateFailure(context,
-              'Create wallet state: ${(restoreFromQRViewModel.state as FailureState).error}');
-        }
-      } catch (e) {
-        _onWalletCreateFailure(context, e.toString());
-      }
+      final restoredWallet = await WalletRestoreFromQRCode.scanQRCodeForRestoring(context);
+
+      final params = {'walletType': restoredWallet.type, 'restoredWallet': restoredWallet};
+
+      Navigator.pushNamed(context, Routes.restoreWallet, arguments: params).then((_) {
+        if (mounted) setState(() => isRestoring = false);
+      });
+    } catch (e) {
+      _showQRScanError(context, e.toString());
     }
+  }
 }

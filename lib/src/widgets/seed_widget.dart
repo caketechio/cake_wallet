@@ -14,6 +14,7 @@ class SeedWidget extends StatefulWidget {
     this.onSeedChange,
     this.pasteButtonKey,
     this.seedTextFieldKey,
+    this.initialSeed,
     super.key,
   });
   final Key? seedTextFieldKey;
@@ -21,17 +22,18 @@ class SeedWidget extends StatefulWidget {
   final String language;
   final WalletType type;
   final void Function(String)? onSeedChange;
+  final String? initialSeed;
 
   @override
-  SeedWidgetState createState() => SeedWidgetState(language, type);
+  SeedWidgetState createState() => SeedWidgetState(language, type, initialSeed);
 }
 
 class SeedWidgetState extends State<SeedWidget> {
-  SeedWidgetState(String language, this.type)
-      : controller = TextEditingController(),
+  SeedWidgetState(String language, this.type, String? initialSeed)
+      : controller = TextEditingController(text: initialSeed ?? ''),
         focusNode = FocusNode(),
         words = SeedValidator.getWordList(type: type, language: language),
-        _showPlaceholder = false {
+        _showPlaceholder = initialSeed == null || initialSeed.isEmpty {
     focusNode.addListener(() {
       setState(() {
         if (!focusNode.hasFocus && controller.text.isEmpty) {
@@ -57,8 +59,12 @@ class SeedWidgetState extends State<SeedWidget> {
   @override
   void initState() {
     super.initState();
-    _showPlaceholder = true;
-    controller.addListener(() => widget.onSeedChange?.call(text));
+    controller.addListener(() {
+      setState(() {
+        _showPlaceholder = controller.text.isEmpty;
+      });
+      widget.onSeedChange?.call(text);
+    });
   }
 
   void changeSeedLanguage(String language) {
