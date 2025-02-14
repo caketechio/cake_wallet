@@ -51,7 +51,7 @@ String syncStatusTitle(SyncStatus syncStatus) {
     return S.current.sync_status_timed_out;
   }
 
-  if (syncStatus is SyncronizingSyncStatus) {
+  if (syncStatus is SynchronizingSyncStatus) {
     return S.current.sync_status_syncronizing;
   }
 

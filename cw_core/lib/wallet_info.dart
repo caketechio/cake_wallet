@@ -79,6 +79,7 @@ class WalletInfo extends HiveObject {
     this.yatLastUsedAddressRaw,
     this.showIntroCakePayCard,
     this.derivationInfo,
+    this.derivations,
     this.hardwareWalletType,
     this.parentAddress,
   ) : _yatLastUsedAddressController = StreamController<String>.broadcast();
@@ -97,6 +98,7 @@ class WalletInfo extends HiveObject {
     String yatEid = '',
     String yatLastUsedAddressRaw = '',
     DerivationInfo? derivationInfo,
+    List<DerivationInfo>? derivations,
     HardwareWalletType? hardwareWalletType,
     String? parentAddress,
   }) {
@@ -114,6 +116,7 @@ class WalletInfo extends HiveObject {
       yatLastUsedAddressRaw,
       showIntroCakePayCard,
       derivationInfo,
+      derivations,
       hardwareWalletType,
       parentAddress,
     );
@@ -189,15 +192,15 @@ class WalletInfo extends HiveObject {
 
   @HiveField(22)
   String? parentAddress;
-  
+
   @HiveField(23)
   List<String>? hiddenAddresses;
 
   @HiveField(24)
   List<String>? manualAddresses;
 
-  
-
+  @HiveField(25)
+  List<DerivationInfo>? derivations;
 
   String get yatLastUsedAddress => yatLastUsedAddressRaw ?? '';
 

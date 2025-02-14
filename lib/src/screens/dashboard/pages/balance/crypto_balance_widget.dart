@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -256,12 +258,107 @@ class CryptoBalanceWidget extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Observer(
-                                builder: (_) => StandardSwitch(
-                                  value: dashboardViewModel.silentPaymentsScanningActive,
-                                  onTaped: () => _toggleSilentPaymentsScanning(context),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Semantics(
+                                  label: S.of(context).receive,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        Routes.addressPage,
+                                        arguments: {
+                                          'addressType': bitcoin!
+                                              .getBitcoinReceivePageOptions()
+                                              .where(
+                                                (option) => option.value == "Silent Payments",
+                                              )
+                                              .first
+                                        },
+                                      );
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            height: 30,
+                                            width: 30,
+                                            'assets/images/received.png',
+                                            color: Theme.of(context)
+                                                .extension<BalancePageTheme>()!
+                                                .balanceAmountColor,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            S.of(context).receive,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .extension<BalancePageTheme>()!
+                                                  .textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              )
+                              ),
+                              SizedBox(width: 24),
+                              Expanded(
+                                child: Semantics(
+                                  label: S.of(context).scan,
+                                  child: OutlinedButton(
+                                    onPressed: () => _toggleSilentPaymentsScanning(context),
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: Colors.grey.shade400.withAlpha(50),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade400.withAlpha(50), width: 0),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Observer(
+                                            builder: (_) => StandardSwitch(
+                                              value:
+                                                  dashboardViewModel.silentPaymentsScanningActive,
+                                              onTaped: () => _toggleSilentPaymentsScanning(context),
+                                            ),
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            S.of(context).scan,
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .extension<BalancePageTheme>()!
+                                                  .textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -367,29 +464,40 @@ class CryptoBalanceWidget extends StatelessWidget {
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
     final isSilentPaymentsScanningActive = dashboardViewModel.silentPaymentsScanningActive;
     final newValue = !isSilentPaymentsScanningActive;
-
+    final willScan = newValue == true;
     dashboardViewModel.silentPaymentsScanningActive = newValue;
 
-    final needsToSwitch = !isSilentPaymentsScanningActive &&
-        await bitcoin!.getNodeIsElectrsSPEnabled(dashboardViewModel.wallet) == false;
+    if (willScan) {
+      late bool isElectrsSPEnabled;
+      try {
+        isElectrsSPEnabled = await bitcoin!
+            .getNodeIsElectrsSPEnabled(dashboardViewModel.wallet)
+            .timeout(const Duration(seconds: 3));
+      } on TimeoutException {
+        isElectrsSPEnabled = false;
+      }
 
-    if (needsToSwitch) {
-      return showPopUp<void>(
+      final needsToSwitch = isElectrsSPEnabled == false;
+      if (needsToSwitch) {
+        return showPopUp<void>(
           context: context,
           builder: (BuildContext context) => AlertWithTwoActions(
-                alertTitle: S.of(context).change_current_node_title,
-                alertContent: S.of(context).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(context).confirm,
-                leftButtonText: S.of(context).cancel,
-                actionRightButton: () {
-                  dashboardViewModel.setSilentPaymentsScanning(newValue);
-                  Navigator.of(context).pop();
-                },
-                actionLeftButton: () {
-                  dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
-                  Navigator.of(context).pop();
-                },
-              ));
+            alertTitle: S.of(context).change_current_node_title,
+            alertContent: S.of(context).confirm_silent_payments_switch_node,
+            rightButtonText: S.of(context).confirm,
+            leftButtonText: S.of(context).cancel,
+            actionRightButton: () {
+              dashboardViewModel.allowSilentPaymentsScanning(true);
+              dashboardViewModel.setSilentPaymentsScanning(true);
+              Navigator.of(context).pop();
+            },
+            actionLeftButton: () {
+              dashboardViewModel.silentPaymentsScanningActive = isSilentPaymentsScanningActive;
+              Navigator.of(context).pop();
+            },
+          ),
+        );
+      }
     }
 
     return dashboardViewModel.setSilentPaymentsScanning(newValue);

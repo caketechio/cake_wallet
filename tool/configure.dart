@@ -81,7 +81,6 @@ Future<void> generateBitcoin(bool hasImplementation) async {
   final outputFile = File(bitcoinOutputPath);
   const bitcoinCommonHeaders = """
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -105,22 +104,21 @@ import 'package:cw_core/get_height_by_date.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bip39/bip39.dart' as bip39;
 """;
   const bitcoinCWHeaders = """
-import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
-import 'package:cw_bitcoin/electrum.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
+import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet_service.dart';
@@ -131,21 +129,40 @@ import 'package:mobx/mobx.dart';
 """;
   const bitcoinCwPart = "part 'cw_bitcoin.dart';";
   const bitcoinContent = """
-  
-  class ElectrumSubAddress {
+const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
+  SegwitAddressType.p2wpkh,
+  P2pkhAddressType.p2pkh,
+  SegwitAddressType.p2tr,
+  SegwitAddressType.p2wsh,
+  P2shAddressType.p2wpkhInP2sh,
+];
+
+const List<BitcoinAddressType> LITECOIN_ADDRESS_TYPES = [
+  SegwitAddressType.p2wpkh,
+  SegwitAddressType.mweb,
+];
+
+const List<BitcoinAddressType> BITCOIN_CASH_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+];
+
+class ElectrumSubAddress {
   ElectrumSubAddress({
     required this.id,
     required this.name,
     required this.address,
     required this.txCount,
     required this.balance,
-    required this.isChange});
+    required this.isChange,
+    required this.derivationPath,
+  });
   final int id;
   final String name;
   final String address;
   final int txCount;
   final int balance;
   final bool isChange;
+  final String derivationPath; 
 }
 
 abstract class Bitcoin {
@@ -155,8 +172,7 @@ abstract class Bitcoin {
     required String name,
     required String mnemonic,
     required String password,
-    required DerivationType derivationType,
-    required String derivationPath,
+    required List<DerivationInfo>? derivations,
     String? passphrase,
   });
   WalletCredentials createBitcoinRestoreWalletFromWIFCredentials({required String name, required String password, required String wif, WalletInfo? walletInfo});
@@ -164,7 +180,9 @@ abstract class Bitcoin {
   WalletCredentials createBitcoinHardwareWalletCredentials({required String name, required HardwareAccountData accountData, WalletInfo? walletInfo});
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
-  List<TransactionPriority> getTransactionPriorities();
+  List<TransactionPriority> getElectrumTransactionPriorities();
+  List<TransactionPriority> getBitcoinAPITransactionPriorities();
+  List<TransactionPriority> getTransactionPriorities(Object wallet);
   List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw);
   TransactionPriority deserializeLitecoinTransactionPriority(int raw);
@@ -184,13 +202,31 @@ abstract class Bitcoin {
   String formatterBitcoinAmountToString({required int amount});
   double formatterBitcoinAmountToDouble({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
-  String bitcoinTransactionPriorityWithLabel(TransactionPriority priority, int rate, {int? customRate});
+  TransactionPriorityLabel getTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  });
+  String bitcoinTransactionPriorityWithLabel(
+    TransactionPriority priority,
+    int rate, {
+    int? customRate,
+  });
 
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-  Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
-  WalletService createLitecoinWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool alwaysScan, bool isDirect);
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+  );
+  WalletService createLitecoinWalletService(
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool alwaysScan,
+    bool isDirect,
+  );
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
   TransactionPriority getLitecoinTransactionPriorityMedium();
@@ -198,19 +234,19 @@ abstract class Bitcoin {
   TransactionPriority getLitecoinTransactionPrioritySlow();
   Future<List<DerivationType>> compareDerivationMethods(
       {required String mnemonic, required Node node});
-  Future<List<DerivationInfo>> getDerivationsFromMnemonic(
-      {required String mnemonic, required Node node, String? passphrase});
   Map<DerivationType, List<DerivationInfo>> getElectrumDerivations();
   Future<void> setAddressType(Object wallet, dynamic option);
   ReceivePageOption getSelectedAddressType(Object wallet);
   List<ReceivePageOption> getBitcoinReceivePageOptions();
   List<ReceivePageOption> getLitecoinReceivePageOptions();
   BitcoinAddressType getBitcoinAddressType(ReceivePageOption option);
+  bool isReceiveOptionSP(ReceivePageOption option);
   bool hasSelectedSilentPayments(Object wallet);
   bool isBitcoinReceivePageOption(ReceivePageOption option);
   BitcoinAddressType getOptionToType(ReceivePageOption option);
   bool hasTaprootInput(PendingTransaction pendingTransaction);
   bool getScanningActive(Object wallet);
+  Future<void> allowToSwitchNodesForScanning(Object wallet, bool allow);
   Future<void> setScanningActive(Object wallet, bool active);
   bool isTestnet(Object wallet);
 
@@ -218,10 +254,36 @@ abstract class Bitcoin {
   Future<String?> canReplaceByFee(Object wallet, Object tx);
   int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
-  int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});
-  int getEstimatedFeeWithFeeRate(Object wallet, int feeRate, int? amount,
-      {int? outputsCount, int? size});
-  int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
+  int getFeeAmountForOutputsWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  });
+  int getFeeAmountForOutputsWithPriority(
+    Object wallet, {
+    required TransactionPriority priority,
+    required List<String> inputAddresses,
+    required List<String> outputAddresses,
+    String? memo,
+    bool enableRBF = true,
+  });
+  Future<int> calculateEstimatedFee(
+    Object wallet, {
+    required TransactionPriority priority,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  });
+  Future<int> estimatedFeeForOutputWithFeeRate(
+    Object wallet, {
+    required int feeRate,
+    required String outputAddress,
+    String? memo,
+    bool enableRBF = true,
+  });
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
   Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
   int getLitecoinHeightByDate({required DateTime date});
@@ -1050,9 +1112,6 @@ abstract class Polygon {
 Future<void> generateBitcoinCash(bool hasImplementation) async {
   final outputFile = File(bitcoinCashOutputPath);
   const bitcoinCashCommonHeaders = """
-import 'dart:typed_data';
-
-import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -1070,7 +1129,10 @@ abstract class BitcoinCash {
   String getCashAddrFormat(String address);
 
   WalletService createBitcoinCashWalletService(
-      Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
+    Box<WalletInfo> walletInfoSource,
+    Box<UnspentCoinsInfo> unspentCoinSource,
+    bool isDirect,
+  );
 
   WalletCredentials createBitcoinCashNewWalletCredentials(
       {required String name, WalletInfo? walletInfo, String? password, String? passphrase, String? mnemonic, String? parentAddress});
@@ -1464,11 +1526,11 @@ abstract class Zano {
   const zanoCWDefinition = 'Zano? zano = CWZano();\n';
 
   final output = '$zanoCommonHeaders\n' +
-    (hasImplementation ? '$zanoCWHeaders\n' : '\n') +
-    (hasImplementation ? '$zanoCwPart\n\n' : '\n') +
-    (hasImplementation ? zanoCWDefinition : zanoEmptyDefinition) +
-    '\n' +
-    zanoContent;
+      (hasImplementation ? '$zanoCWHeaders\n' : '\n') +
+      (hasImplementation ? '$zanoCwPart\n\n' : '\n') +
+      (hasImplementation ? zanoCWDefinition : zanoEmptyDefinition) +
+      '\n' +
+      zanoContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();

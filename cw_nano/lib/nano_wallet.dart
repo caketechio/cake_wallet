@@ -144,7 +144,7 @@ abstract class NanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0; // always 0 :)
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async => 0; // always 0 :)
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");

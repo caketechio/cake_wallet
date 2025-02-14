@@ -155,7 +155,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   ),
                 );
               }),
-            if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled)
+            if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled &&
+                !widget.isFromRestore)
               Observer(builder: (_) {
                 return SettingsChoicesCell(
                   ChoicesListItem<BitcoinSeedType>(

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/transaction_priority_label.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
@@ -90,12 +91,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = appStore.settingsStore.fiatCurrency,
         super(appStore: appStore) {
     if (wallet.type == WalletType.bitcoin &&
-        _settingsStore.priority[wallet.type] == bitcoinTransactionPriorityCustom) {
+        _settingsStore.priority[wallet.type]!.title == bitcoinTransactionPriorityCustom.title) {
       setTransactionPriority(bitcoinTransactionPriorityMedium);
     }
     final priority = _settingsStore.priority[wallet.type];
-    final priorities = priorityForWalletType(wallet.type);
-    if (!priorityForWalletType(wallet.type).contains(priority) && priorities.isNotEmpty) {
+    final priorities = priorityForWallet(wallet);
+    if (priorities.isNotEmpty && !priorities.contains(priority)) {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
@@ -142,8 +143,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // if (walletType == WalletType.ethereum && selectedCryptoCurrency == CryptoCurrency.eth)
     // return false;
 
-    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.maticpoly)
-    // return false;
+    // if (walletType == WalletType.polygon && selectedCryptoCurrency == CryptoCurrency.matic)
+    //   return false;
 
     return true;
   }
@@ -207,8 +208,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   int? getCustomPriorityIndex(List<TransactionPriority> priorities) {
     if (wallet.type == WalletType.bitcoin) {
-      final customItem = priorities
-          .firstWhereOrNull((element) => element == bitcoin!.getBitcoinTransactionPriorityCustom());
+      final customItem = priorities.firstWhereOrNull(
+        (element) => element.title == bitcoin!.getBitcoinTransactionPriorityCustom().title,
+      );
 
       return customItem != null ? priorities.indexOf(customItem) : null;
     }
@@ -509,10 +511,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       if (pendingTransaction!.id.isNotEmpty) {
         final descriptionKey = '${pendingTransaction!.id}_${wallet.walletAddresses.primaryAddress}';
         _settingsStore.shouldSaveRecipientAddress
-            ? await transactionDescriptionBox.add(TransactionDescription(
-                id: descriptionKey, recipientAddress: address, transactionNote: note))
-            : await transactionDescriptionBox
-                .add(TransactionDescription(id: descriptionKey, transactionNote: note));
+            ? await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  recipientAddress: address,
+                  transactionNote: note,
+                ),
+              )
+            : await transactionDescriptionBox.add(
+                TransactionDescription(
+                  id: descriptionKey,
+                  transactionNote: note,
+                ),
+              );
       }
 
       state = TransactionCommitted();
@@ -592,12 +603,16 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     if (walletType == WalletType.bitcoin) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate, customRate: customValue);
+      return TransactionPriorityLabelLocalized(
+        bitcoin!.getTransactionPriorityWithLabel(_priority, rate, customRate: customValue),
+      ).toString();
     }
 
     if (isElectrumWallet) {
       final rate = bitcoin!.getFeeRate(wallet, _priority);
-      return bitcoin!.bitcoinTransactionPriorityWithLabel(_priority, rate);
+      return TransactionPriorityLabelLocalized(
+        bitcoin!.getTransactionPriorityWithLabel(_priority, rate),
+      ).toString();
     }
 
     return priority.toString();
@@ -728,11 +743,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           return S.current.insufficient_funds_for_tx;
         }
 
-        return 
-        '''${S.current.insufficient_funds_for_tx} \n\n'''
-        '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
-        '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
+        return '''${S.current.insufficient_funds_for_tx} \n\n'''
+            '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
+            '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${walletType == WalletType.polygon ? "POL" : "ETH"} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
       }
 
       return errorMessage;

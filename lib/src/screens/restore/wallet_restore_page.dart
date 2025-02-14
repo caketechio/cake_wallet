@@ -140,6 +140,7 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
   // DerivationType derivationType = DerivationType.unknown;
   // String? derivationPath = null;
   DerivationInfo? derivationInfo;
+  List<DerivationInfo>? derivations;
 
   @override
   void initState() {
@@ -375,6 +376,7 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
     }
 
     credentials['derivationInfo'] = this.derivationInfo;
+    credentials['derivations'] = this.derivations;
     credentials['walletType'] = walletRestoreViewModel.type;
     return credentials;
   }
@@ -412,38 +414,42 @@ class _WalletRestorePageBodyState extends State<WalletRestorePageBody> {
 
       walletRestoreViewModel.state = IsExecutingState();
 
-      DerivationInfo? dInfo;
-
       // get info about the different derivations:
       List<DerivationInfo> derivations =
           await walletRestoreViewModel.getDerivationInfo(_credentials());
 
-      int derivationsWithHistory = 0;
-      int derivationWithHistoryIndex = 0;
-      for (int i = 0; i < derivations.length; i++) {
-        if (derivations[i].transactionsCount > 0) {
-          derivationsWithHistory++;
-          derivationWithHistoryIndex = i;
+      if (walletRestoreViewModel.type == WalletType.nano) {
+        DerivationInfo? dInfo;
+
+        int derivationsWithHistory = 0;
+        int derivationWithHistoryIndex = 0;
+        for (int i = 0; i < derivations.length; i++) {
+          if (derivations[i].transactionsCount > 0) {
+            derivationsWithHistory++;
+            derivationWithHistoryIndex = i;
+          }
         }
-      }
 
-      if (derivationsWithHistory > 1) {
-        dInfo = await Navigator.of(context).pushNamed(
-          Routes.restoreWalletChooseDerivation,
-          arguments: derivations,
-        ) as DerivationInfo?;
-      } else if (derivationsWithHistory == 1) {
-        dInfo = derivations[derivationWithHistoryIndex];
-      } else if (derivations.length == 1) {
-        // we only return 1 derivation if we're pretty sure we know which one to use:
-        dInfo = derivations.first;
+        if (derivationsWithHistory > 1) {
+          dInfo = await Navigator.of(context).pushNamed(
+            Routes.restoreWalletChooseDerivation,
+            arguments: derivations,
+          ) as DerivationInfo?;
+        } else if (derivationsWithHistory == 1) {
+          dInfo = derivations[derivationWithHistoryIndex];
+        } else if (derivations.length == 1) {
+          // we only return 1 derivation if we're pretty sure we know which one to use:
+          dInfo = derivations.first;
+        } else {
+          // if we have multiple possible derivations, and none (or multiple) have histories
+          // we just default to the most common one:
+          dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
+        }
+
+        this.derivationInfo = dInfo;
       } else {
-        // if we have multiple possible derivations, and none (or multiple) have histories
-        // we just default to the most common one:
-        dInfo = walletRestoreViewModel.getCommonRestoreDerivation();
+        this.derivations = derivations;
       }
-
-      this.derivationInfo = dInfo;
 
       await walletRestoreViewModel.create(options: _credentials());
       seedSettingsViewModel.setPassphrase(null);

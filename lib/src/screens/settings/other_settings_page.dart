@@ -34,24 +34,24 @@ class OtherSettingsPage extends BasePage {
           child: Column(
             children: [
               if (_otherSettingsViewModel.displayTransactionPriority)
-                _otherSettingsViewModel.walletType == WalletType.bitcoin ?
-                  SettingsPriorityPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
-                    onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
-                    customValue: _otherSettingsViewModel.customBitcoinFeeRate,
-                    maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
-                  ) :
-                  SettingsPickerCell(
-                    title: S.current.settings_fee_priority,
-                    items: priorityForWalletType(_otherSettingsViewModel.walletType),
-                    displayItem: _otherSettingsViewModel.getDisplayPriority,
-                    selectedItem: _otherSettingsViewModel.transactionPriority,
-                    onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
-                  ),
+                _otherSettingsViewModel.walletType == WalletType.bitcoin
+                    ? SettingsPriorityPickerCell(
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWallet(_otherSettingsViewModel.sendViewModel.wallet),
+                        displayItem: _otherSettingsViewModel.getDisplayBitcoinPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        customItemIndex: _otherSettingsViewModel.customPriorityItemIndex,
+                        onItemSelected: _otherSettingsViewModel.onDisplayBitcoinPrioritySelected,
+                        customValue: _otherSettingsViewModel.customBitcoinFeeRate,
+                        maxValue: _otherSettingsViewModel.maxCustomFeeRate?.toDouble(),
+                      )
+                    : SettingsPickerCell(
+                        title: S.current.settings_fee_priority,
+                        items: priorityForWallet(_otherSettingsViewModel.sendViewModel.wallet),
+                        displayItem: _otherSettingsViewModel.getDisplayPriority,
+                        selectedItem: _otherSettingsViewModel.transactionPriority,
+                        onItemSelected: _otherSettingsViewModel.onDisplayPrioritySelected,
+                      ),
               if (_otherSettingsViewModel.changeRepresentativeEnabled)
                 SettingsCellWithArrow(
                   title: S.current.change_rep,

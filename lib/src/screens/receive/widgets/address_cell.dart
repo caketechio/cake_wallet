@@ -7,23 +7,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class AddressCell extends StatelessWidget {
-  AddressCell(
-      {required this.address,
-      required this.name,
-      required this.isCurrent,
-      required this.isPrimary,
-      required this.backgroundColor,
-      required this.textColor,
-      this.onTap,
-      this.onEdit,
-      this.onHide,
-      this.isHidden = false,
-      this.onDelete,
-      this.txCount,
-      this.balance,
-      this.isChange = false,
-      this.hasBalance = false,
-      this.hasReceived = false});
+  AddressCell({
+    required this.address,
+    required this.derivationPath,
+    required this.name,
+    required this.isCurrent,
+    required this.isPrimary,
+    required this.backgroundColor,
+    required this.textColor,
+    this.onTap,
+    this.onEdit,
+    this.onHide,
+    this.isHidden = false,
+    this.onDelete,
+    this.txCount,
+    this.balance,
+    this.isChange = false,
+    this.hasBalance = false,
+    this.hasReceived = false,
+  });
 
   factory AddressCell.fromItem(
     WalletAddressListItem item, {
@@ -39,24 +41,27 @@ class AddressCell extends StatelessWidget {
     Function()? onDelete,
   }) =>
       AddressCell(
-          address: item.address,
-          name: item.name ?? '',
-          isCurrent: isCurrent,
-          isPrimary: item.isPrimary,
-          backgroundColor: backgroundColor,
-          textColor: textColor,
-          onTap: onTap,
-          onEdit: onEdit,
-          onHide: onHide,
-          isHidden: isHidden,
-          onDelete: onDelete,
-          txCount: item.txCount,
-          balance: item.balance,
-          isChange: item.isChange,
-          hasBalance: hasBalance,
-          hasReceived: hasReceived,);
+        address: item.address,
+        derivationPath: item.derivationPath,
+        name: item.name ?? '',
+        isCurrent: isCurrent,
+        isPrimary: item.isPrimary,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        onTap: onTap,
+        onEdit: onEdit,
+        onHide: onHide,
+        isHidden: isHidden,
+        onDelete: onDelete,
+        txCount: item.txCount,
+        balance: item.balance,
+        isChange: item.isChange,
+        hasBalance: hasBalance,
+        hasReceived: hasReceived,
+      );
 
   final String address;
+  final String derivationPath;
   final String name;
   final bool isCurrent;
   final bool isPrimary;
@@ -102,7 +107,9 @@ class AddressCell extends StatelessWidget {
                 child: Column(
                   children: [
                     Row(
-                      mainAxisAlignment: name.isNotEmpty ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                      mainAxisAlignment: name.isNotEmpty
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.max,
                       children: [
                         Row(
@@ -151,6 +158,26 @@ class AddressCell extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (derivationPath.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: AutoSizeText(
+                                derivationPath,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: isChange ? 10 : 14,
+                                  color: textColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     if (hasBalance || hasReceived)
                       Padding(
                         padding: const EdgeInsets.only(top: 8.0),

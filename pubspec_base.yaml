@@ -147,7 +147,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v9
+      ref: cake-update-v15
   ffi: 2.1.0
   ledger_flutter_plus:
     git:

@@ -118,7 +118,7 @@ abstract class ZanoWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, [int? amount = null]) =>
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async =>
       getCurrentTxFee(priority);
 
   @override
@@ -214,7 +214,7 @@ abstract class ZanoWalletBase
     final hasMultiDestination = outputs.length > 1;
     final unlockedBalanceZano = balance[CryptoCurrency.zano]?.unlocked ?? BigInt.zero;
     final unlockedBalanceCurrency = balance[credentials.currency]?.unlocked ?? BigInt.zero;
-    final fee = BigInt.from(calculateEstimatedFee(credentials.priority));
+    final fee = BigInt.from(await calculateEstimatedFee(credentials.priority));
     late BigInt totalAmount;
     void checkForEnoughBalances() {
       if (isZano) {

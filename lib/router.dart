@@ -128,6 +128,7 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -350,11 +351,21 @@ Route<dynamic> createRoute(RouteSettings settings) {
           fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ReceivePage>());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final addressType = args?['addressType'] as ReceivePageOption?;
+
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<ReceivePage>(param1: addressType),
+      );
 
     case Routes.addressPage:
+      final args = settings.arguments as Map<String, dynamic>?;
+      final addressType = args?['addressType'] as ReceivePageOption?;
+
       return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<AddressPage>());
+        fullscreenDialog: true,
+        builder: (_) => getIt.get<AddressPage>(param1: addressType),
+      );
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
@@ -562,7 +573,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.paymentMethodOptionsPage:
       final args = settings.arguments as List;
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<PaymentMethodOptionsPage>(param1: args));
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
@@ -734,7 +746,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<Setup2FAInfoPage>());
 
     case Routes.urqrAnimatedPage:
-      return MaterialPageRoute<void>(builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.homeSettings:
       return CupertinoPageRoute<void>(

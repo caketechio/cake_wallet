@@ -369,7 +369,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {

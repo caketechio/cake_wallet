@@ -4,6 +4,7 @@ class WalletAddressListItem extends ListItem {
   WalletAddressListItem({
     required this.address,
     required this.isPrimary,
+    this.derivationPath = "",
     this.id,
     this.name,
     this.txCount,
@@ -18,6 +19,7 @@ class WalletAddressListItem extends ListItem {
   final int? id;
   final bool isPrimary;
   final String address;
+  final String derivationPath;
   final String? name;
   final int? txCount;
   final String? balance;

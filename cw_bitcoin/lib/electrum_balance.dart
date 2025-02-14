@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_core/balance.dart';
 
 class ElectrumBalance extends Balance {
@@ -34,31 +34,35 @@ class ElectrumBalance extends Balance {
 
   int confirmed;
   int unconfirmed;
-  final int frozen;
+  int frozen;
   int secondConfirmed = 0;
   int secondUnconfirmed = 0;
 
   @override
-  String get formattedAvailableBalance => bitcoinAmountToString(amount: ((confirmed + unconfirmed) - frozen) );
+  String get formattedAvailableBalance =>
+      BitcoinAmountUtils.bitcoinAmountToString(amount: (confirmed + unconfirmed) - frozen);
 
   @override
-  String get formattedAdditionalBalance => bitcoinAmountToString(amount: unconfirmed);
+  String get formattedAdditionalBalance =>
+      BitcoinAmountUtils.bitcoinAmountToString(amount: unconfirmed);
 
   @override
   String get formattedUnAvailableBalance {
-    final frozenFormatted = bitcoinAmountToString(amount: frozen);
+    final frozenFormatted = BitcoinAmountUtils.bitcoinAmountToString(amount: frozen);
     return frozenFormatted == '0.0' ? '' : frozenFormatted;
   }
 
   @override
-  String get formattedSecondAvailableBalance => bitcoinAmountToString(amount: secondConfirmed);
+  String get formattedSecondAvailableBalance =>
+      BitcoinAmountUtils.bitcoinAmountToString(amount: secondConfirmed);
 
   @override
-  String get formattedSecondAdditionalBalance => bitcoinAmountToString(amount: secondUnconfirmed);
+  String get formattedSecondAdditionalBalance =>
+      BitcoinAmountUtils.bitcoinAmountToString(amount: secondUnconfirmed);
 
   @override
   String get formattedFullAvailableBalance =>
-      bitcoinAmountToString(amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
+      BitcoinAmountUtils.bitcoinAmountToString(amount: (confirmed + unconfirmed) + secondConfirmed - frozen);
 
   String toJSON() => json.encode({
         'confirmed': confirmed,

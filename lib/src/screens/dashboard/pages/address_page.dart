@@ -11,7 +11,6 @@ import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/extensions/sync_indicator_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -32,9 +31,11 @@ class AddressPage extends BasePage {
     required this.addressListViewModel,
     required this.dashboardViewModel,
     required this.receiveOptionViewModel,
+    ReceivePageOption? addressType,
   })  : _cryptoAmountFocus = FocusNode(),
         _formKey = GlobalKey<FormState>(),
-        _amountController = TextEditingController() {
+        _amountController = TextEditingController(),
+        _addressType = addressType {
     _amountController.addListener(() {
       if (_formKey.currentState!.validate()) {
         addressListViewModel.changeAmount(
@@ -49,6 +50,7 @@ class AddressPage extends BasePage {
   final ReceiveOptionViewModel receiveOptionViewModel;
   final TextEditingController _amountController;
   final GlobalKey<FormState> _formKey;
+  final ReceivePageOption? _addressType;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -61,41 +63,10 @@ class AddressPage extends BasePage {
   bool effectsInstalled = false;
 
   @override
-  Widget? leading(BuildContext context) {
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: titleColor(context),
-      size: 16,
-    );
-    final _closeButton =
-        currentTheme.type == ThemeType.dark ? closeButtonImageDarkTheme : closeButtonImage;
-
-    bool isMobileView = responsiveLayoutUtil.shouldRenderMobileUI;
-
-    return MergeSemantics(
-      child: SizedBox(
-        height: isMobileView ? 37 : 45,
-        width: isMobileView ? 37 : 45,
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: Semantics(
-            label: !isMobileView ? S.of(context).close : S.of(context).seed_alert_back,
-            child: TextButton(
-              style: ButtonStyle(
-                overlayColor: MaterialStateColor.resolveWith((states) => Colors.transparent),
-              ),
-              onPressed: () => onClose(context),
-              child: !isMobileView ? _closeButton : _backButton,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
   Widget middle(BuildContext context) => PresentReceiveOptionPicker(
-      color: titleColor(context), receiveOptionViewModel: receiveOptionViewModel);
+        color: titleColor(context),
+        receiveOptionViewModel: receiveOptionViewModel,
+      );
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
@@ -127,6 +98,8 @@ class AddressPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    addressListViewModel.resetActiveChangeAddress();
+
     _setEffects(context);
 
     return KeyboardActions(
@@ -150,19 +123,23 @@ class AddressPage extends BasePage {
               Expanded(
                   child: Observer(
                       builder: (_) => QRWidget(
-                          formKey: _formKey,
-                          addressListViewModel: addressListViewModel,
-                          amountTextFieldFocusNode: _cryptoAmountFocus,
-                          amountController: _amountController,
-                          isLight: dashboardViewModel.settingsStore.currentTheme.type ==
-                              ThemeType.light,
-                        ))),
+                            formKey: _formKey,
+                            addressListViewModel: addressListViewModel,
+                            amountTextFieldFocusNode: _cryptoAmountFocus,
+                            amountController: _amountController,
+                            isLight: dashboardViewModel.settingsStore.currentTheme.type ==
+                                ThemeType.light,
+                          ))),
               SizedBox(height: 16),
               Observer(builder: (_) {
                 if (addressListViewModel.hasAddressList) {
                   return SelectButton(
                     text: addressListViewModel.buttonTitle,
-                    onTap: () => Navigator.of(context).pushNamed(Routes.receive),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      Routes.receive,
+                      arguments: {'addressType': _addressType},
+                    ),
                     textColor: Theme.of(context).extension<SyncIndicatorTheme>()!.textColor,
                     color: Theme.of(context).extension<SyncIndicatorTheme>()!.syncedBackgroundColor,
                     borderColor: Theme.of(context).extension<BalancePageTheme>()!.cardBorderColor,

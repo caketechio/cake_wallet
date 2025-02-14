@@ -187,7 +187,7 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async {
     {
       try {
         if (priority is EVMChainTransactionPriority) {

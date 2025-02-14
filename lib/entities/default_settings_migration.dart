@@ -648,7 +648,10 @@ Future<void> validateBitcoinSavedTransactionPriority(SharedPreferences sharedPre
   }
   final int? savedBitcoinPriority =
       sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority);
-  if (!bitcoin!.getTransactionPriorities().any((element) => element.raw == savedBitcoinPriority)) {
+  if (![
+    ...bitcoin!.getElectrumTransactionPriorities(),
+    ...bitcoin!.getBitcoinAPITransactionPriorities()
+  ].any((element) => element.raw == savedBitcoinPriority)) {
     await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
         bitcoin!.getMediumTransactionPriority().serialize());
   }

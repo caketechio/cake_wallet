@@ -235,7 +235,7 @@ class TronClient {
     String contractAddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
     String constantAmount =
         '0'; // We're using 0 as the base amount here as we get an error when balance is zero i.e for new wallets.
-    final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+    final contract = ContractABI.fromJson(trc20Abi);
 
     final function = contract.functionFromName("transfer");
 
@@ -405,7 +405,7 @@ class TronClient {
     String contractAddress,
     BigInt tronBalance,
   ) async {
-    final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+    final contract = ContractABI.fromJson(trc20Abi);
 
     final function = contract.functionFromName("transfer");
 
@@ -483,7 +483,7 @@ class TronClient {
 
       final tokenAddress = TronAddress(contractAddress);
 
-      final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+      final contract = ContractABI.fromJson(trc20Abi);
 
       final function = contract.functionFromName("balanceOf");
 
@@ -510,7 +510,7 @@ class TronClient {
 
       final ownerAddress = TronAddress(userAddress);
 
-      final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+      final contract = ContractABI.fromJson(trc20Abi);
 
       final name =
           (await getTokenDetail(contract, "name", ownerAddress, tokenAddress) as String?) ?? '';

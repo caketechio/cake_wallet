@@ -1,8 +1,14 @@
 import 'package:cw_core/unspent_comparable_mixin.dart';
 
 class Unspent with UnspentComparable {
-  Unspent(this.address, this.hash, this.value, this.vout, this.keyImage)
-      : isSending = true,
+  Unspent(
+    this.address,
+    this.hash,
+    this.value,
+    this.vout,
+    this.keyImage, {
+    this.height,
+  })  : isSending = true,
         isFrozen = false,
         isChange = false,
         note = '';
@@ -16,6 +22,7 @@ class Unspent with UnspentComparable {
   bool isChange;
   bool isSending;
   bool isFrozen;
+  int? height;
   int? confirmations;
   String note;
 

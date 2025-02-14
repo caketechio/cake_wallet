@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,8 @@ class RescanPage extends BasePage {
                     isSilentPaymentsScan: _rescanViewModel.isSilentPaymentsScan,
                     isMwebScan: _rescanViewModel.isMwebScan,
                     doSingleScan: _rescanViewModel.doSingleScan,
-                    hasDatePicker: !_rescanViewModel.isMwebScan,// disable date picker for mweb for now
+                    hasDatePicker:
+                        !_rescanViewModel.isMwebScan, // disable date picker for mweb for now
                     toggleSingleScan: () =>
                         _rescanViewModel.doSingleScan = !_rescanViewModel.doSingleScan,
                     walletType: _rescanViewModel.wallet.type,
@@ -64,29 +66,38 @@ class RescanPage extends BasePage {
     );
   }
 
+  // TODO: common with crypto balance widget.dart
   Future<void> _toggleSilentPaymentsScanning(BuildContext context) async {
     final height = _blockchainHeightWidgetKey.currentState!.height;
 
     Navigator.of(context).pop();
 
-    final needsToSwitch =
-        await bitcoin!.getNodeIsElectrsSPEnabled(_rescanViewModel.wallet) == false;
+    late bool isElectrsSPEnabled;
+    try {
+      isElectrsSPEnabled = await bitcoin!
+          .getNodeIsElectrsSPEnabled(_rescanViewModel.wallet)
+          .timeout(const Duration(seconds: 3));
+    } on TimeoutException {
+      isElectrsSPEnabled = false;
+    }
 
+    final needsToSwitch = isElectrsSPEnabled == false;
     if (needsToSwitch) {
       return showPopUp<void>(
-          context: navigatorKey.currentState!.context,
-          builder: (BuildContext _dialogContext) => AlertWithTwoActions(
-                alertTitle: S.of(_dialogContext).change_current_node_title,
-                alertContent: S.of(_dialogContext).confirm_silent_payments_switch_node,
-                rightButtonText: S.of(_dialogContext).confirm,
-                leftButtonText: S.of(_dialogContext).cancel,
-                actionRightButton: () async {
-                  Navigator.of(_dialogContext).pop();
+        context: context,
+        builder: (BuildContext _dialogContext) => AlertWithTwoActions(
+          alertTitle: S.of(_dialogContext).change_current_node_title,
+          alertContent: S.of(_dialogContext).confirm_silent_payments_switch_node,
+          rightButtonText: S.of(_dialogContext).confirm,
+          leftButtonText: S.of(_dialogContext).cancel,
+          actionRightButton: () async {
+            Navigator.of(_dialogContext).pop();
 
-                  _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
-                },
-                actionLeftButton: () => Navigator.of(_dialogContext).pop(),
-              ));
+            _rescanViewModel.rescanCurrentWallet(restoreHeight: height);
+          },
+          actionLeftButton: () => Navigator.of(_dialogContext).pop(),
+        ),
+      );
     }
 
     _rescanViewModel.rescanCurrentWallet(restoreHeight: height);

@@ -27,7 +27,8 @@ class EVMChainTransactionPriority extends TransactionPriority {
     }
   }
 
-  String get units => 'gas';
+  @override
+  String get unit => 'gas';
 
   @override
   String toString() {

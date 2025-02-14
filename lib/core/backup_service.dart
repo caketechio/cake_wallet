@@ -151,7 +151,7 @@ class BackupService {
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    };
+    }
 
     await _verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
@@ -174,7 +174,7 @@ class BackupService {
     outer:
     for (var file in zip.files) {
       final filename = file.name;
-      for (var ignore in ignoreFiles) { 
+      for (var ignore in ignoreFiles) {
         if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
           printV("ignoring backup file: $filename");
           continue outer;
@@ -189,7 +189,7 @@ class BackupService {
       } else {
         Directory('${appDir.path}/' + filename)..create(recursive: true);
       }
-    };
+    }
 
     await _verifyWallets();
     await _importKeychainDumpV2(password);
@@ -233,12 +233,11 @@ class BackupService {
         MapEntry(key, TransactionDescription.fromJson(value as Map<String, dynamic>)));
     var box = _transactionDescriptionBox;
     if (!box.isOpen) {
-      final transactionDescriptionsBoxKey = 
-        await getEncryptionKey(secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
-      box = await CakeHive.openBox<TransactionDescription>(
-        TransactionDescription.boxName,
-        encryptionKey: transactionDescriptionsBoxKey);
-      }
+      final transactionDescriptionsBoxKey = await getEncryptionKey(
+          secureStorage: _secureStorage, forKey: TransactionDescription.boxKey);
+      box = await CakeHive.openBox<TransactionDescription>(TransactionDescription.boxName,
+          encryptionKey: transactionDescriptionsBoxKey);
+    }
     await box.putAll(descriptionsMap);
   }
 
@@ -511,7 +510,8 @@ class BackupService {
           _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey:
           _sharedPreferences.getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.disableTradeOption: _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
+      PreferencesKey.disableTradeOption:
+          _sharedPreferences.getBool(PreferencesKey.disableTradeOption),
       PreferencesKey.currentPinLength: _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKeyLegacy:
           _sharedPreferences.getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
@@ -546,8 +546,7 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains),
       PreferencesKey.lookupsOpenAlias: _sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias),
       PreferencesKey.lookupsENS: _sharedPreferences.getBool(PreferencesKey.lookupsENS),
-      PreferencesKey.lookupsWellKnown:
-          _sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
+      PreferencesKey.lookupsWellKnown: _sharedPreferences.getBool(PreferencesKey.lookupsWellKnown),
       PreferencesKey.syncModeKey: _sharedPreferences.getInt(PreferencesKey.syncModeKey),
       PreferencesKey.syncAllKey: _sharedPreferences.getBool(PreferencesKey.syncAllKey),
       PreferencesKey.autoGenerateSubaddressStatusKey:

@@ -45,7 +45,7 @@ class SyncedTipSyncStatus extends SyncedSyncStatus {
   final int tip;
 }
 
-class SyncronizingSyncStatus extends SyncStatus {
+class SynchronizingSyncStatus extends SyncStatus {
   @override
   double progress() => 0.0;
 }
@@ -95,4 +95,62 @@ class TimedOutSyncStatus extends NotConnectedSyncStatus {
 class LostConnectionSyncStatus extends NotConnectedSyncStatus {
   @override
   String toString() => 'Reconnecting';
+}
+
+Map<String, dynamic> syncStatusToJson(SyncStatus? status) {
+  if (status == null) {
+    return {};
+  }
+
+  return {
+    'progress': status.progress(),
+    'type': status.runtimeType.toString(),
+    'data': status is SyncingSyncStatus
+        ? {'blocksLeft': status.blocksLeft, 'ptc': status.ptc}
+        : status is SyncedTipSyncStatus
+            ? {'tip': status.tip}
+            : status is FailedSyncStatus
+                ? {'error': status.error}
+                : status is StartingScanSyncStatus
+                    ? {'beginHeight': status.beginHeight}
+                    : null
+  };
+}
+
+SyncStatus syncStatusFromJson(Map<String, dynamic> json) {
+  final type = json['type'] as String;
+  final data = json['data'] as Map<String, dynamic>?;
+
+  switch (type) {
+    case 'StartingScanSyncStatus':
+      return StartingScanSyncStatus(data!['beginHeight'] as int);
+    case 'SyncingSyncStatus':
+      return SyncingSyncStatus(data!['blocksLeft'] as int, data['ptc'] as double);
+    case 'SyncedTipSyncStatus':
+      return SyncedTipSyncStatus(data!['tip'] as int);
+    case 'SyncedSyncStatus':
+      return SyncedSyncStatus();
+    case 'FailedSyncStatus':
+      return FailedSyncStatus(error: data!['error'] as String?);
+    case 'SynchronizingSyncStatus':
+      return SynchronizingSyncStatus();
+    case 'NotConnectedSyncStatus':
+      return NotConnectedSyncStatus();
+    case 'AttemptingSyncStatus':
+      return AttemptingSyncStatus();
+    case 'AttemptingScanSyncStatus':
+      return AttemptingScanSyncStatus();
+    case 'ConnectedSyncStatus':
+      return ConnectedSyncStatus();
+    case 'ConnectingSyncStatus':
+      return ConnectingSyncStatus();
+    case 'UnsupportedSyncStatus':
+      return UnsupportedSyncStatus();
+    case 'TimedOutSyncStatus':
+      return TimedOutSyncStatus();
+    case 'LostConnectionSyncStatus':
+      return LostConnectionSyncStatus();
+    default:
+      throw Exception('Unknown sync status type: $type');
+  }
 }

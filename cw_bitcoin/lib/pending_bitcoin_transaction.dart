@@ -1,10 +1,12 @@
+import 'dart:convert';
+
+import 'package:cw_bitcoin/electrum_worker/electrum_worker_params.dart';
+import 'package:cw_bitcoin/electrum_worker/methods/methods.dart';
 import 'package:grpc/grpc.dart';
 import 'package:cw_bitcoin/exceptions.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/pending_transaction.dart';
-import 'package:cw_bitcoin/electrum.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -15,25 +17,24 @@ class PendingBitcoinTransaction with PendingTransaction {
   PendingBitcoinTransaction(
     this._tx,
     this.type, {
-    required this.electrumClient,
+    required this.sendWorker,
     required this.amount,
     required this.fee,
     required this.feeRate,
-    this.network,
     required this.hasChange,
     this.isSendAll = false,
     this.hasTaprootInputs = false,
     this.isMweb = false,
     this.utxos = const [],
+    this.hasSilentPayment = false,
   }) : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
   final WalletType type;
   final BtcTransaction _tx;
-  final ElectrumClient electrumClient;
+  Future<dynamic> Function(ElectrumWorkerRequest) sendWorker;
   final int amount;
   final int fee;
   final String feeRate;
-  final BasedUtxoNetwork? network;
   final bool isSendAll;
   final bool hasChange;
   final bool hasTaprootInputs;
@@ -51,17 +52,17 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get hex => hexOverride ?? _tx.serialize();
 
   @override
-  String get amountFormatted => bitcoinAmountToString(amount: amount);
+  String get amountFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: amount);
 
   @override
-  String get feeFormatted => bitcoinAmountToString(amount: fee);
+  String get feeFormatted => BitcoinAmountUtils.bitcoinAmountToString(amount: fee);
 
   @override
   int? get outputCount => _tx.outputs.length;
 
   List<TxOutput> get outputs => _tx.outputs;
 
-  bool get hasSilentPayment => _tx.hasSilentPayment;
+  bool hasSilentPayment;
 
   PendingChange? get change {
     try {
@@ -78,41 +79,40 @@ class PendingBitcoinTransaction with PendingTransaction {
   final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   Future<void> _commit() async {
-    int? callId;
+    final result = await sendWorker(
+      ElectrumWorkerBroadcastRequest(transactionRaw: hex),
+    ) as String;
 
-    final result = await electrumClient.broadcastTransaction(
-        transactionRaw: hex, network: network, idCallback: (id) => callId = id);
+    String? error;
+    try {
+      final resultJson = jsonDecode(result) as Map<String, dynamic>;
+      error = resultJson["error"] as String;
+    } catch (_) {}
 
-    if (result.isEmpty) {
-      if (callId != null) {
-        final error = electrumClient.getErrorMessage(callId!);
-
-        if (error.contains("dust")) {
-          if (hasChange) {
-            throw BitcoinTransactionCommitFailedDustChange();
-          } else if (!isSendAll) {
-            throw BitcoinTransactionCommitFailedDustOutput();
-          } else {
-            throw BitcoinTransactionCommitFailedDustOutputSendAll();
-          }
+    if (error != null) {
+      if (error.contains("dust")) {
+        if (hasChange) {
+          throw BitcoinTransactionCommitFailedDustChange();
+        } else if (!isSendAll) {
+          throw BitcoinTransactionCommitFailedDustOutput();
+        } else {
+          throw BitcoinTransactionCommitFailedDustOutputSendAll();
         }
-
-        if (error.contains("bad-txns-vout-negative")) {
-          throw BitcoinTransactionCommitFailedVoutNegative();
-        }
-
-        if (error.contains("non-BIP68-final")) {
-          throw BitcoinTransactionCommitFailedBIP68Final();
-        }
-
-        if (error.contains("min fee not met")) {
-          throw BitcoinTransactionCommitFailedLessThanMin();
-        }
-
-        throw BitcoinTransactionCommitFailed(errorMessage: error);
       }
 
-      throw BitcoinTransactionCommitFailed();
+      if (error.contains("bad-txns-vout-negative")) {
+        throw BitcoinTransactionCommitFailedVoutNegative();
+      }
+
+      if (error.contains("non-BIP68-final")) {
+        throw BitcoinTransactionCommitFailedBIP68Final();
+      }
+
+      if (error.contains("min fee not met")) {
+        throw BitcoinTransactionCommitFailedLessThanMin();
+      }
+
+      throw BitcoinTransactionCommitFailed(errorMessage: error);
     }
   }
 
@@ -141,19 +141,21 @@ class PendingBitcoinTransaction with PendingTransaction {
   void addListener(void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
-  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
-      id: id,
-      height: 0,
-      amount: amount,
-      direction: TransactionDirection.outgoing,
-      date: DateTime.now(),
-      isPending: true,
-      isReplaced: false,
-      confirmations: 0,
-      inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
-      outputAddresses: outputAddresses,
-      fee: fee);
-      
+  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(
+        type,
+        id: id,
+        height: 0,
+        amount: amount,
+        direction: TransactionDirection.outgoing,
+        date: DateTime.now(),
+        isPending: true,
+        isReplaced: false,
+        confirmations: 0,
+        inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
+        outputAddresses: outputAddresses,
+        fee: fee,
+      );
+
   @override
   Future<String?> commitUR() {
     throw UnimplementedError();

@@ -9,6 +9,7 @@ abstract class WalletCredentials {
     this.password,
     this.passphrase,
     this.derivationInfo,
+    this.derivations,
     this.hardwareWalletType,
     this.parentAddress,
   }) {
@@ -25,5 +26,6 @@ abstract class WalletCredentials {
   String? passphrase;
   WalletInfo? walletInfo;
   DerivationInfo? derivationInfo;
+  List<DerivationInfo>? derivations;
   HardwareWalletType? hardwareWalletType;
 }

@@ -7,16 +7,17 @@ import 'package:cake_wallet/polygon/polygon.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
-List<TransactionPriority> priorityForWalletType(WalletType type) {
-  switch (type) {
+List<TransactionPriority> priorityForWallet(WalletBase wallet) {
+  switch (wallet.type) {
     case WalletType.monero:
       return monero!.getTransactionPriorities();
     case WalletType.wownero:
       return wownero!.getTransactionPriorities();
     case WalletType.bitcoin:
-      return bitcoin!.getTransactionPriorities();
+      return bitcoin!.getTransactionPriorities(wallet);
     case WalletType.litecoin:
       return bitcoin!.getLitecoinTransactionPriorities();
     case WalletType.haven:

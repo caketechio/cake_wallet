@@ -25,10 +25,10 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
-  blockchain_utils:
+  bitcoin_base:
     git:
-      url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v15
 
 dev_dependencies:
   flutter_test:
@@ -39,10 +39,10 @@ dev_dependencies:
 
 dependency_overrides:
   watcher: ^1.1.0
-  bitcoin_base:
+  blockchain_utils:
     git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v9
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

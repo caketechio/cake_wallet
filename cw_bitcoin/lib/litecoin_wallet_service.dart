@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -68,7 +69,6 @@ class LitecoinWalletService extends WalletService<
 
   @override
   Future<LitecoinWallet> openWallet(String name, String password) async {
-
     final walletInfo = walletInfoSource.values
         .firstWhereOrNull((info) => info.id == WalletBase.idFor(name, getType()))!;
 
@@ -127,8 +127,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values.where(
-            (unspentCoin) => unspentCoin.walletId == walletInfo.id).toList();
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
 
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
 
@@ -168,12 +169,19 @@ class LitecoinWalletService extends WalletService<
     credentials.walletInfo?.derivationInfo?.derivationPath =
         credentials.hwAccountData.derivationPath;
 
+    final hdWallets = await ElectrumWalletBase.getAccountHDWallets(
+      walletInfo: credentials.walletInfo!,
+      network: network,
+      xpub: credentials.hwAccountData.xpub,
+    );
+
     final wallet = await LitecoinWallet(
       password: credentials.password!,
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      hdWallets: hdWallets,
     );
     await wallet.save();
     await wallet.init();

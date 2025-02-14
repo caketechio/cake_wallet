@@ -78,4 +78,8 @@ abstract class WalletAddresses {
 
   bool containsAddress(String address) =>
       addressesMap.containsKey(address) || allAddressesMap.containsKey(address);
+
+  void resetActiveChangeAddress() {
+    throw UnimplementedError();
+  }
 }

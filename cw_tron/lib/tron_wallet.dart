@@ -31,7 +31,7 @@ import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_addresses.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:on_chain/on_chain.dart';
+import 'package:on_chain/on_chain.dart' as on_chain;
 
 part 'tron_wallet.g.dart';
 
@@ -74,13 +74,13 @@ abstract class TronWalletBase
 
   late final Box<TronToken> tronTokensBox;
 
-  late final TronPrivateKey _tronPrivateKey;
+  late final on_chain.TronPrivateKey _tronPrivateKey;
 
-  late final TronPublicKey _tronPublicKey;
+  late final on_chain.TronPublicKey _tronPublicKey;
 
-  TronPublicKey get tronPublicKey => _tronPublicKey;
+  on_chain.TronPublicKey get tronPublicKey => _tronPublicKey;
 
-  TronPrivateKey get tronPrivateKey => _tronPrivateKey;
+  on_chain.TronPrivateKey get tronPrivateKey => _tronPrivateKey;
 
   late String _tronAddress;
 
@@ -190,7 +190,7 @@ abstract class TronWalletBase
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
 
-  Future<TronPrivateKey> getPrivateKey({
+  Future<on_chain.TronPrivateKey> getPrivateKey({
     String? mnemonic,
     String? privateKey,
     required String password,
@@ -198,7 +198,7 @@ abstract class TronWalletBase
   }) async {
     assert(mnemonic != null || privateKey != null);
 
-    if (privateKey != null) return TronPrivateKey(privateKey);
+    if (privateKey != null) return on_chain.TronPrivateKey(privateKey);
 
     final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
@@ -207,11 +207,11 @@ abstract class TronWalletBase
 
     final childKey = bip44.deriveDefaultPath;
 
-    return TronPrivateKey.fromBytes(childKey.privateKey.raw);
+    return on_chain.TronPrivateKey.fromBytes(childKey.privateKey.raw);
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) => 0;
+  Future<int> calculateEstimatedFee(TransactionPriority priority) async => 0;
 
   @override
   Future<void> changePassword(String password) => throw UnimplementedError("changePassword");
@@ -242,10 +242,10 @@ abstract class TronWalletBase
 
   Future<void> _getEstimatedFees() async {
     final nativeFee = await _getNativeTxFee();
-    nativeTxEstimatedFee = TronHelper.fromSun(BigInt.from(nativeFee));
+    nativeTxEstimatedFee = on_chain.TronHelper.fromSun(BigInt.from(nativeFee));
 
     final trc20Fee = await _getTrc20TxFee();
-    trc20EstimatedFee = TronHelper.fromSun(BigInt.from(trc20Fee));
+    trc20EstimatedFee = on_chain.TronHelper.fromSun(BigInt.from(trc20Fee));
 
     log('Native Estimated Fee: $nativeTxEstimatedFee');
     log('TRC20 Estimated Fee: $trc20EstimatedFee');
@@ -323,7 +323,7 @@ abstract class TronWalletBase
         totalAmount = walletBalanceForCurrency;
       } else {
         final totalOriginalAmount = double.parse(output.cryptoAmount ?? '0.0');
-        totalAmount = TronHelper.toSun(totalOriginalAmount.toString());
+        totalAmount = on_chain.TronHelper.toSun(totalOriginalAmount.toString());
       }
 
       if (walletBalanceForCurrency < totalAmount || totalAmount < BigInt.zero) {
@@ -338,7 +338,7 @@ abstract class TronWalletBase
       toAddress: tronCredentials.outputs.first.isParsedAddress
           ? tronCredentials.outputs.first.extractedAddress!
           : tronCredentials.outputs.first.address,
-      amount: TronHelper.fromSun(totalAmount),
+      amount: on_chain.TronHelper.fromSun(totalAmount),
       currency: transactionCurrency,
       tronBalance: tronBalance,
       sendAll: shouldSendAll,
@@ -355,9 +355,9 @@ abstract class TronWalletBase
 
     final Map<String, TronTransactionInfo> result = {};
 
-    final contract = ContractABI.fromJson(trc20Abi, isTron: true);
+    final contract = on_chain.ContractABI.fromJson(trc20Abi);
 
-    final ownerAddress = TronAddress(_tronAddress);
+    final ownerAddress = on_chain.TronAddress(_tronAddress);
 
     for (var transactionModel in transactions) {
       if (transactionModel.isError) {
@@ -371,7 +371,7 @@ abstract class TronWalletBase
 
       String? tokenSymbol;
       if (transactionModel.contractAddress != null) {
-        final tokenAddress = TronAddress(transactionModel.contractAddress!);
+        final tokenAddress = on_chain.TronAddress(transactionModel.contractAddress!);
 
         tokenSymbol = (await _client.getTokenDetail(
               contract,
@@ -385,9 +385,10 @@ abstract class TronWalletBase
       result[transactionModel.hash] = TronTransactionInfo(
         id: transactionModel.hash,
         tronAmount: transactionModel.amount ?? BigInt.zero,
-        direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
+        direction:
+            on_chain.TronAddress(transactionModel.from!, visible: false).toAddress() == address
+                ? TransactionDirection.outgoing
+                : TransactionDirection.incoming,
         blockTime: transactionModel.date,
         txFee: transactionModel.fee,
         tokenSymbol: tokenSymbol ?? "TRX",
@@ -595,11 +596,13 @@ abstract class TronWalletBase
     if (address == null) {
       return false;
     }
-    TronPublicKey pubKey = TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
+    on_chain.TronPublicKey pubKey =
+        on_chain.TronPublicKey.fromPersonalSignature(ascii.encode(message), signature)!;
     return pubKey.toAddress().toString() == address;
   }
 
-  String getTronBase58AddressFromHex(String hexAddress) => TronAddress(hexAddress).toAddress();
+  String getTronBase58AddressFromHex(String hexAddress) =>
+      on_chain.TronAddress(hexAddress).toAddress();
 
   void updateScanProviderUsageState(bool isEnabled) {
     if (isEnabled) {

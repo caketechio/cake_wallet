@@ -20,23 +20,23 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
+  bitcoin_base:
+    git:
+      url: https://github.com/cake-tech/bitcoin_base
+      ref: cake-update-v15
   bitbox:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: Add-Support-For-OP-Return-data
   rxdart: ^0.28.0
   cryptography: ^2.0.5
-  blockchain_utils:
-    git:
-      url: https://github.com/cake-tech/blockchain_utils
-      ref: cake-update-v2
   cw_mweb:
     path: ../cw_mweb
   grpc: ^3.2.4
   sp_scanner:
     git:
-      url: https://github.com/cake-tech/sp_scanner
-      ref: sp_v4.0.0
+      url: https://github.com/cake-tech/sp_scanner.git
+      ref: cake-update-v4
   bech32:
     git:
       url: https://github.com/cake-tech/bech32.git
@@ -61,10 +61,10 @@ dev_dependencies:
 dependency_overrides:
   watcher: ^1.1.0
   protobuf: ^3.1.0
-  bitcoin_base:
+  blockchain_utils:
     git:
-      url: https://github.com/cake-tech/bitcoin_base
-      ref: cake-update-v9
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v4
   pointycastle: 3.7.4
   ffi: 2.1.0
 
