@@ -392,6 +392,7 @@
   "light_theme": "Hell",
   "litecoin_enable_mweb_sync": "Aktivieren Sie das MWEB-Scannen",
   "litecoin_mweb": "MWeb",
+  "litecoin_mweb_allow_coins": "MWEB -Münzen zulassen",
   "litecoin_mweb_always_scan": "Setzen Sie MWeb immer scannen",
   "litecoin_mweb_description": "MWWB ist ein neues Protokoll, das schnellere, billigere und privatere Transaktionen zu Litecoin bringt",
   "litecoin_mweb_dismiss": "Zurückweisen",

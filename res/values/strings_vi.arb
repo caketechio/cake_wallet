@@ -391,6 +391,7 @@
   "light_theme": "Chủ đề sáng",
   "litecoin_enable_mweb_sync": "Bật quét MWEB",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Cho phép tiền xu MWEB",
   "litecoin_mweb_always_scan": "Đặt MWEB luôn quét",
   "litecoin_mweb_description": "MWEB là một giao thức mới mang lại các giao dịch nhanh hơn, rẻ hơn và riêng tư hơn cho Litecoin",
   "litecoin_mweb_dismiss": "Miễn nhiệm",

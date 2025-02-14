@@ -392,6 +392,7 @@
   "light_theme": "Լուսավոր",
   "litecoin_enable_mweb_sync": "Միացնել MWEB սկան",
   "litecoin_mweb": "Մուեբ",
+  "litecoin_mweb_allow_coins": "Թույլ տվեք MWeb մետաղադրամներ",
   "litecoin_mweb_always_scan": "Սահմանեք Mweb Միշտ սկանավորում",
   "litecoin_mweb_description": "Mweb- ը նոր արձանագրություն է, որը բերում է ավելի արագ, ավելի էժան եւ ավելի մասնավոր գործարքներ դեպի LITECOIN",
   "litecoin_mweb_dismiss": "Հեռացնել",

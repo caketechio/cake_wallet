@@ -392,6 +392,7 @@
   "light_theme": "فاتح",
   "litecoin_enable_mweb_sync": "تمكين MWEB المسح الضوئي",
   "litecoin_mweb": "mweb",
+  "litecoin_mweb_allow_coins": "السماح للعملات المعدنية MWEB",
   "litecoin_mweb_always_scan": "اضبط MWEB دائمًا على المسح الضوئي",
   "litecoin_mweb_description": "MWEB هو بروتوكول جديد يجلب معاملات أسرع وأرخص وأكثر خصوصية إلى Litecoin",
   "litecoin_mweb_dismiss": "رفض",

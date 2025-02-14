@@ -392,6 +392,7 @@
   "light_theme": "Luz",
   "litecoin_enable_mweb_sync": "Ativar digitalização do MWEB",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Permitir moedas MWEB",
   "litecoin_mweb_always_scan": "Definir mweb sempre digitalizando",
   "litecoin_mweb_description": "MWEB é um novo protocolo que traz transações mais rápidas, baratas e mais privadas para o Litecoin",
   "litecoin_mweb_dismiss": "Liberar",

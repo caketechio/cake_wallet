@@ -392,6 +392,7 @@
   "light_theme": "Світла",
   "litecoin_enable_mweb_sync": "Увімкнути сканування MWEB",
   "litecoin_mweb": "Мвеб",
+  "litecoin_mweb_allow_coins": "Дозволити монети MWEB",
   "litecoin_mweb_always_scan": "Встановити mweb завжди сканувати",
   "litecoin_mweb_description": "MWEB - це новий протокол, який приносить швидкі, дешевші та більш приватні транзакції Litecoin",
   "litecoin_mweb_dismiss": "Звільнити",

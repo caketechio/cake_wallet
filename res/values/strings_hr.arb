@@ -392,6 +392,7 @@
   "light_theme": "Svijetla",
   "litecoin_enable_mweb_sync": "Omogućite MWEB skeniranje",
   "litecoin_mweb": "MWeb",
+  "litecoin_mweb_allow_coins": "Dopustite MWeb kovanice",
   "litecoin_mweb_always_scan": "Postavite MWeb uvijek skeniranje",
   "litecoin_mweb_description": "MWEB je novi protokol koji u Litecoin donosi brže, jeftinije i privatnije transakcije",
   "litecoin_mweb_dismiss": "Odbaciti",

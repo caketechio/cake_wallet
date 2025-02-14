@@ -392,6 +392,7 @@
   "light_theme": "Terang",
   "litecoin_enable_mweb_sync": "Aktifkan pemindaian MWEB",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Izinkan koin mWeb",
   "litecoin_mweb_always_scan": "Atur mWeb selalu memindai",
   "litecoin_mweb_description": "MWEB adalah protokol baru yang membawa transaksi yang lebih cepat, lebih murah, dan lebih pribadi ke Litecoin",
   "litecoin_mweb_dismiss": "Membubarkan",

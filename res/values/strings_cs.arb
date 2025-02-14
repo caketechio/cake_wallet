@@ -392,6 +392,7 @@
   "light_theme": "Světlý",
   "litecoin_enable_mweb_sync": "Povolit skenování MWeb",
   "litecoin_mweb": "MWeb",
+  "litecoin_mweb_allow_coins": "Povolte mweb mince",
   "litecoin_mweb_always_scan": "Nastavit MWeb vždy skenování",
   "litecoin_mweb_description": "MWEB je nový protokol, který do Litecoin přináší rychlejší, levnější a více soukromých transakcí",
   "litecoin_mweb_dismiss": "Propustit",

@@ -392,6 +392,7 @@
   "light_theme": "艳丽",
   "litecoin_enable_mweb_sync": "启用MWEB扫描",
   "litecoin_mweb": "MWEB",
+  "litecoin_mweb_allow_coins": "允许MWEB硬币",
   "litecoin_mweb_always_scan": "设置MWEB总是扫描",
   "litecoin_mweb_description": "MWEB是一项新协议，它将更快，更便宜和更多的私人交易带给Litecoin",
   "litecoin_mweb_dismiss": "解雇",

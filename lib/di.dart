@@ -748,7 +748,7 @@ Future<void> setup({
       getIt.get<ContactListViewModel>(),
       _transactionDescriptionBox,
       getIt.get<AppStore>().wallet!.isHardwareWallet ? getIt.get<LedgerViewModel>() : null,
-      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.any,
+      coinTypeToSpendFrom: coinTypeToSpendFrom ?? UnspentCoinType.nonMweb,
       getIt.get<UnspentCoinsListViewModel>(param1: coinTypeToSpendFrom),
     ),
   );

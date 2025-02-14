@@ -392,6 +392,7 @@
   "light_theme": "Licht",
   "litecoin_enable_mweb_sync": "MWEB -scanning inschakelen",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Sta mweb munten toe",
   "litecoin_mweb_always_scan": "Stel mweb altijd op scannen",
   "litecoin_mweb_description": "MWEB is een nieuw protocol dat snellere, goedkopere en meer privé -transacties naar Litecoin brengt",
   "litecoin_mweb_dismiss": "Afwijzen",

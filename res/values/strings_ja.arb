@@ -393,6 +393,7 @@
   "light_theme": "光",
   "litecoin_enable_mweb_sync": "MWEBスキャンを有効にします",
   "litecoin_mweb": "mweb",
+  "litecoin_mweb_allow_coins": "MWEBコインを許可します",
   "litecoin_mweb_always_scan": "MWEBを常にスキャンします",
   "litecoin_mweb_description": "MWEBは、Litecoinにより速く、より安価で、よりプライベートなトランザクションをもたらす新しいプロトコルです",
   "litecoin_mweb_dismiss": "却下する",

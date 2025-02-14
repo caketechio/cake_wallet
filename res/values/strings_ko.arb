@@ -392,6 +392,7 @@
   "light_theme": "빛",
   "litecoin_enable_mweb_sync": "mweb 스캔을 활성화합니다",
   "litecoin_mweb": "mweb",
+  "litecoin_mweb_allow_coins": "mweb 코인을 허용하십시오",
   "litecoin_mweb_always_scan": "mweb는 항상 스캔을 설정합니다",
   "litecoin_mweb_description": "MWEB는 Litecoin에 더 빠르고 저렴하며 개인 거래를 제공하는 새로운 프로토콜입니다.",
   "litecoin_mweb_dismiss": "해고하다",

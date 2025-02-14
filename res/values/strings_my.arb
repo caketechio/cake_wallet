@@ -392,6 +392,7 @@
   "light_theme": "အလင်း",
   "litecoin_enable_mweb_sync": "mweb scanning ဖွင့်ပါ",
   "litecoin_mweb": "မင်္ဂလာပါ",
+  "litecoin_mweb_allow_coins": "mweb ဒင်္ဂါးများကိုခွင့်ပြုပါ",
   "litecoin_mweb_always_scan": "Mweb အမြဲစကင်ဖတ်စစ်ဆေးပါ",
   "litecoin_mweb_description": "Mweb သည် Protocol အသစ်ဖြစ်ပြီး LitCoin သို့ပိုမိုဈေးချိုသာသော, စျေးသက်သက်သာသာသုံးခြင်းနှင့်ပိုမိုများပြားသောပုဂ္ဂလိကငွေပို့ဆောင်မှုများကိုဖြစ်ပေါ်စေသည်",
   "litecoin_mweb_dismiss": "ထုတ်ပစ်",

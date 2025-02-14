@@ -392,6 +392,7 @@
   "light_theme": "रोशनी",
   "litecoin_enable_mweb_sync": "MWEB स्कैनिंग सक्षम करें",
   "litecoin_mweb": "मावली",
+  "litecoin_mweb_allow_coins": "MWEB सिक्कों की अनुमति दें",
   "litecoin_mweb_always_scan": "MWEB हमेशा स्कैनिंग सेट करें",
   "litecoin_mweb_description": "MWEB एक नया प्रोटोकॉल है जो लिटकोइन के लिए तेजी से, सस्ता और अधिक निजी लेनदेन लाता है",
   "litecoin_mweb_dismiss": "नकार देना",

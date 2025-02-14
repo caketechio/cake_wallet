@@ -392,6 +392,7 @@
   "light_theme": "Haske",
   "litecoin_enable_mweb_sync": "Kunna binciken Mweb",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Bada izinin Coins na Mweb",
   "litecoin_mweb_always_scan": "Saita Mweb koyaushe",
   "litecoin_mweb_description": "Mweb shine sabon tsarin yarjejeniya da ya kawo da sauri, mai rahusa, da kuma ma'amaloli masu zaman kansu zuwa Litecoin",
   "litecoin_mweb_dismiss": "Tuɓe \\ sallama",

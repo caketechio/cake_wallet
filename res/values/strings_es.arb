@@ -392,6 +392,7 @@
   "light_theme": "Ligero",
   "litecoin_enable_mweb_sync": "Habilitar el escaneo mweb",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "Permitir monedas mweb",
   "litecoin_mweb_always_scan": "Establecer mweb siempre escaneo",
   "litecoin_mweb_description": "Mweb es un nuevo protocolo que trae transacciones más rápidas, más baratas y más privadas a Litecoin",
   "litecoin_mweb_dismiss": "Despedir",

@@ -392,6 +392,7 @@
   "light_theme": "Aydınlık",
   "litecoin_enable_mweb_sync": "MWEB taramasını etkinleştir",
   "litecoin_mweb": "Mweb",
+  "litecoin_mweb_allow_coins": "MWEB Coins'e izin ver",
   "litecoin_mweb_always_scan": "MWEB'i her zaman taramayı ayarlayın",
   "litecoin_mweb_description": "MWEB, Litecoin'e daha hızlı, daha ucuz ve daha fazla özel işlem getiren yeni bir protokoldür",
   "litecoin_mweb_dismiss": "Azletmek",
