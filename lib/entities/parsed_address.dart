@@ -15,6 +15,7 @@ enum ParseFrom {
   thorChain,
   wellKnown,
   zanoAlias,
+  bip353
 }
 
 class ParsedAddress {
@@ -52,6 +53,17 @@ class ParsedAddress {
       addresses: [address!],
       name: name,
       parseFrom: ParseFrom.unstoppableDomains,
+    );
+  }
+
+  factory ParsedAddress.fetchBip353AddressAddress ({
+    required String address,
+    required String name,
+  }) {
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.bip353,
     );
   }
 

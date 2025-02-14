@@ -19,6 +19,8 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/fio_address_provider.dart';
 import 'package:flutter/cupertino.dart';
 
+import 'bip_353_record.dart';
+
 class AddressResolver {
   AddressResolver({required this.yatService, required this.wallet, required this.settingsStore})
       : walletType = wallet.type;
@@ -270,6 +272,15 @@ class AddressResolver {
           if (address.isNotEmpty) {
             return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
           }
+        }
+      }
+
+      final bip353AddressMap = await Bip353Record.fetchUriByCryptoCurrency(text, ticker);
+
+      if (bip353AddressMap != null && bip353AddressMap.isNotEmpty) {
+        final chosenAddress = await Bip353Record.pickBip353AddressChoice(context, text, bip353AddressMap);
+        if (chosenAddress != null) {
+          return ParsedAddress.fetchBip353AddressAddress(address: chosenAddress, name: text);
         }
       }
 
