@@ -3,9 +3,17 @@ import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus) {
   if (syncStatus is SyncingSyncStatus) {
-    return syncStatus.blocksLeft == 1
-        ? S.current.block_remaining
-        : S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    if (syncStatus.blocksLeft == 1) {
+      return S.current.block_remaining;
+    }
+
+    String eta = syncStatus.getFormattedEta() ?? '';
+
+    if (eta.isEmpty) {
+      return S.current.Blocks_remaining('${syncStatus.blocksLeft}');
+    } else {
+      return "${syncStatus.formattedProgress()} - $eta";
+    }
   }
 
   if (syncStatus is SyncedTipSyncStatus) {
