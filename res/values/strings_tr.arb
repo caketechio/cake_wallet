@@ -667,6 +667,7 @@
   "select_backup_file": "Yedek dosyası seç",
   "select_buy_provider_notice": "Yukarıda bir satın alma sağlayıcısı seçin. App ayarlarında varsayılan satın alma sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
   "select_destination": "Lütfen yedekleme dosyası için hedef seçin.",
+  "select_hw_account_below": "Lütfen aşağıda hangi hesabı geri yükleyeceğinizi seçin:",
   "select_sell_provider_notice": "Yukarıdan bir satış sağlayıcısı seçin. Uygulama ayarlarında varsayılan satış sağlayıcınızı ayarlayarak bu ekranı atlayabilirsiniz.",
   "select_your_country": "Lütfen ülkenizi seçin",
   "sell": "Satış",

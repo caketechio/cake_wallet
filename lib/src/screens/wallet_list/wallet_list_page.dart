@@ -523,6 +523,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   alertTitle: S.of(context).proceed_on_device,
                   alertContent: S.of(context).proceed_on_device_description,
                   buttonText: S.of(context).cancel,
+                  alertBarrierDismissible: false,
                   buttonAction: () => Navigator.of(context).pop()),
             );
           }

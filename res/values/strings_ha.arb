@@ -669,6 +669,7 @@
   "select_backup_file": "Zaɓi fayil ɗin madadin",
   "select_buy_provider_notice": "Zaɓi mai ba da kyauta a sama. Zaka iya tsallake wannan allon ta hanyar saita mai ba da isasshen busasshen mai ba da isasshen busasshiyar saiti.",
   "select_destination": "Da fatan za a zaɓi wurin da za a yi wa madadin fayil ɗin.",
+  "select_hw_account_below": "Da fatan za a zabi wanda asusun zai gyara a ƙasa:",
   "select_sell_provider_notice": "Zaɓi mai bada siyarwa a sama. Kuna iya tsallake wannan allon ta saita mai bada siyar da ku a cikin saitunan app.",
   "select_your_country": "Da fatan za a zabi ƙasarku",
   "sell": "sayar",

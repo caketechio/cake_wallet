@@ -667,6 +667,7 @@
   "select_backup_file": "Odaberite datoteku sigurnosne kopije",
   "select_buy_provider_notice": "Odaberite gornji davatelj kupnje. Ovaj zaslon možete preskočiti postavljanjem zadanog davatelja usluga kupnje u postavkama aplikacija.",
   "select_destination": "Odaberite odredište za datoteku sigurnosne kopije.",
+  "select_hw_account_below": "Molimo odaberite koji će se račun vratiti u nastavku:",
   "select_sell_provider_notice": "Gore odaberite pružatelja usluga prodaje. Ovaj zaslon možete preskočiti postavljanjem zadanog pružatelja usluga prodaje u postavkama aplikacije.",
   "select_your_country": "Odaberite svoju zemlju",
   "sell": "Prodavati",

@@ -667,6 +667,7 @@
   "select_backup_file": "Piliin ang backup na file",
   "select_buy_provider_notice": "Pumili ng provider ng pagbili sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na provider ng pagbili sa mga setting ng app.",
   "select_destination": "Mangyaring piliin ang patutunguhan para sa backup na file.",
+  "select_hw_account_below": "Mangyaring piliin kung aling account ang ibabalik sa ibaba:",
   "select_sell_provider_notice": "Pumili ng provider ng nagbebenta sa itaas. Maaari mong laktawan ang screen na ito sa pamamagitan ng pagtatakda ng iyong default na sell provider sa mga setting ng app.",
   "select_your_country": "Mangyaring piliin ang iyong bansa",
   "sell": "Ibenta",

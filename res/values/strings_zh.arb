@@ -667,6 +667,7 @@
   "select_backup_file": "选择备份文件",
   "select_buy_provider_notice": "在上面选择买入提供商。您可以通过在应用程序设置中设置默认的购买提供商来跳过此屏幕。",
   "select_destination": "请选择备份文件的目的地。",
+  "select_hw_account_below": "请在下面选择要还原的帐户：",
   "select_sell_provider_notice": "选择上面的销售提供商。您可以通过在应用程序设置中设置默认销售提供商来跳过此屏幕。",
   "select_your_country": "请选择你的国家",
   "sell": "卖",

@@ -670,6 +670,7 @@
   "select_backup_file": "Pilih file cadangan",
   "select_buy_provider_notice": "Pilih penyedia beli di atas. Anda dapat melewatkan layar ini dengan mengatur penyedia pembelian default Anda di pengaturan aplikasi.",
   "select_destination": "Silakan pilih tujuan untuk file cadangan.",
+  "select_hw_account_below": "Pilih akun mana yang akan dikembalikan di bawah ini:",
   "select_sell_provider_notice": "Pilih penyedia jual di atas. Anda dapat melewati layar ini dengan mengatur penyedia penjualan default Anda di pengaturan aplikasi.",
   "select_your_country": "Pilih negara Anda",
   "sell": "Jual",

@@ -666,6 +666,7 @@
   "select_backup_file": "Chọn tệp sao lưu",
   "select_buy_provider_notice": "Chọn nhà cung cấp mua ở trên. Bạn có thể bỏ qua màn hình này bằng cách thiết lập nhà cung cấp mua mặc định trong cài đặt ứng dụng.",
   "select_destination": "Vui lòng chọn đích cho tệp sao lưu.",
+  "select_hw_account_below": "Vui lòng chọn tài khoản nào để khôi phục bên dưới:",
   "select_sell_provider_notice": "Chọn nhà cung cấp bán ở trên. Bạn có thể bỏ qua màn hình này bằng cách thiết lập nhà cung cấp bán mặc định trong cài đặt ứng dụng.",
   "select_your_country": "Vui lòng chọn quốc gia của bạn",
   "sell": "Bán",

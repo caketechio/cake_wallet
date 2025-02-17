@@ -147,7 +147,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                   child: Container(
                     width: double.infinity,
                     child: Text(
-                      "Available accounts",
+                      S.of(context).select_hw_account_below,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -159,6 +159,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                 Observer(
                   builder: (context) => Column(
                     children: _walletHardwareRestoreVM.availableAccounts.map((acc) {
+
                       final address = acc.address;
                       return Padding(
                         padding: EdgeInsets.only(top: 10),
@@ -170,7 +171,7 @@ class _SelectHardwareWalletAccountFormState extends State<SelectHardwareWalletAc
                             width: 24,
                           ),
                           text:
-                          "${address.substring(0, 6)}...${address.substring(address.length - 6)}",
+                          "${acc.accountIndex} - ${address.substring(0, 6)}...${address.substring(address.length - 6)}",
                           showTrailingIcon: false,
                           height: 54,
                           isSelected: _walletHardwareRestoreVM.selectedAccount == acc,

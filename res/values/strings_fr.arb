@@ -667,6 +667,7 @@
   "select_backup_file": "Sélectionnez le fichier de sauvegarde",
   "select_buy_provider_notice": "Sélectionnez un fournisseur d'achat ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur d'achat par défaut dans les paramètres de l'application.",
   "select_destination": "Veuillez sélectionner la destination du fichier de sauvegarde.",
+  "select_hw_account_below": "Veuillez sélectionner le compte à restaurer ci-dessous:",
   "select_sell_provider_notice": "Sélectionnez un fournisseur de vente ci-dessus. Vous pouvez ignorer cet écran en définissant votre fournisseur de vente par défaut dans les paramètres de l'application.",
   "select_your_country": "Veuillez sélectionner votre pays",
   "sell": "Vendre",

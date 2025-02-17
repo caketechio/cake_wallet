@@ -16,7 +16,6 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/widgets.dart';
-
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as sdk;
 import 'package:mobx/mobx.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -61,20 +60,21 @@ abstract class LedgerViewModelBase with Store {
   bool bleIsEnabled = false;
 
   bool _bleIsInitialized = false;
+
   Future<void> _initBLE() async {
     if (bleIsEnabled && !_bleIsInitialized) {
       ledgerPlusBLE = sdk.LedgerInterface.ble(
-          onPermissionRequest: (_) async {
-            Map<Permission, PermissionStatus> statuses = await [
-              Permission.bluetoothScan,
-              Permission.bluetoothConnect,
-              Permission.bluetoothAdvertise,
-            ].request();
+        onPermissionRequest: (_) async {
+          Map<Permission, PermissionStatus> statuses = await [
+            Permission.bluetoothScan,
+            Permission.bluetoothConnect,
+            Permission.bluetoothAdvertise,
+          ].request();
 
-            return statuses.values.where((status) => status.isDenied).isEmpty;
-          },
-          bleOptions:
-              sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)));
+          return statuses.values.where((status) => status.isDenied).isEmpty;
+        },
+        bleOptions: sdk.BluetoothOptions(maxScanDuration: Duration(minutes: 5)),
+      );
       _bleIsInitialized = true;
     }
   }
@@ -92,10 +92,8 @@ abstract class LedgerViewModelBase with Store {
   Stream<sdk.LedgerDevice> scanForUsbDevices() => ledgerPlusUSB.scan();
 
   Future<void> stopScanning() async {
-    await ledgerPlusBLE.stopScanning();
-    if (!Platform.isIOS) {
-      await ledgerPlusUSB.stopScanning();
-    }
+    if (_bleIsInitialized) await ledgerPlusBLE.stopScanning();
+    if (!Platform.isIOS) await ledgerPlusUSB.stopScanning();
   }
 
   Future<void> connectLedger(sdk.LedgerDevice device, WalletType type) async {
@@ -112,8 +110,8 @@ abstract class LedgerViewModelBase with Store {
         : ledgerPlusUSB;
 
     if (_connectionChangeSubscription == null) {
-      _connectionChangeSubscription = ledger.deviceStateChanges
-          .listen(_connectionChangeListener);
+      _connectionChangeSubscription =
+          ledger.deviceStateChanges.listen(_connectionChangeListener);
     }
 
     _connection = await ledger.connect(device);
@@ -125,8 +123,7 @@ abstract class LedgerViewModelBase with Store {
   bool _isConnecting = true;
   WalletType? _connectingWalletType;
 
-  void _connectionChangeListener(
-      sdk.BleConnectionState event, ) {
+  void _connectionChangeListener(sdk.BleConnectionState event) {
     printV('Ledger Device State Changed: $event');
     if (event == sdk.BleConnectionState.disconnected && !_isConnecting) {
       _connection = null;

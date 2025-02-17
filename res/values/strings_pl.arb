@@ -667,6 +667,7 @@
   "select_backup_file": "Wybierz plik kopii zapasowej",
   "select_buy_provider_notice": "Wybierz powyższe dostawcę zakupu. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę zakupu w ustawieniach aplikacji.",
   "select_destination": "Wybierz miejsce docelowe dla pliku kopii zapasowej.",
+  "select_hw_account_below": "Wybierz, które konto przywrócić poniżej:",
   "select_sell_provider_notice": "Wybierz dostawcę sprzedaży powyżej. Możesz pominąć ten ekran, ustawiając domyślnego dostawcę sprzedaży w ustawieniach aplikacji.",
   "select_your_country": "Wybierz swój kraj",
   "sell": "Sprzedać",

@@ -668,6 +668,7 @@
   "select_backup_file": "Sicherungsdatei auswählen",
   "select_buy_provider_notice": "Wählen Sie oben einen Anbieter kaufen. Sie können diese Seite überspringen, indem Sie Ihren Standard-Kaufanbieter in den App-Einstellungen festlegen.",
   "select_destination": "Bitte wählen Sie das Ziel für die Sicherungsdatei aus.",
+  "select_hw_account_below": "Bitte wählen Sie unten, welches Konto unten wiederhergestellt werden soll:",
   "select_sell_provider_notice": "Wählen Sie oben einen Verkaufsanbieter aus. Sie können diesen Bildschirm überspringen, indem Sie in den App-Einstellungen Ihren Standard-Verkaufsanbieter festlegen.",
   "select_your_country": "Bitte wählen Sie Ihr Land aus",
   "sell": "Verkaufen",

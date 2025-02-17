@@ -669,6 +669,7 @@
   "select_backup_file": "Seleziona file di backup",
   "select_buy_provider_notice": "Seleziona un fornitore di acquisto sopra. È possibile saltare questa schermata impostando il provider di acquisto predefinito nelle impostazioni dell'app.",
   "select_destination": "Seleziona la destinazione per il file di backup.",
+  "select_hw_account_below": "Seleziona quale account ripristina di seguito:",
   "select_sell_provider_notice": "Seleziona un fornitore di vendita sopra. Puoi saltare questa schermata impostando il tuo fornitore di vendita predefinito nelle impostazioni dell'app.",
   "select_your_country": "Seleziona il tuo paese",
   "sell": "Vendere",

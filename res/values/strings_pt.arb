@@ -669,6 +669,7 @@
   "select_backup_file": "Selecione o arquivo de backup",
   "select_buy_provider_notice": "Selecione um provedor de compra acima. Você pode pular esta tela definindo seu provedor de compra padrão nas configurações de aplicativos.",
   "select_destination": "Selecione o destino para o arquivo de backup.",
+  "select_hw_account_below": "Selecione qual conta para restaurar abaixo:",
   "select_sell_provider_notice": "Selecione um fornecedor de venda acima. Você pode pular esta tela definindo seu provedor de venda padrão nas configurações do aplicativo.",
   "select_your_country": "Selecione seu país",
   "sell": "Vender",

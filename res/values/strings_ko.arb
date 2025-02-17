@@ -667,6 +667,7 @@
   "select_backup_file": "백업 파일 선택",
   "select_buy_provider_notice": "위의 구매 제공자를 선택하십시오. 앱 설정에서 기본 구매 제공자를 설정 하여이 화면을 건너 뛸 수 있습니다.",
   "select_destination": "백업 파일의 대상을 선택하십시오.",
+  "select_hw_account_below": "아래를 복원 할 계정을 선택하십시오.",
   "select_sell_provider_notice": "위에서 판매 공급자를 선택하세요. 앱 설정에서 기본 판매 공급자를 설정하면 이 화면을 건너뛸 수 있습니다.",
   "select_your_country": "국가를 선택하십시오",
   "sell": "팔다",

@@ -667,6 +667,7 @@
   "select_backup_file": "Selecteer een back-upbestand",
   "select_buy_provider_notice": "Selecteer hierboven een koopprovider. U kunt dit scherm overslaan door uw standaard kopenprovider in te stellen in app -instellingen.",
   "select_destination": "Selecteer de bestemming voor het back-upbestand.",
+  "select_hw_account_below": "Selecteer welk account u hieronder moet herstellen:",
   "select_sell_provider_notice": "Selecteer hierboven een verkoopaanbieder. U kunt dit scherm overslaan door uw standaardverkoopprovider in te stellen in de app-instellingen.",
   "select_your_country": "Selecteer uw land",
   "sell": "Verkopen",

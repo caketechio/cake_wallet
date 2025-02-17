@@ -668,6 +668,7 @@
   "select_backup_file": "バックアップファイルを選択",
   "select_buy_provider_notice": "上記の購入プロバイダーを選択してください。デフォルトの購入プロバイダーをアプリ設定で設定して、この画面をスキップできます。",
   "select_destination": "バックアップファイルの保存先を選択してください。",
+  "select_hw_account_below": "以下に復元するアカウントを選択してください。",
   "select_sell_provider_notice": "上記の販売プロバイダーを選択してください。アプリ設定でデフォルトの販売プロバイダーを設定することで、この画面をスキップできます。",
   "select_your_country": "あなたの国を選択してください",
   "sell": "売る",

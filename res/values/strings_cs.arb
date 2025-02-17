@@ -667,6 +667,7 @@
   "select_backup_file": "Vybrat soubor se zálohou",
   "select_buy_provider_notice": "Vyberte výše uvedeného poskytovatele nákupu. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele nákupu v nastavení aplikace.",
   "select_destination": "Vyberte cíl pro záložní soubor.",
+  "select_hw_account_below": "Níže vyberte, který účet chcete obnovit:",
   "select_sell_provider_notice": "Výše vyberte poskytovatele prodeje. Tuto obrazovku můžete přeskočit nastavením výchozího poskytovatele prodeje v nastavení aplikace.",
   "select_your_country": "Vyberte prosím svou zemi",
   "sell": "Prodat",

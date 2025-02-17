@@ -668,6 +668,7 @@
   "select_backup_file": "Seleccionar archivo de respaldo",
   "select_buy_provider_notice": "Selecciona un proveedor de compra arriba. Puede omitir esta pantalla configurando su proveedor de compra predeterminado en la configuración de la aplicación.",
   "select_destination": "Selecciona el destino del archivo de copia de seguridad.",
+  "select_hw_account_below": "Seleccione qué cuenta restaurar a continuación:",
   "select_sell_provider_notice": "Selecciona un proveedor de venta arriba. Puede omitir esta pantalla configurando su proveedor de venta predeterminado en la configuración de la aplicación.",
   "select_your_country": "Seleccione su país",
   "sell": "Vender",
