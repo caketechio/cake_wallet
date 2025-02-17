@@ -240,6 +240,7 @@ abstract class BuySellViewModelBase extends WalletChangeListenerViewModel with S
 
     if (!isReadyToTrade) {
       fiatAmount = S.current.fetching;
+      return;
     }
 
     if (bestRateQuote != null) {
