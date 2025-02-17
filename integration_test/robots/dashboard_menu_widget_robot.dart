@@ -26,7 +26,7 @@ class DashboardMenuWidgetRobot {
   }
 
   Future<void> navigateToWalletMenu() async {
-    await commonTestCases.tapItemByKey('dashboard_page_menu_widget_wallet_menu_button_key');
+    await commonTestCases.tapItemByKey('dashboard_page_Wallets_action_button_key');
     await commonTestCases.defaultSleepTime();
   }
 

@@ -28,6 +28,11 @@ class WelcomePageRobot {
     await commonTestCases.defaultSleepTime();
   }
 
+  Future<void> tapNewSingleSeed() async {
+    await commonTestCases.tapItemByKey('wallet_group_description_page_create_new_seed_button_key');
+    await commonTestCases.defaultSleepTime();
+  }
+
   Future<void> navigateToRestoreWalletPage() async {
     await commonTestCases.tapItemByKey('welcome_page_restore_wallet_button_key');
     await commonTestCases.defaultSleepTime();

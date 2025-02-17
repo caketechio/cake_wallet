@@ -124,9 +124,9 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
               dividerColor: Colors.transparent,
               padding: EdgeInsets.zero,
               tabs: [
-                Tab(text: S.of(context).widgets_seed),
-                if (showKeyTab) Tab(text: S.of(context).keys),
-                if (showLegacySeedTab) Tab(text: S.of(context).legacy),
+                Tab(text: S.of(context).widgets_seed, key: ValueKey('wallet_keys_page_seed')),
+                if (showKeyTab) Tab(text: S.of(context).keys, key: ValueKey('wallet_keys_page_keys'),),
+                if (showLegacySeedTab) Tab(text: S.of(context).legacy, key: ValueKey('wallet_keys_page_seed_legacy')),
               ],
             ),
           ),
