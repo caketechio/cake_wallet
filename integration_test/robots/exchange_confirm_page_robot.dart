@@ -13,6 +13,7 @@ class ExchangeConfirmPageRobot {
 
   Future<void> isExchangeConfirmPage() async {
     await commonTestCases.isSpecificPage<ExchangeConfirmPage>();
+    await commonTestCases.takeScreenshots('exchange_confirm_page');
   }
 
   void confirmComponentsOfTradeDisplayProperly() {

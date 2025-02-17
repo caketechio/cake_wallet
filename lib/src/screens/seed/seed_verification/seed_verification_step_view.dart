@@ -69,6 +69,7 @@ class SeedVerificationStepView extends StatelessWidget {
                   children: walletSeedViewModel.currentOptions.map(
                     (option) {
                       return GestureDetector(
+                        key: ValueKey('seed_verification_option_${option}_button_key'),
                         onTap: () async {
                           if (walletSeedViewModel.wrongEntries > 2) return;
 

@@ -13,6 +13,7 @@ class CreatePinWelcomePageRobot {
 
   Future<void> isCreatePinWelcomePage() async {
     await commonTestCases.isSpecificPage<CreatePinWelcomePage>();
+    await commonTestCases.takeScreenshots('create_pin_welcome_page');
   }
 
   void hasTitle() {

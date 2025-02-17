@@ -10,6 +10,7 @@ class DashboardMenuWidgetRobot {
   late CommonTestCases commonTestCases;
 
   Future<void> hasMenuWidget() async {
+    await commonTestCases.takeScreenshots('menu_widget_page');
     commonTestCases.hasType<MenuWidget>();
   }
 

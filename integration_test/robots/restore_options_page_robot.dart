@@ -11,6 +11,7 @@ class RestoreOptionsPageRobot {
 
   Future<void> isRestoreOptionsPage() async {
     await commonTestCases.isSpecificPage<RestoreOptionsPage>();
+    await commonTestCases.takeScreenshots('restore_options');
   }
 
   void hasRestoreOptionsButton() {

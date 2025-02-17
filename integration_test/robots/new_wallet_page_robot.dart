@@ -11,6 +11,7 @@ class NewWalletPageRobot {
 
   Future<void> isNewWalletPage() async {
     await commonTestCases.isSpecificPage<NewWalletPage>();
+    await commonTestCases.takeScreenshots('new_wallet_page');
   }
 
   Future<void> enterWalletName(String walletName) async {

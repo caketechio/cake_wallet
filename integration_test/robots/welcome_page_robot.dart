@@ -12,6 +12,7 @@ class WelcomePageRobot {
 
   Future<void> isWelcomePage() async {
     await commonTestCases.isSpecificPage<WelcomePage>();
+    await commonTestCases.takeScreenshots('welcome_page');
   }
 
   void confirmActionButtonsDisplay() {

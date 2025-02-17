@@ -12,6 +12,7 @@ class DisclaimerPageRobot {
 
   Future<void> isDisclaimerPage() async {
     await commonTestCases.isSpecificPage<DisclaimerPage>();
+    await commonTestCases.takeScreenshots('disclaimer_page');
   }
 
   void hasCheckIcon(bool hasBeenTapped) {

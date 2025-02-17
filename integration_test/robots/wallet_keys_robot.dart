@@ -19,6 +19,7 @@ class WalletKeysAndSeedPageRobot {
 
   Future<void> isWalletKeysAndSeedPage() async {
     await commonTestCases.isSpecificPage<WalletKeysPage>();
+    await commonTestCases.takeScreenshots('wallet_keys_page');
   }
 
   void hasTitle() {

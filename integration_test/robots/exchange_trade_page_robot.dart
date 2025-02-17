@@ -16,6 +16,8 @@ class ExchangeTradePageRobot {
 
   Future<void> isExchangeTradePage() async {
     await commonTestCases.isSpecificPage<ExchangeTradePage>();
+    await commonTestCases.takeScreenshots('exchange_trade_page');
+
   }
 
   void hasInformationDialog() {

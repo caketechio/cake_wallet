@@ -49,8 +49,10 @@ void main() {
       exchangePageRobot.confirmRightComponentsDisplayOnDepositExchangeCards();
       exchangePageRobot.confirmRightComponentsDisplayOnReceiveExchangeCards();
 
-      await exchangePageRobot.selectDepositCurrency(CommonTestConstants.testDepositCurrency);
-      await exchangePageRobot.selectReceiveCurrency(CommonTestConstants.testReceiveCurrency);
+      await exchangePageRobot
+          .selectDepositCurrency(CommonTestConstants.exchangeTestDepositCurrency);
+      await exchangePageRobot
+          .selectReceiveCurrency(CommonTestConstants.exchangeTestReceiveCurrency);
 
       await exchangePageRobot.enterDepositAmount(CommonTestConstants.exchangeTestAmount);
       await exchangePageRobot.enterDepositRefundAddress(

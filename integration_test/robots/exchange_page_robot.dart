@@ -6,15 +6,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';
+import '../components/common_test_constants.dart';
+import 'auth_page_robot.dart';
 
 class ExchangePageRobot {
-  ExchangePageRobot(this.tester) : commonTestCases = CommonTestCases(tester);
+  ExchangePageRobot(this.tester)
+      : commonTestCases = CommonTestCases(tester),
+        authPageRobot = AuthPageRobot(tester);
 
-  final WidgetTester tester;
-  late CommonTestCases commonTestCases;
+  WidgetTester tester;
+  AuthPageRobot authPageRobot;
+  CommonTestCases commonTestCases;
 
   Future<void> isExchangePage() async {
     await commonTestCases.isSpecificPage<ExchangePage>();
+    await commonTestCases.takeScreenshots('exchange_page');
     await commonTestCases.defaultSleepTime();
   }
 
@@ -217,21 +223,24 @@ class ExchangePageRobot {
   /// - No provider can handle this trade error,
   /// - Trade amount below limit error.
   Future<void> _handleTradeCreationFailureErrors() async {
+    tester.printToConsole('Inside trade creation failure handle');
     bool isTradeCreationFailure = false;
 
     isTradeCreationFailure = hasTradeCreationFailureError();
 
-    int maxRetries = 20;
+    int maxRetries = 3;
     int retries = 0;
 
     while (isTradeCreationFailure && retries < maxRetries) {
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await onTradeCreationFailureDialogButtonPressed();
 
       await commonTestCases.defaultSleepTime(seconds: 5);
 
       await onExchangeButtonPressed();
+
+      await _handleAuthPage();
 
       isTradeCreationFailure = hasTradeCreationFailureError();
       retries++;
@@ -244,35 +253,22 @@ class ExchangePageRobot {
   ///
   /// Has a max retry of 20 times.
   Future<void> _handleMinLimitError(String initialAmount) async {
-    bool isMinLimitError = false;
-
-    isMinLimitError = hasMinLimitError();
-
     double amount;
 
     amount = double.parse(initialAmount);
 
-    int maxRetries = 20;
-    int retries = 0;
+    ExchangePage exchangePage = tester.widget(find.byType(ExchangePage));
+    final exchangeViewModel = exchangePage.exchangeViewModel;
 
-    while (isMinLimitError && retries < maxRetries) {
-      amount++;
-      tester.printToConsole('Amount: $amount');
+    amount = (exchangeViewModel.limits.min ?? 0.0) + 1.0;
 
-      enterDepositAmount(amount.toString());
+    await enterDepositAmount(amount.toString());
 
-      await commonTestCases.defaultSleepTime();
+    await tester.pumpAndSettle();
 
-      await onExchangeButtonPressed();
+    await onExchangeButtonPressed();
 
-      isMinLimitError = hasMinLimitError();
-
-      retries++;
-    }
-
-    if (retries >= maxRetries) {
-      tester.printToConsole('Max retries reached for minLimit Error. Exiting loop.');
-    }
+    await tester.pumpAndSettle();
   }
 
   /// Handles the max limit error.
@@ -281,46 +277,62 @@ class ExchangePageRobot {
   ///
   /// Has a max retry of 20 times.
   Future<void> _handleMaxLimitError(String initialAmount) async {
-    bool isMaxLimitError = false;
-
-    isMaxLimitError = hasMaxLimitError();
-
     double amount;
 
     amount = double.parse(initialAmount);
 
-    int maxRetries = 20;
-    int retries = 0;
+    ExchangePage exchangePage = tester.widget(find.byType(ExchangePage));
+    final exchangeViewModel = exchangePage.exchangeViewModel;
 
-    while (isMaxLimitError && retries < maxRetries) {
-      amount++;
-      tester.printToConsole('Amount: $amount');
+    amount = (exchangeViewModel.limits.max ?? 0.0) - 1.0;
 
-      enterDepositAmount(amount.toString());
+    await enterDepositAmount(amount.toString());
 
-      await commonTestCases.defaultSleepTime();
+    await tester.pumpAndSettle();
 
-      await onExchangeButtonPressed();
+    await onExchangeButtonPressed();
 
-      isMaxLimitError = hasMaxLimitError();
-
-      retries++;
-    }
-
-    if (retries >= maxRetries) {
-      tester.printToConsole('Max retries reached for maxLimit Error. Exiting loop.');
-    }
+    await tester.pumpAndSettle();
   }
 
   Future<void> handleErrors(String initialAmount) async {
     await tester.pumpAndSettle();
 
-    await _handleMinLimitError(initialAmount);
+    bool isMinLimitError = hasMinLimitError();
 
-    await _handleMaxLimitError(initialAmount);
+    if (isMinLimitError) {
+      tester.printToConsole('Has min limit error');
+      await _handleMinLimitError(initialAmount);
+    }
+
+    bool isMaxLimitError = hasMaxLimitError();
+
+    if (isMaxLimitError) {
+      await _handleMaxLimitError(initialAmount);
+    }
+
+    tester.printToConsole('No limits error, proceeding with flow');
+
+    await _handleAuthPage();
+
+    await tester.pumpAndSettle();
 
     await _handleTradeCreationFailureErrors();
 
+    await tester.pumpAndSettle();
+
     await commonTestCases.defaultSleepTime();
+  }
+
+  Future<void> _handleAuthPage() async {
+    final onAuthPage = authPageRobot.onAuthPage();
+    if (onAuthPage) {
+      await authPageRobot.enterPinCode(CommonTestConstants.pin);
+    }
+
+    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+    if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+    }
   }
 }

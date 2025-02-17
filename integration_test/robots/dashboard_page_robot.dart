@@ -18,6 +18,7 @@ class DashboardPageRobot {
 
   Future<void> isDashboardPage() async {
     await commonTestCases.isSpecificPage<DashboardPage>();
+    await commonTestCases.takeScreenshots('dashboard_page');
   }
 
   Future<void> confirmWalletTypeIsDisplayedCorrectly(

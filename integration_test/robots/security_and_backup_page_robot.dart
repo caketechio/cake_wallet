@@ -12,6 +12,7 @@ class SecurityAndBackupPageRobot {
 
   Future<void> isSecurityAndBackupPage() async {
     await commonTestCases.isSpecificPage<SecurityBackupPage>();
+    await commonTestCases.takeScreenshots('security_backup_page');
   }
 
   void hasTitle() {

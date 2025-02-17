@@ -27,6 +27,7 @@ class AuthPageRobot extends PinCodeWidgetRobot {
 
   Future<void> isAuthPage() async {
     await commonTestCases.isSpecificPage<AuthPage>();
+    await commonTestCases.takeScreenshots('auth_page');
   }
 
   void hasTitle() {

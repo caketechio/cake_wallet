@@ -1,9 +1,7 @@
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
-import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../components/common_test_cases.dart';
@@ -16,6 +14,7 @@ class RestoreFromSeedOrKeysPageRobot {
 
   Future<void> isRestoreFromSeedKeyPage() async {
     await commonTestCases.isSpecificPage<WalletRestorePage>();
+    await commonTestCases.takeScreenshots('wallet_restore_page');
   }
 
   Future<void> confirmViewComponentsDisplayProperlyPerPageView() async {

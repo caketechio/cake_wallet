@@ -15,6 +15,7 @@ class NewWalletTypePageRobot {
 
   Future<void> isNewWalletTypePage() async {
     await commonTestCases.isSpecificPage<NewWalletTypePage>();
+    await commonTestCases.takeScreenshots('new_wallet_type_page');
   }
 
   void displaysCorrectTitle(bool isCreate) {

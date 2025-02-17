@@ -11,6 +11,7 @@ class WalletListPageRobot {
 
   Future<void> isWalletListPage() async {
     await commonTestCases.isSpecificPage<WalletListPageRobot>();
+    await commonTestCases.takeScreenshots('wallet_list_page');
   }
 
   void displaysCorrectTitle() {

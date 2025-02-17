@@ -12,6 +12,7 @@ class WalletGroupDescriptionPageRobot {
 
   Future<void> isWalletGroupDescriptionPage() async {
     await commonTestCases.isSpecificPage<WalletGroupDescriptionPage>();
+    await commonTestCases.takeScreenshots('wallet_group_description_page');
   }
 
   void hasTitle() {

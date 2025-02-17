@@ -151,7 +151,7 @@ class SolanaWalletClient {
         transactionDetails.addAll(response);
 
         // to avoid reaching the node RPS limit
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 500));
       }
 
       for (final tx in transactionDetails) {
@@ -379,18 +379,16 @@ class SolanaWalletClient {
     required double solBalance,
     required double fee,
   }) async {
-    return true;
-    // TODO: this is not doing what the name inclines
-    // final rent =
-    //     await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
-    //
-    // final rentInSol = (rent / lamportsPerSol).toDouble();
-    //
-    // final remnant = solBalance - (inputAmount + fee);
-    //
-    // if (remnant > rentInSol) return true;
-    //
-    // return false;
+    final rent =
+        await _client!.getMinimumBalanceForMintRentExemption(commitment: Commitment.confirmed);
+
+    final rentInSol = (rent / lamportsPerSol).toDouble();
+
+    final remnant = solBalance - (inputAmount + fee);
+
+    if (remnant > rentInSol) return true;
+
+    return false;
   }
 
   Future<PendingSolanaTransaction> _signNativeTokenTransaction({
@@ -542,7 +540,7 @@ class SolanaWalletClient {
           ),
         );
 
-        await Future.delayed(Duration(seconds: 5));
+        await Future.delayed(const Duration(seconds: 5));
       }
     } catch (e) {
       throw SolanaCreateAssociatedTokenAccountException(e.toString());
@@ -569,7 +567,7 @@ class SolanaWalletClient {
     );
 
     bool hasSufficientFundsLeft = await hasSufficientFundsLeftForRent(
-      inputAmount: inputAmount,
+      inputAmount: 0,
       fee: fee,
       solBalance: solBalance,
     );
@@ -586,12 +584,12 @@ class SolanaWalletClient {
     );
 
     sendTx() async {
-      await Future.delayed(Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 3));
 
       return await sendTransaction(
-          signedTransaction: signedTx,
-          commitment: commitment,
-        );
+        signedTransaction: signedTx,
+        commitment: commitment,
+      );
     }
 
     final pendingTransaction = PendingSolanaTransaction(

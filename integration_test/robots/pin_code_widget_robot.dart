@@ -46,6 +46,7 @@ class PinCodeWidgetRobot {
       );
     }
 
+    await commonTestCases.takeScreenshots('pin_code_widget');
     await commonTestCases.defaultSleepTime();
   }
 }

@@ -24,6 +24,7 @@ class SendPageRobot {
 
   Future<void> isSendPage() async {
     await commonTestCases.isSpecificPage<SendPage>();
+    await commonTestCases.takeScreenshots('send_page');
   }
 
   void hasTitle() {
@@ -127,6 +128,21 @@ class SendPageRobot {
   Future<void> onSendButtonPressed() async {
     tester.printToConsole('Pressing send');
 
+    await tester.pumpAndSettle();
+    final sendPage = tester.widget<SendPage>(find.byType(SendPage));
+
+    while (true) {
+      bool isReadyForSend = sendPage.sendViewModel.isReadyForSend;
+      await tester.pump();
+      if (isReadyForSend) {
+        tester.printToConsole('Is ready for send');
+        break;
+      } else {
+        await commonTestCases.defaultSleepTime();
+        await tester.pumpAndSettle();
+        tester.printToConsole('not yet ready for send');
+      }
+    }
     await commonTestCases.tapItemByKey(
       'send_page_send_button_key',
       shouldPumpAndSettle: false,
@@ -148,6 +164,8 @@ class SendPageRobot {
       tester.printToConsole('Before _handleAuth');
 
       await _handleAuthPage();
+
+      await commonTestCases.defaultSleepTime();
 
       tester.printToConsole('After _handleAuth');
 
@@ -183,15 +201,39 @@ class SendPageRobot {
   }
 
   Future<void> _handleAuthPage() async {
-    final onAuthPage = authPageRobot.onAuthPage();
-    if (onAuthPage) {
-      await authPageRobot.enterPinCode(CommonTestConstants.pin);
+    tester.printToConsole('Inside _handleAuth');
+
+    final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
+    if (onAuthPageDesktop) {
+      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+      return;
     }
 
-  final onAuthPageDesktop = authPageRobot.onAuthPageDesktop();
-  if (onAuthPageDesktop) {
-      await authPageRobot.enterPassword(CommonTestConstants.pin.join(""));
+    await tester.pump();
+    tester.printToConsole('starting auth checks');
+
+    final authPage = authPageRobot.onAuthPage();
+
+    tester.printToConsole('hasAuth:$authPage');
+
+    if (authPage) {
+      await tester.pump();
+      tester.printToConsole('Starting inner _handleAuth loop checks');
+
+      try {
+        await authPageRobot.enterPinCode(CommonTestConstants.pin, pumpDuration: 500);
+        tester.printToConsole('Auth done');
+
+        await tester.pumpAndSettle();
+
+        tester.printToConsole('Auth pump done');
+      } catch (e) {
+        tester.printToConsole('Auth failed, retrying');
+        await tester.pump();
+        _handleAuthPage();
+      }
     }
+    await tester.pump();
   }
 
   Future<void> handleSendResult() async {
@@ -328,7 +370,7 @@ class SendPageRobot {
   }
 
   //* ---- Add Contact Dialog On Send Successful Dialog -----
-  Future<void> onSentDialogPopUp() async {
+  Future<void> onAddContactDialogPopUp() async {
     SendPage sendPage = tester.widget(find.byType(SendPage));
     final sendViewModel = sendPage.sendViewModel;
 

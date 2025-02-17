@@ -11,6 +11,7 @@ class PreSeedPageRobot {
 
   Future<void> isPreSeedPage() async {
     await commonTestCases.isSpecificPage<PreSeedPage>();
+    await commonTestCases.takeScreenshots('pre_seed_page');
   }
 
   Future<void> onConfirmButtonPressed() async {

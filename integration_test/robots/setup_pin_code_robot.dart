@@ -15,6 +15,7 @@ class SetupPinCodeRobot extends PinCodeWidgetRobot {
 
   Future<void> isSetupPinCodePage() async {
     await commonTestCases.isSpecificPage<SetupPinCodePage>();
+    await commonTestCases.takeScreenshots('setup_pin_code_page');
   }
 
   void hasTitle() {
