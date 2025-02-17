@@ -40,7 +40,6 @@ class TransactionsPage extends StatelessWidget {
         color: responsiveLayoutUtil.shouldRenderMobileUI
             ? null
             : Theme.of(context).colorScheme.background,
-        padding: EdgeInsets.only(top: 24, bottom: 24),
         child: Column(
           children: <Widget>[
             Observer(builder: (_) {
@@ -73,12 +72,15 @@ class TransactionsPage extends StatelessWidget {
               child: Observer(
                 builder: (_) {
                   final items = dashboardViewModel.items;
-
+                  final amount = items.length + 1;
                   return items.isNotEmpty
                       ? ListView.builder(
                           key: ValueKey('transactions_page_list_view_builder_key'),
-                          itemCount: items.length,
+                          itemCount: items.length + 1,
                           itemBuilder: (context, index) {
+
+                            if(index == items.length) return SizedBox(height: 150);
+
                             final item = items[index];
 
                             if (item is DateSectionItem) {
@@ -164,7 +166,6 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                               );
                             }
-
                             if (item is OrderListItem) {
                               final order = item.order;
 
@@ -182,7 +183,6 @@ class TransactionsPage extends StatelessWidget {
                                 ),
                               );
                             }
-
                             return Container(color: Colors.transparent, height: 1);
                           })
                       : Center(
@@ -197,7 +197,7 @@ class TransactionsPage extends StatelessWidget {
                         );
                 },
               ),
-            )
+            ),
           ],
         ),
       ),

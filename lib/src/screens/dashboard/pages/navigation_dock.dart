@@ -24,7 +24,7 @@ class NavigationDock extends StatelessWidget {
               builder: (_) {
                 return Container(
                   alignment: Alignment.bottomCenter,
-                  height: 130,
+                  height: 150,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -126,9 +126,9 @@ class NavigationDock extends StatelessWidget {
         : Positioned(
             child: Observer(
               builder: (_) {
-                return Container(
+                  return Container(
                   alignment: Alignment.bottomCenter,
-                  height: 130,
+                  height: 150,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -137,15 +137,23 @@ class NavigationDock extends StatelessWidget {
                         Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .thirdGradientBackgroundColor
-                            .withAlpha(10),
+                            .withAlpha(5),
                         Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .thirdGradientBackgroundColor
-                            .withAlpha(75),
+                            .withAlpha(50),
+                        Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .thirdGradientBackgroundColor
+                            .withAlpha(125),
                         Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .thirdGradientBackgroundColor
                             .withAlpha(150),
+                        Theme.of(context)
+                            .extension<DashboardPageTheme>()!
+                            .thirdGradientBackgroundColor
+                            .withAlpha(200),
                         Theme.of(context)
                             .extension<DashboardPageTheme>()!
                             .thirdGradientBackgroundColor,
@@ -168,15 +176,15 @@ class NavigationDock extends StatelessWidget {
                         color: Theme.of(context)
                             .extension<SyncIndicatorTheme>()!
                             .syncedBackgroundColor,
-                        boxShadow: [
-                          BoxShadow(
-                              color: Theme.of(context)
-                                  .extension<BalancePageTheme>()!
-                                  .cardBorderColor
-                                  .withAlpha(50),
-                              spreadRadius: dashboardViewModel.getShadowSpread(),
-                              blurRadius: dashboardViewModel.getShadowBlur())
-                        ],
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //       color: Theme.of(context)
+                        //           .extension<BalancePageTheme>()!
+                        //           .cardBorderColor
+                        //           .withAlpha(50),
+                        //       spreadRadius: dashboardViewModel.getShadowSpread(),
+                        //       blurRadius: dashboardViewModel.getShadowBlur())
+                        // ],
                       ),
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: 10),
