@@ -106,12 +106,19 @@ dependencies:
   flutter_svg: ^2.0.9
   polyseed: ^0.0.6
   nostr_tools: ^1.0.9
-  solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus
       ref: c2e341d8038f1108690ad6f80f7b4b7156aacc76
   hashlib: ^1.19.2
+  on_chain:
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: cake-update-v2
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v2
 
 dev_dependencies:
   flutter_test:

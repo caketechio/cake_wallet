@@ -11,7 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  solana: ^0.31.0+1
   cw_core:
     path: ../cw_core
   http: ^1.1.0
@@ -21,6 +20,14 @@ dependencies:
   shared_preferences: ^2.0.15
   bip32: ^2.0.0
   hex: ^0.2.0
+  on_chain:
+    git:
+      url: https://github.com/cake-tech/on_chain.git
+      ref: cake-update-v2
+  blockchain_utils:
+    git:
+      url: https://github.com/cake-tech/blockchain_utils
+      ref: cake-update-v2
 
 dev_dependencies:
   flutter_test:

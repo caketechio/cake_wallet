@@ -34,7 +34,9 @@ class SolanaTransactionInfo extends TransactionInfo {
   @override
   String amountFormatted() {
     String stringBalance = solAmount.toString();
-    
+    if (stringBalance.toString().length >= 12) {
+      stringBalance = stringBalance.substring(0, 12);
+    }
     return '$stringBalance $tokenSymbol';
   }
 

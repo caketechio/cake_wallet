@@ -1,9 +1,8 @@
 import 'package:cw_core/pending_transaction.dart';
-import 'package:solana/encoder.dart';
 
 class PendingSolanaTransaction with PendingTransaction {
   final double amount;
-  final SignedTx signedTransaction;
+  final String serializedTransaction;
   final String destinationAddress;
   final Function sendTransaction;
   final double fee;
@@ -11,7 +10,7 @@ class PendingSolanaTransaction with PendingTransaction {
   PendingSolanaTransaction({
     required this.fee,
     required this.amount,
-    required this.signedTransaction,
+    required this.serializedTransaction,
     required this.destinationAddress,
     required this.sendTransaction,
   });
@@ -36,7 +35,7 @@ class PendingSolanaTransaction with PendingTransaction {
   String get feeFormatted => fee.toString();
 
   @override
-  String get hex => signedTransaction.encode();
+  String get hex => serializedTransaction;
 
   @override
   String get id => '';

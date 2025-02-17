@@ -22,6 +22,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:eth_sig_util/eth_sig_util.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:on_chain/solana/solana.dart' hide Store;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:walletconnect_flutter_v2/walletconnect_flutter_v2.dart';
 
@@ -140,29 +141,28 @@ abstract class Web3WalletServiceBase with Store {
       for (final cId in SolanaChainId.values) {
         final node = appStore.settingsStore.getCurrentNode(appStore.wallet!.type);
 
-        Uri rpcUri = node.uri;
-        String webSocketUrl = 'wss://${node.uriRaw}';
+        String formattedUrl;
+        String protocolUsed = node.isSSL ? "https" : "http";
 
         if (node.uriRaw == 'rpc.ankr.com') {
           String ankrApiKey = secrets.ankrApiKey;
 
-          rpcUri = Uri.https(node.uriRaw, '/solana/$ankrApiKey');
-          webSocketUrl = 'wss://${node.uriRaw}/solana/ws/$ankrApiKey';
+          formattedUrl = '$protocolUsed://${node.uriRaw}/$ankrApiKey';
         } else if (node.uriRaw == 'solana-mainnet.core.chainstack.com') {
           String chainStackApiKey = secrets.chainStackApiKey;
 
-          rpcUri = Uri.https(node.uriRaw, '/$chainStackApiKey');
-          webSocketUrl = 'wss://${node.uriRaw}/$chainStackApiKey';
+          formattedUrl = '$protocolUsed://${node.uriRaw}/$chainStackApiKey';
+        } else {
+          formattedUrl = '$protocolUsed://${node.uriRaw}';
         }
 
         SolanaChainServiceImpl(
           reference: cId,
-          rpcUrl: rpcUri,
-          webSocketUrl: webSocketUrl,
+          formattedRPCUrl: formattedUrl,
           wcKeyService: walletKeyService,
           bottomSheetService: _bottomSheetHandler,
           wallet: _web3Wallet,
-          ownerKeyPair: solana!.getWalletKeyPair(appStore.wallet!),
+          ownerPrivateKey: SolanaPrivateKey.fromSeedHex(solana!.getPrivateKey(appStore.wallet!)),
         );
       }
     }

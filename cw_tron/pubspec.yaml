@@ -17,7 +17,7 @@ dependencies:
     path: ../cw_evm
   on_chain:
     git:
-      url: https://github.com/cake-tech/On_chain
+      url: https://github.com/cake-tech/on_chain.git
       ref: cake-update-v2
   blockchain_utils:
     git:

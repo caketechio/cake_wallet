@@ -1,7 +1,6 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:hive/hive.dart';
-import 'package:solana/metaplex.dart';
 
 part 'spl_token.g.dart';
 
@@ -55,7 +54,7 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
     required String mint,
     required String symbol,
     required String mintAddress,
-    String? iconPath
+    String? iconPath,
   }) {
     return SPLToken(
       name: name,
@@ -116,32 +115,4 @@ class SPLToken extends CryptoCurrency with HiveObjectMixin {
 
   @override
   int get hashCode => mintAddress.hashCode;
-}
-
-class NFT extends SPLToken {
-  final ImageInfo? imageInfo;
-
-  NFT(
-    String mint,
-    String name,
-    String symbol,
-    String mintAddress,
-    int decimal,
-    String iconPath,
-    this.imageInfo,
-  ) : super(
-          name: name,
-          symbol: symbol,
-          mintAddress: mintAddress,
-          decimal: decimal,
-          mint: mint,
-          iconPath: iconPath,
-        );
-}
-
-class ImageInfo {
-  final String uri;
-  final OffChainMetadata? data;
-
-  const ImageInfo(this.uri, this.data);
 }
