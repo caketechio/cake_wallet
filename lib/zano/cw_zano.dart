@@ -53,8 +53,8 @@ class CWZano extends Zano {
   }
 
   @override
-  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password}) {
-    return ZanoNewWalletCredentials(name: name, password: password);
+  WalletCredentials createZanoNewWalletCredentials({required String name, required String? password, required String? passphrase}) {
+    return ZanoNewWalletCredentials(name: name, password: password, passphrase: passphrase);
   }
 
   @override

@@ -202,7 +202,7 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   );
                 return Container();
               }),
-            if (widget.privacySettingsViewModel.hasPassphraseOption(widget.isFromRestore))
+            if (widget.privacySettingsViewModel.hasPassphraseOption)
               Padding(
                 padding: EdgeInsets.all(24),
                 child: Form(

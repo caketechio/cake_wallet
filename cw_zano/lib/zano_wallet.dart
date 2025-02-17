@@ -83,6 +83,9 @@ abstract class ZanoWalletBase
   String seed = '';
 
   @override
+  String? passphrase = '';
+
+  @override
   ZanoWalletKeys keys = ZanoWalletKeys(
       privateSpendKey: '', privateViewKey: '', publicSpendKey: '', publicViewKey: '');
 
@@ -133,6 +136,11 @@ abstract class ZanoWalletBase
     final createWalletResult = await wallet.createWallet(path, credentials.password!);
     await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
+    if (credentials.passphrase != null) {
+      await wallet.setPassphrase(credentials.passphrase!);
+      wallet.seed = await createWalletResult.seed(wallet);
+      wallet.passphrase = await wallet.getPassphrase();
+    }
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
@@ -146,6 +154,11 @@ abstract class ZanoWalletBase
         path, credentials.password!, credentials.mnemonic, credentials.passphrase);
     await wallet.initWallet();
     await wallet.parseCreateWalletResult(createWalletResult);
+    if (credentials.passphrase != null) {
+      await wallet.setPassphrase(credentials.passphrase!);
+      wallet.seed = await createWalletResult.seed(wallet);
+      wallet.passphrase = await wallet.getPassphrase();
+    }
     await wallet.init(createWalletResult.wi.address);
     return wallet;
   }
@@ -172,7 +185,9 @@ abstract class ZanoWalletBase
 
   Future<void> parseCreateWalletResult(CreateWalletResult result) async {
     hWallet = result.walletId;
-    seed = result.seed;
+    seed = await result.seed(this);
+    passphrase = await getPassphrase();
+
     printV('setting hWallet = ${result.walletId}');
     walletAddresses.address = result.wi.address;
     await loadAssets(result.wi.balances, maxRetries: _maxLoadAssetsRetries);
@@ -511,7 +526,7 @@ abstract class ZanoWalletBase
     // we can call getWalletInfo ONLY if getWalletStatus returns NOT is in long refresh and wallet state is 2 (ready)
     if (!walletStatus.isInLongRefresh && walletStatus.walletState == 2) {
       final walletInfo = await getWalletInfo();
-      seed = walletInfo.wiExtended.seed;
+      seed = await walletInfo.wiExtended.seed(this);
       keys = ZanoWalletKeys(
         privateSpendKey: walletInfo.wiExtended.spendPrivateKey,
         privateViewKey: walletInfo.wiExtended.viewPrivateKey,
